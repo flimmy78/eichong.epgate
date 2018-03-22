@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.TblPartnerDao">
+
+	<resultMap id="partnerResultMap" type="TblPartner">
+		<id property="pkPartner" column="pk_partner" />
+		<result property="name" column="partnerName" />
+		<result property="key" column="partnerKey" />
+		<result property="token" column="partnerToken" />
+		<result property="registerdate" column="registerdate" />
+		<result property="clientId" column="partnerClientId" />
+		<result property="clientIp" column="partnerClientIp" />
+		<result property="clientPort" column="partnerClientPort" />
+		<result property="registerdate" column="registerdate" />
+		<result property="updateCycleType" column="partnerUpdateCycleType" />
+		<result property="updateCycleValue" column="partnerUpdateCycleValue" />
+		<result property="clientKey" column="partnerClientKey" />
+		<result property="valid" column="valid" />
+		<result property="updatedate" column="updatedate" />
+		
+	</resultMap>
+	
+	<resultMap id="findMap" type="java.util.HashMap"></resultMap>
+	
+	<resultMap id="findResultMap"  type="java.util.HashMap" extends="partnerResultMap"></resultMap>
+	
+	<select id="getPartners"   resultMap="partnerResultMap">
+     select pk_partner,
+     partnerName,
+     partnerKey,
+     partnerToken,
+     partnerClientId,
+     partnerClientIp,
+     partnerClientPort,
+     registerdate,
+     partnerUpdateCycleType,
+     partnerUpdateCycleValue,
+     partnerClientKey,
+     updatedate,
+     valid 		from tbl_partner
+     <where>
+     	valid=1
+     </where>
+     </select>
+     
+    
+	
+	<update id="updateKey"  parameterType="TblPartner">
+	   update tbl_partner set
+	   	partnerKey=#{key}
+	   <where>
+     	 pk_partner= #{pkPartner}
+     	 </where>
+	</update>
+	
+	<update id="updateClientInfo"  parameterType="TblPartner">
+	   update tbl_partner set
+	   	partnerClientIp=#{clientIp},partnerClientPort=#{clientPort},partnerClientKey=#{clientKey},updatedate=#{updatedate}
+	   <where>
+     	 pk_partner= #{pkPartner}
+     	 </where>
+	</update>
+	
+	<update id="updateValid"  parameterType="TblPartner">
+	   update tbl_partner set
+	   	valid=#{vaild}
+	   <where>
+     	 pk_partner= #{pkPartner}
+     	 </where>
+	</update>
+	
+	 <update id="updateToken"  parameterType="TblPartner">
+	   update tbl_partner set
+	   	partnerToken=#{token},registerdate=#{registerdate}
+	   <where>
+     	 pk_partner= #{pkPartner}
+     	 </where>
+	</update>
+	
+</mapper> 

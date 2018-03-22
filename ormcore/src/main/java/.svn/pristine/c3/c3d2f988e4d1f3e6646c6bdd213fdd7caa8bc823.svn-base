@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.TblChargeDCInfoDao">
+
+	<resultMap id="chargeDCInfoResultMap" type="TblChargeDCInfo">
+		<id property="pk_chargeinfo" column="pk_chargeinfo" />
+		<result property="station_id" column="station_id" />
+		<result property="ep_code" column="ep_code" />
+		<result property="ep_gun_no" column="ep_gun_no" />
+		
+		<result property="linkCarStatus" column="cdc_conn_battry" />
+		<result property="gunCloseStatus" column="cdc_gun_close_status" />
+		<result property="gunLidStatus" column="cdc_gun_lid_status" />
+		<result property="commStatusWithCar" column="cdc_car_conn_pile" />
+		<result property="carPlaceStatus" column="cdc_carplace_status" />
+		<result property="cardReaderFault" column="cdc_card_reader_fault" />
+		<result property="urgentStopFault" column="cdc_urgent_stop_fault" />
+		<result property="arresterFault" column="cdc_arrester_fault" />
+		<result property="insulationCheckFault" column="cdc_insulation_check_fault" />
+		<result property="gunUnconnectWarn" column="cdc_gun_unconnect_warn" />
+		<result property="transRecordFullWarn" column="cdc_trans_record_warn" />
+		<result property="meterError" column="cdc_meter_error" />
+		<result property="acInVolWarn" column="cdc_ac_in_vol_warn" />
+		<result property="chargeOverTemp" column="cdc_charge_over_temp" />
+		<result property="acCurrentLoadWarn" column="cdc_ac_current_over_load" />
+		<result property="outRelayStatus" column="cdc_output_relay" />
+		<result property="workingStatus" column="cdc_charger_status" />
+	
+		<result property="outVoltage" column="cdc_output_voltage" />
+		<result property="outCurrent" column="cdc_output_current" />
+		<result property="carPlaceLockStatus" column="cdc_lock_status" />
+		<result property="soc" column="cdc_soc" />
+		
+		<result property="chargedTime" column="cdc_charged_time" />
+		<result property="chargeRemainTime" column="cdc_charged_remain_time" />
+		<result property="totalActivMeterNum" column="cdc_total_active_meternum" />
+		<result property="chargedCost" column="cdc_charged_cost" />
+		<result property="chargePrice" column="cdc_price" />
+		<result property="chargedMeterNum" column="chargedMeterNum" />
+		<result property="fronzeAmt" column="fronzeAmt" />
+		<result property="chargeStartTime" column="start_time" />
+		<result property="chargeStartMeterNum" column="start_dl" />
+		
+		
+		
+		<result property="createdate" column="createdate" />
+		<result property="updatedate" column="updatedate" />
+	
+		<result property="chargeStartMeterNum" column="start_dl" />
+		<result property="chargeUserId" column="user_id" />
+		<result property="chargeSerialNo" column="serialno" />
+		
+		<result property="battryErrorLink" column="cdc_battry_errlink" />
+		<result property="fogsWarn" column="cdc_fogs_warn" />
+  		<result property="bmsCommException" column="cdc_bms_comm_exception" />
+  		
+  	
+  	    <result property="dcMeterException" column="cdc_dc_meter_exception" />
+		<result property="carChargeMode" column="cdc_car_charge_mode" />
+		<result property="carSocWarn" column="cdc_soc_warn" />
+  	    <result property="chargeModSampleOverTemp" column="cdc_mod_sample_over_temp" />
+  	   <result property="chargeOutLinkerOverTemp" column="cdc_out_linker_over_temp" />
+  	    <result property="chargeOutLinkerStatus" column="cdc_out_linker_status" />
+  		<result property="chargeWholeOverCurrentWarn" column="cdc_whole_over_current_warn" />
+       <result property="chargeVolWarn" column="cdc_charge_vol_warn" />
+  
+  	
+ 
+  	<result property="signleBattryHighVol" column="cdc_single_battery_voltage" />
+  	<result property="bpHighestTemperature" column="cdc_bp_max_temp" />
+  	<result property="bpLowestTemperature" column="cdc_bp_min_temp" />
+  	<result property="carBattryTotalVol" column="cdc_sum_battery_voltage" />
+  	<result property="inAVol" column="cdc_a_voltage" />
+  	<result property="inBVol" column="cdc_b_voltage" />
+  	<result property="inCVol" column="cdc_c_voltage" />
+  	<result property="inACurrent" column="cdc_a_current" />
+  	<result property="inBCurrent" column="cdc_b_current" />
+  	<result property="inCCurrent" column="cdc_c_current" />
+  	<result property="carBattryTotalVol" column="cdc_max_out_vol" />
+  	<result property="carBattryTotalVol" column="cdc_min_out_vol" />
+  	<result property="outHighestCurrent" column="cdc_max_out_current" />
+  	<result property="epInterTemperature" column="cdc_ep_temperature" />
+	
+	</resultMap>
+	<select id="findChargeInfo"   parameterType="TblChargeDCInfo" resultMap="chargeDCInfoResultMap" >
+	select pk_chargeinfo,
+  	ep_code,
+  	station_id,
+
+  	ep_gun_no,
+ 	
+  cdc_conn_battry,
+  cdc_gun_close_status,
+  cdc_gun_lid_status,
+  cdc_car_conn_pile,
+  cdc_carplace_status,
+  cdc_card_reader_fault,
+  cdc_urgent_stop_fault,
+  cdc_arrester_fault,
+  cdc_insulation_check_fault,
+  cdc_gun_unconnect_warn,
+  cdc_trans_record_warn,
+  cdc_meter_error,
+  cdc_ac_in_vol_warn,
+  cdc_charge_over_temp,
+  cdc_ac_current_over_load,
+  cdc_output_relay,
+  cdc_charger_status,
+  cdc_output_voltage,
+  cdc_output_current,
+  cdc_lock_status,
+  cdc_soc,
+  cdc_charged_remain_time,
+  cdc_total_active_meternum,
+  cdc_charged_cost,
+  cdc_price,
+  
+  cdc_car_charge_mode,
+  cdc_soc_warn,
+  cdc_mod_sample_over_temp,
+  cdc_out_linker_over_temp,
+  cdc_out_linker_status,
+  cdc_whole_over_current_warn,
+  cdc_charge_vol_warn,
+  cdc_single_battery_voltage,
+  cdc_bp_max_temp,
+  cdc_bp_min_temp,
+  cdc_sum_battery_voltage,
+  cdc_a_voltage,
+  cdc_b_voltage,
+  cdc_c_voltage,
+  cdc_a_current,
+  cdc_b_current,
+  cdc_c_current,
+  cdc_max_out_vol,
+  cdc_min_out_vol,
+  cdc_max_out_current,
+   cdc_battry_errlink,
+   cdc_fogs_warn,
+   cdc_bms_comm_exception,
+   cdc_dc_meter_exception,
+   
+   cdc_car_charge_mode,
+   cdc_soc_warn,
+   cdc_mod_sample_over_temp,
+   cdc_out_linker_over_temp,
+   cdc_out_linker_status,
+   cdc_whole_over_current_warn,
+   cdc_charge_vol_warn,
+   
+   cdc_single_battery_voltage,
+   cdc_bp_max_temp,
+   cdc_bp_min_temp,
+   cdc_sum_battery_voltage,
+   cdc_a_voltage,
+   cdc_b_voltage,
+   cdc_c_voltage,
+   cdc_a_current,
+   cdc_b_current,
+   cdc_c_current,
+   cdc_max_out_vol,
+   cdc_min_out_vol,
+   cdc_max_out_current,
+   user_id,
+  serialno,
+  start_time,
+  cdc_ep_temperature 
+   
+	   from tbl_chargeinfo_dc
+	   where 
+	    ep_code=#{ep_code} and  ep_gun_no=#{ep_gun_no}
+	</select>
+	
+	<insert id="insert" parameterType="TblChargeDCInfo" useGeneratedKeys="true" keyProperty="pk_chargeinfo">
+	   insert into tbl_chargeinfo_dc (
+	   ep_code,
+  		station_id,
+  		ep_gun_no,
+ 	
+  		cdc_conn_battry,
+  cdc_gun_close_status,
+  cdc_gun_lid_status,
+  cdc_car_conn_pile,
+  cdc_carplace_status,
+  cdc_card_reader_fault,
+  cdc_urgent_stop_fault,
+  cdc_arrester_fault,
+  cdc_insulation_check_fault,
+  cdc_gun_unconnect_warn,
+  cdc_trans_record_warn,
+  cdc_meter_error,
+  cdc_ac_in_vol_warn,
+  cdc_charge_over_temp,
+  cdc_ac_current_over_load,
+  cdc_output_relay,
+  cdc_charger_status,
+  cdc_output_voltage,
+  cdc_output_current,
+  cdc_lock_status,
+  cdc_soc,
+  cdc_charged_time,
+  cdc_charged_remain_time,
+  cdc_total_active_meternum,
+  cdc_charged_cost,
+  cdc_price,
+  
+  cdc_car_charge_mode,
+  cdc_soc_warn,
+  cdc_mod_sample_over_temp,
+  cdc_out_linker_over_temp,
+  cdc_out_linker_status,
+  cdc_whole_over_current_warn,
+  cdc_charge_vol_warn,
+  
+   cdc_battry_errlink,
+   cdc_fogs_warn,
+   cdc_bms_comm_exception,
+   cdc_dc_meter_exception,
+   
+   cdc_single_battery_voltage,
+   cdc_bp_max_temp,
+   cdc_bp_min_temp,
+   cdc_sum_battery_voltage,
+   cdc_a_voltage,
+   cdc_b_voltage,
+   cdc_c_voltage,
+   cdc_a_current,
+   cdc_b_current,
+   cdc_c_current,
+   cdc_max_out_vol,
+   cdc_min_out_vol,
+   cdc_max_out_current,
+   cdc_ep_temperature 
+	   )
+	   values (
+	   	#{ep_code},
+	   	#{station_id},
+  		#{ep_gun_no},
+ 		#{linkCarStatus},
+		#{gunCloseStatus},
+		#{gunLidStatus},
+		#{commStatusWithCar},
+		#{carPlaceStatus},
+		#{cardReaderFault},
+		#{urgentStopFault},
+		#{arresterFault},
+		#{insulationCheckFault},
+		#{gunUnconnectWarn},
+		#{transRecordFullWarn},
+		#{meterError},
+		#{acInVolWarn},
+		#{chargeOverTemp},
+		#{acCurrentLoadWarn},
+		#{outRelayStatus},
+		#{workingStatus},
+	
+		#{outVoltage},
+		#{outCurrent},
+		#{carPlaceLockStatus},
+		#{soc},
+		
+		#{chargedTime},
+		#{chargeRemainTime},
+		#{totalActivMeterNum},
+		#{chargedCost},
+		#{chargePrice},
+		
+		#{battryErrorLink},
+		#{fogsWarn},
+  		#{bmsCommException},
+  	    #{dcMeterException},
+  	    
+		#{carChargeMode},
+		#{carSocWarn},
+  	    #{chargeModSampleOverTemp},
+  	   #{chargeOutLinkerOverTemp},
+  	    #{chargeOutLinkerStatus},
+  		#{chargeWholeOverCurrentWarn},
+       #{chargeVolWarn},
+ 
+  	#{signleBattryHighVol},
+  	#{bpHighestTemperature},
+  	#{bpLowestTemperature},
+  	#{carBattryTotalVol},
+  	#{inAVol},
+  	#{inBVol},
+  	#{inCVol},
+  	#{inACurrent},
+  	#{inBCurrent},
+  	#{inCCurrent},
+  	#{carBattryTotalVol},
+  	#{carBattryTotalVol},
+  	#{outHighestCurrent},
+  	#{epInterTemperature}
+	   )
+	</insert>
+
+	<update id="update" parameterType="TblChargeDCInfo">
+	   update tbl_chargeinfo_dc set
+	   cdc_conn_battry=#{linkCarStatus},
+	   cdc_gun_close_status=#{gunCloseStatus},
+		cdc_gun_lid_status=#{gunLidStatus},
+		cdc_car_conn_pile=#{commStatusWithCar},
+		cdc_carplace_status=#{carPlaceStatus},
+		cdc_card_reader_fault=#{cardReaderFault},
+		cdc_urgent_stop_fault=#{urgentStopFault},
+		cdc_arrester_fault=#{arresterFault},
+		cdc_insulation_check_fault=#{insulationCheckFault},
+		cdc_gun_unconnect_warn=#{gunUnconnectWarn},
+		cdc_trans_record_warn=#{transRecordFullWarn},
+		cdc_meter_error=#{meterError},
+		cdc_ac_in_vol_warn=#{acInVolWarn},
+		cdc_charge_over_temp=#{chargeOverTemp},
+		cdc_ac_current_over_load=#{acCurrentLoadWarn},
+		cdc_output_relay=#{outRelayStatus},
+		cdc_charger_status=#{workingStatus},
+	
+		cdc_output_voltage=#{outVoltage},
+		cdc_output_current=#{outCurrent},
+		cdc_lock_status=#{carPlaceLockStatus},
+		cdc_soc=#{soc},
+		
+		cdc_charged_time=#{chargedTime},
+		cdc_charged_remain_time=#{chargeRemainTime},
+		cdc_total_active_meternum=#{totalActivMeterNum},
+		cdc_charged_cost=#{chargedCost},
+		cdc_price=#{chargePrice},
+		
+		
+		cdc_battry_errlink=#{battryErrorLink},
+		cdc_fogs_warn=#{fogsWarn},
+  		cdc_bms_comm_exception=#{bmsCommException},
+  		
+  	
+  	    cdc_dc_meter_exception=#{dcMeterException},
+		cdc_car_charge_mode=#{carChargeMode},
+		cdc_soc_warn=#{carSocWarn},
+  	    cdc_mod_sample_over_temp=#{chargeModSampleOverTemp},
+  	   cdc_out_linker_over_temp=#{chargeOutLinkerOverTemp},
+  	   cdc_out_linker_status =#{chargeOutLinkerStatus},
+  		cdc_whole_over_current_warn=#{chargeWholeOverCurrentWarn},
+       cdc_charge_vol_warn=#{chargeVolWarn},
+  
+  	
+ 
+  	cdc_single_battery_voltage=#{signleBattryHighVol},
+  	cdc_bp_max_temp=#{bpHighestTemperature},
+  	cdc_bp_min_temp=#{bpLowestTemperature},
+  	cdc_sum_battery_voltage=#{carBattryTotalVol},
+  	cdc_a_voltage=#{inAVol},
+  	cdc_b_voltage=#{inBVol},
+  	cdc_c_voltage=#{inCVol},
+  	cdc_a_current=#{inACurrent},
+  	cdc_b_current=#{inBCurrent},
+  	cdc_c_current=#{inCCurrent},
+  	cdc_max_out_vol=#{carBattryTotalVol},
+  	cdc_min_out_vol=#{carBattryTotalVol},
+  	cdc_max_out_current=#{outHighestCurrent},
+  	
+	chargedMeterNum=#{chargedMeterNum},
+  	cdc_ep_temperature=#{epInterTemperature} 
+			
+	   where 
+	   ep_code=#{ep_code} and  ep_gun_no=#{ep_gun_no}
+	</update>
+	
+
+	<update id="updateStartChargeInfo" parameterType="TblChargeDCInfo">
+	
+   		update tbl_chargeinfo_dc set
+   		start_time=#{chargeStartTime},
+		start_dl=#{chargeStartMeterNum},
+		user_id=#{chargeUserId},
+		serialno=#{chargeSerialNo},
+		fronzeAmt=#{fronzeAmt}
+	   where 
+	    
+	     ep_code=#{ep_code} and ep_gun_no=#{ep_gun_no}
+	</update>
+
+	
+</mapper> 

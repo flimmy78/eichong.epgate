@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.TblElectricPileDao">
+	<resultMap id="electricPileResultMap" type="TblElectricPile">
+		<id property="pkEpId" column="pk_ElectricPile" />
+		<id property="epCode" column="elPi_ElectricPileCode" />
+		<id property="epName" column="elPi_ElectricPileName" />
+		<result property="currentType" column="elPi_ChargingMode" />
+		<result property="rateid" column="elPi_RateInformationId" />
+		<result property="epGunNum" column="elPi_PowerNumber" />
+		<result property="comm_status" column="comm_status" />
+		<result property="stationId" column="pk_concentratorID" />	
+		<result property="stationIndex" column="concentrator_num" />	
+		<result property="gateid" column="elPi_GateId" />
+		<result property="epType" column="elPi_Type"/>
+		<result property="elpiChargingmode" column="elPi_ChargingMode" />
+		<result property="address" column="elPi_ElectricPileAddress" />
+		<result property="company_number" column="company_number" />
+		<result property="epTypeSpanId" column="elpi_TypeSpanId" />
+		<result property="elpiState" column="elPi_State" />
+		<result property="deleteFlag" column="delete_flag" />
+		<result property="elPiOwnProvinceCode" column="elPi_OwnProvinceCode" />
+		<result property="elPiOwnCityCode" column="elPi_OwnCityCode" />
+				
+	</resultMap>
+	
+	<resultMap id="findMap" type="java.util.HashMap"></resultMap>
+	
+    <select id="findResultObject" parameterType="String"  resultMap="electricPileResultMap">
+     select
+     	pk_ElectricPile,
+     	elPi_ElectricPileCode,
+     	elPi_ElectricPileName, 
+	    elPi_ChargingMode,
+	    elPi_RateInformationId,
+	    elPi_PowerNumber,
+	    comm_status,
+	    pk_concentratorID,
+	    concentrator_num,
+	   elPi_GateId,
+	   elPi_ElectricPileAddress,
+	   elpi_TypeSpanId,
+	   elPi_Type,
+	   company_number,
+	   elPi_State,
+	   delete_flag,elPi_OwnProvinceCode,elPi_OwnCityCode 
+	   from tbl_electricpile 
+     <where>
+     	elPi_ElectricPileCode=#{code}
+     	 </where>
+	</select>
+	
+	 <select id="findResultObjectByCompany" parameterType="int"  resultMap="electricPileResultMap">
+     select
+     	pk_ElectricPile,
+     	elPi_ElectricPileCode,
+     	elPi_ElectricPileName, 
+	    elPi_ChargingMode,
+	    elPi_RateInformationId,
+	    elPi_PowerNumber,
+	    comm_status,
+	    pk_concentratorID,
+	    concentrator_num,
+	   elPi_GateId,elPi_ElectricPileAddress,elpi_TypeSpanId,
+	   elPi_Type,company_number,elPi_State,
+	   delete_flag ,elPi_OwnProvinceCode,elPi_OwnCityCode  from tbl_electricpile 
+     <where>
+     	company_number=#{company_number}
+     	 </where>
+	</select>
+
+	 <select id="findResultObjectBySpanId" parameterType="int"  resultMap="electricPileResultMap">
+     select
+     	pk_ElectricPile,
+     	elPi_ElectricPileCode,
+     	elPi_ElectricPileName, 
+	    elPi_ChargingMode,
+	    elPi_RateInformationId,
+	    elPi_PowerNumber,
+	    comm_status,
+	    pk_concentratorID,
+	    concentrator_num,
+	   elPi_GateId,elPi_ElectricPileAddress,elpi_TypeSpanId,
+	   elPi_Type,company_number,elPi_State,
+	   delete_flag ,elPi_OwnProvinceCode,elPi_OwnCityCode from tbl_electricpile e
+	   inner join (select distinct ev_ProductID from tbl_equipmentversion where ev_ProductType = 3) v
+	   on e.pk_ElectricPile = v.ev_ProductID
+     <where>
+     	elpi_TypeSpanId=#{typeSpanId}
+     	 </where>
+	</select>
+	
+	<select id="getEpsByStationId" parameterType="int"  resultMap="electricPileResultMap">
+     select 	pk_ElectricPile,
+     	elPi_ElectricPileCode,
+     	elPi_ElectricPileName, 
+	    elPi_ChargingMode,
+	    elPi_RateInformationId,
+	    elPi_PowerNumber,
+	    comm_status,
+	    pk_concentratorID,
+	    concentrator_num,
+	   elPi_GateId,elPi_ElectricPileAddress,elpi_TypeSpanId,
+	   elPi_Type,company_number,elPi_State,
+	   delete_flag ,elPi_OwnProvinceCode,elPi_OwnCityCode   from tbl_electricpile
+     <where>
+     	 pk_concentratorID= #{stationId}
+     	 </where>
+     	  order by ep_num
+	</select>
+	
+	<select id="getEpsByStatus" parameterType="int"  resultMap="electricPileResultMap">
+     select 	pk_ElectricPile,
+     	elPi_ElectricPileCode,
+     	elPi_ElectricPileName, 
+	    elPi_ChargingMode,
+	    elPi_RateInformationId,
+	    elPi_PowerNumber,
+	    comm_status,
+	    pk_concentratorID,
+	    concentrator_num,
+	   elPi_GateId,elPi_ElectricPileAddress,elpi_TypeSpanId,
+	   elPi_Type,company_number ,elPi_State,
+	   delete_flag   from tbl_electricpile
+     <where>
+     	 pk_concentratorID= #{stationId} and (elPi_State = 12 or elPi_State = 15)
+     	 </where>
+     	  order by ep_num
+	</select>
+	
+	<select id="getLastUpdate"  resultMap="electricPileResultMap">
+     select elPi_ElectricPileCode,elPi_RateInformationId,elpi_TypeSpanId from tbl_electricpile  where TO_DAYS(NOW())-TO_DAYS(elPi_Updatedate) &lt; 2; 
+	</select>
+	
+	<update id="updateCommStatus" parameterType="TblElectricPile">
+	   update tbl_electricpile set comm_status=#{comm_status},elPi_GateId=#{gateid}
+	   where pk_ElectricPile=#{pkEpId}
+	</update>
+	
+	<update id="updateAllCommStatus" parameterType="int">
+	   update tbl_electricpile set comm_status=0
+	   where comm_status=1 and elPi_GateId=#{gateid}
+	</update>
+	
+	<update id="updateCommStatusByStationId"  parameterType="TblElectricPile">
+	   update tbl_electricpile set comm_status=#{comm_status},elPi_GateId=#{gateid}
+	   <where>
+     	 pk_concentratorID= #{stationId}
+     	 </where>
+	</update>
+	
+	<select id="getElectricpileForMap" parameterType="map" resultMap="findMap">
+		select * from 
+		(select a.pk_ElectricPile,elPi_State,elPi_Longitude,elPi_Latitude,elPi_PowerUser,elPi_ChargingMode,elPi_PowerInterface,
+		a.elPi_IsAppoint,elPi_OwnCityCode,elPi_OwnProvinceCode,elPi_ElectricPileName,elPi_ElectricPileAddress,ePHe_ElectricpileHeadState,comm_status,elPi_ElectricPileCode,elPi_PowerNumber,elPi_PowerSize,elpi_TypeSpanId  
+		from 
+			(select pk_ElectricPile,elPi_State,elPi_Longitude,elPi_Latitude,elPi_PowerUser,elPi_ChargingMode,elPi_PowerInterface,
+			elPi_IsAppoint,elPi_OwnCityCode,elPi_OwnProvinceCode,elPi_ElectricPileName,elPi_ElectricPileAddress,comm_status,elPi_ElectricPileCode,elPi_PowerNumber,elPi_PowerSize
+	from 
+		tbl_ElectricPile t where elPi_Binding = 0 and elPi_State!=0 and elPi_State!=5 and elPi_State!=3 and length(elPi_ElectricPileCode)>0
+		<if test="elPiOwnCityCode != null">
+		and elPi_OwnCityCode=#{elPiOwnCityCode} and elPi_Updatedate &gt; #{elpiUpdatedate} 
+	</if>
+	
+	) a 
+	left join tbl_electricpilehead b 
+	on a.pk_ElectricPile = b.pk_ElectricPile GROUP BY a.pk_ElectricPile) last where 1=1
+	
+	<if test="elpiChargingmode != null">
+	 and elPi_ChargingMode = #{elpiChargingmode} 
+	</if>
+	<if test="elpiPowerinterface != null">
+	 and elPi_PowerInterface = #{elpiPowerinterface} 
+	</if>
+	<if test="elpiPoweruser != null">
+	and (last.elPi_PowerUser=#{elpiPoweruser}  or last.elPi_PowerUser=13)
+	     </if>
+	<if test="elpiState != null"> and last.elPi_State=#{elpiState} </if>
+	</select>
+	
+	
+	<update id="updateRateId" parameterType="TblElectricPile">
+	   update tbl_electricpile set elPi_RateInformationId=#{rateid}
+	   where pk_ElectricPile=#{pkEpId}
+	</update>
+	  
+	<select id="getEpTypeByUserChargeOrder" parameterType="int" resultMap="electricPileResultMap">
+	      select 
+	     distinct(elPi_ChargingMode)
+	      from 
+	      tbl_chargingorder a,tbl_electricpile b
+	      where 
+	      a.chOr_PileNumber = b.elPi_ElectricPileCode and (b.elPi_ChargingMode=5 or b.elPi_ChargingMode=14) 
+	      and a.chOr_ChargingStatus>=2 and a.chOr_UserId = #{userId} 
+	</select>  
+	 
+</mapper> 

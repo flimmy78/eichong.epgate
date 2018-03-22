@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.ChargingOrderDao">
+
+	<resultMap id="tblChargingorderResultMap" type="TblChargingorder">
+		<id property="pkChargingorder" column="pk_ChargingOrder" />
+		<result property="chorCode" column="chOr_Code" />
+		<result property="chorAppointmencode" column="chOr_AppointmenCode" />
+		<result property="chorPilenumber" column="chOr_PileNumber" />
+		<result property="chorUserid" column="chOr_UserId" />
+		<result property="chorType" column="chOr_Type" />
+		<result property="chorMoeny" column="chOr_Moeny" />
+		<result property="chorQuantityelectricity" column="chOr_QuantityElectricity" />
+		<result property="chorTimequantum" column="chOr_TimeQuantum" />
+		<result property="chorMuzzle" column="chOr_Muzzle" />
+		<result property="chorChargingstatus" column="chOr_ChargingStatus" />
+		<result property="chorTranstype" column="chOr_TransType" />
+		<result property="chorCreatedate" column="chOr_Createdate" />
+		<result property="chorUpdatedate" column="chOr_Updatedate" />
+		<result property="chorUsername" column="chOr_UserName" />
+		<result property="chorTransactionnumber" column="chOr_TransactionNumber" />
+		<result property="chorOrdertype" column="chOr_OrderType" />
+		<result property="chorChargemoney" column="chOr_ChargeMoney" />
+		<result property="chorServicemoney" column="chOr_ServiceMoney" />
+		<result property="chargeBegintime" column="begin_charge_time" />
+		<result property="chargeEndtime" column="end_charge_time" />
+		<result property="pkUserCard" column="pk_UserCard" />
+		<result property="userOrigin" column="chOr_UserOrigin" />
+		<result property="startSoc" column="start_soc" />
+		<result property="endSoc" column="end_soc" />
+		<result property="userOrgNo" column="chOr_OrgNo" />
+		<result property="couPonAmt" column="chOr_CouponMoney" />
+		<result property="pkCoupon" column="pk_Coupon" />
+		<result property="thirdType" column="chOr_Third_Type" />
+		
+		<result property="thirdUsrIdentity" column="chor_parter_user_logo" />
+		<result property="thirdExtraData" column="chor_parter_extradata" />
+		<result property="vinCode" column="cv_vin_code" />
+	</resultMap>
+	
+	<resultMap id="findResultMap"  type="java.util.HashMap" extends="tblChargingorderResultMap"></resultMap>
+	
+	<insert id="insertFullChargeOrder" parameterType="TblChargingorder" useGeneratedKeys="true" keyProperty="pkChargingorder">
+	   insert into tbl_ChargingOrder (
+	     chOr_Code,
+	     chOr_AppointmenCode,
+	     chOr_PileNumber,
+	     chOr_UserId,
+	     chOr_Type,
+	     chOr_Moeny,
+	     chOr_tipPower,
+	     chOr_peakPower,
+	     chOr_usualPower,
+	     chOr_valleyPower,
+	     chOr_QuantityElectricity,
+	     chOr_TimeQuantum,
+	     chOr_Muzzle,
+	     chOr_ChargingStatus,
+	     chOr_TransType,
+	     chOr_Createdate,
+	     chOr_Updatedate,
+		 chOr_UserName,
+	     chOr_TransactionNumber,
+		  chOr_OrderType,
+	     chOr_ChargeMoney,
+	     chOr_ServiceMoney,
+	     begin_charge_time,
+	     end_charge_time,
+	     pk_UserCard,
+	     chOr_UserOrigin,
+	     start_soc,
+	     end_soc,
+	     chOr_OrgNo,
+	     chor_parter_user_logo,
+	     chor_parter_extradata,
+	     chOr_CouponMoney, 
+	     pk_Coupon,
+	     chOr_Third_Type,
+	     cv_vin_code
+	   )values (
+	     #{chorCode},
+	     #{chorAppointmencode},
+	     #{chorPilenumber},
+	     #{chorUserid},
+	     #{chorType},
+	     #{chorMoeny},
+	     #{chOr_tipPower},
+	     #{chOr_peakPower},
+	     #{chOr_usualPower},
+	     #{chOr_valleyPower},
+	     #{chorQuantityelectricity},
+	     #{chorTimequantum},
+	     #{chorMuzzle},
+	     #{chorChargingstatus},
+	     #{chorTranstype},
+	     #{chorCreatedate},
+	     #{chorUpdatedate},
+		 #{chorUsername},
+	     #{chorTransactionnumber},
+		 #{chorOrdertype},
+	     #{chorChargemoney},
+	     #{chorServicemoney},
+	     #{chargeBegintime},
+	     #{chargeEndtime},
+	     #{pkUserCard},
+	     #{userOrigin},
+	     #{startSoc},
+	     #{endSoc},
+	     #{userOrgNo},
+	     #{thirdUsrIdentity},
+	     #{thirdExtraData},
+	     #{couPonAmt} ,
+	     #{pkCoupon} ,
+	     #{thirdType},
+	     #{vinCode}
+
+	   )
+	</insert>
+	
+	<!-- 新增充电消费订单 -->
+	<insert id="insertChargeOrder" parameterType="TblChargingorder" useGeneratedKeys="true" keyProperty="pkChargingorder">
+	   insert into tbl_ChargingOrder (
+	     chOr_Code,
+	     chOr_AppointmenCode,
+	     chOr_PileNumber,
+	     chOr_UserId,
+	     chOr_Type,
+	     chOr_Moeny,
+	     chOr_tipPower,
+	     chOr_peakPower,
+	     chOr_usualPower,
+	     chOr_valleyPower,
+	     chOr_QuantityElectricity,
+	     chOr_TimeQuantum,
+	     chOr_Muzzle,
+	     chOr_ChargingStatus,
+	     chOr_TransType,
+	     chOr_Createdate,
+	     chOr_Updatedate,
+		 chOr_UserName,
+	     chOr_TransactionNumber,
+		  chOr_OrderType,
+	     chOr_ChargeMoney,
+	     chOr_ServiceMoney,
+	     begin_charge_time,
+	     end_charge_time,
+	     pk_UserCard,
+	     chOr_UserOrigin,
+	     start_soc,
+	     end_soc,
+	     chOr_OrgNo,
+	     chor_parter_user_logo,
+	     chor_parter_extradata
+	   )values (
+	     #{chorCode},
+	     #{chorAppointmencode},
+	     #{chorPilenumber},
+	     #{chorUserid},
+	     #{chorType},
+	     #{chorMoeny},
+	     #{chOr_tipPower},
+	     #{chOr_peakPower},
+	     #{chOr_usualPower},
+	     #{chOr_valleyPower},
+	     #{chorQuantityelectricity},
+	     #{chorTimequantum},
+	     #{chorMuzzle},
+	     #{chorChargingstatus},
+	     #{chorTranstype},
+	     #{chorCreatedate},
+	     #{chorUpdatedate},
+		 #{chorUsername},
+	     #{chorTransactionnumber},
+		 #{chorOrdertype},
+	     #{chorChargemoney},
+	     #{chorServicemoney},
+	     #{chargeBegintime},
+	     #{chargeEndtime},
+	     #{pkUserCard},
+	     #{userOrigin},
+	     #{startSoc},
+	     #{endSoc},
+	      #{userOrgNo},
+	      #{thirdUsrIdentity},
+	     #{thirdExtraData}
+	     
+	   )
+	</insert>
+	<!-- 获取充电电度，金额，服务费，总费用，开始时间，结束时间 -->
+	<select id="selectChargeData" parameterType="string" resultMap="findResultMap">
+		select 
+		co.pk_ChargingOrder,
+		co.chOr_Code,
+		co.chOr_ChargeMoney,
+		co.chOr_ServiceMoney,
+		co.chOr_QuantityElectricity,
+		co.chOr_Moeny,
+		cr.chRe_StartDate startDate ,
+		cr.chRe_EndDate endDate,
+		co.end_soc,
+		(select count(pk_ChargingFaultRecord) from tbl_ChargingFaultRecord where cFRe_TransactionNumber = chOr_TransactionNumber) faultStatus,
+		(select cFRe_FaultCause from tbl_ChargingFaultRecord where cFRe_TransactionNumber = chOr_TransactionNumber limit 0,1) cfreFaultcause
+		from
+		tbl_ChargingOrder co
+		left join
+		tbl_ChargingRecord cr
+		on
+		co.chOr_Code = cr.chRe_Code
+		where
+		co.chOr_TransactionNumber = #{chOrTransactionNumber}
+		limit 1 
+	</select>
+	
+	<!-- 更新订单状态 -->
+	<update id="updateStatus" parameterType="map">
+		update tbl_ChargingOrder set
+		chOr_ChargingStatus=#{chorChargingstatus}
+		where
+		 chOr_TransactionNumber=#{chorTransactionnumber} 
+	</update>
+
+	<update id="updateOrder" parameterType="TblChargingorder">
+	   update tbl_ChargingOrder set
+	     
+	     chOr_Moeny=#{chorMoeny},
+	     chOr_QuantityElectricity=#{chorQuantityelectricity},
+	     <if test="chorTimequantum != null">
+	     chOr_TimeQuantum=#{chorTimequantum},
+	     </if>
+	     <if test="chorMuzzle != null">
+	     chOr_Muzzle=#{chorMuzzle},
+	     </if>
+	     <if test="chorChargingstatus != null">
+	     chOr_ChargingStatus=#{chorChargingstatus},
+	     </if>
+	     <if test="chorTranstype != null">
+	     chOr_TransType=#{chorTranstype},
+	     </if>
+
+	     <if test="chorUpdatedate != null">
+		 chOr_Updatedate=#{chorUpdatedate},
+	     </if>
+	     <if test="chorUsername != null">
+	     chOr_UserName=#{chorUsername},
+	     </if>
+	     <if test="chorOrdertype != null">
+	     chOr_OrderType=#{chorOrdertype},
+	     </if>
+	     <if test="chOr_tipPower != null">
+	     chOr_tipPower= #{chOr_tipPower},
+	     </if>
+	     <if test="chOr_peakPower != null">
+	     chOr_peakPower= #{chOr_peakPower},
+	     </if>
+	     <if test="chOr_usualPower != null">
+	     chOr_usualPower= #{chOr_usualPower},
+	     </if>
+	     <if test="chOr_valleyPower != null">
+	     chOr_valleyPower=#{chOr_valleyPower},
+	     </if>
+	     
+	     <if test="chorChargingstatus != null">
+	     chOr_ChargingStatus= #{chorChargingstatus},
+	     </if>
+	     <if test="chorTranstype != null">
+	     chOr_TransType= #{chorTranstype},
+	     </if>
+	     <if test="chorOrdertype != null">
+		  chOr_OrderType = #{chorOrdertype},
+	     </if>
+	     chOr_ChargeMoney=  #{chorChargemoney},
+	     chOr_ServiceMoney =#{chorServicemoney},
+	     <if test="chargeBegintime != null">
+	     begin_charge_time = #{chargeBegintime},
+	     </if>
+	     <if test="chargeEndtime != null">
+	     end_charge_time = #{chargeEndtime},
+	     </if>
+	     <if test="startSoc != null">
+	     start_soc = #{startSoc},
+	     </if>
+	     <if test="endSoc != null">
+	     end_soc = #{endSoc},
+	     </if>
+		 <if test="vinCode != null">
+			cv_vin_code = #{vinCode},
+		 </if>
+	     <if test="couPonAmt != null">
+	     chOr_CouponMoney = #{couPonAmt} ,
+	     </if>
+	     <if test="pkCoupon != null">
+	     pk_Coupon = #{pkCoupon} ,
+	     </if>
+	     chOr_Third_Type = #{thirdType}
+	   where 
+	    chOr_TransactionNumber=#{chorTransactionnumber} 
+	</update>
+
+	<delete id="delete" parameterType="map">
+	   delete from 
+	     tbl_ChargingOrder 
+	   where 
+	    pk_ChargingOrder=#{pkChargingorder} 
+	</delete>
+
+	<select id="get" parameterType="map" resultMap="tblChargingorderResultMap">
+	   select 
+	    pk_ChargingOrder,
+	    chOr_Code,
+	    chOr_AppointmenCode,
+	    chOr_PileNumber,
+	    chOr_UserId,
+	    chOr_Type,
+	    chOr_Moeny,
+	    chOr_QuantityElectricity,
+	    chOr_TimeQuantum,
+	    chOr_Muzzle,
+	    chOr_ChargingStatus,
+	    chOr_TransType,
+	    chOr_Createdate,
+	    chOr_Updatedate,
+	    chOr_UserName,
+	    chOr_TransactionNumber,
+	    chOr_OrderType
+	   from tbl_ChargingOrder
+	   where 
+	    pk_ChargingOrder=#{pkChargingorder} 
+	</select>
+
+	<select id="findOrderId" parameterType="string" resultMap="tblChargingorderResultMap">
+	   select 
+	    pk_ChargingOrder
+	   from tbl_ChargingOrder
+	   where 
+	    chOr_TransactionNumber=#{chorTransactionnumber} limit 1
+	</select>
+
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+	   select 
+	    pk_ChargingOrder,
+	    chOr_Code,
+	    chOr_AppointmenCode,
+	    chOr_PileNumber,
+	    chOr_UserId,
+	    chOr_Type,
+	    chOr_Moeny,
+	    chOr_QuantityElectricity,
+	    chOr_TimeQuantum,
+	    chOr_Muzzle,
+	    chOr_ChargingStatus,
+	    chOr_TransType,
+	    chOr_Createdate,
+	    chOr_Updatedate,
+	    chOr_UserName,
+	    chOr_TransactionNumber,
+	    chOr_OrderType
+	   from tbl_ChargingOrder
+	   where 
+	    pk_ChargingOrder=#{pkChargingorder} 
+	</select>
+
+	<select id="find" parameterType="map" resultMap="findResultMap">
+	   select 
+	     pk_ChargingOrder,
+	     chOr_Code,
+	     chOr_AppointmenCode,
+	     chOr_PileNumber,
+	     chOr_UserId,
+	     chOr_Type,
+	     chOr_Moeny,
+	     chOr_QuantityElectricity,
+	     chOr_TimeQuantum,
+	     chOr_Muzzle,
+	     chOr_ChargingStatus,
+	     chOr_TransType,
+	     chOr_Createdate,
+	     chOr_Updatedate,
+	     chOr_UserName,
+	     chOr_TransactionNumber,
+	     chOr_OrderType
+	   from tbl_ChargingOrder
+	   <where>
+	     <if test="pkChargingorder != null">
+	        pk_ChargingOrder=#{pkChargingorder}
+	     </if>
+	     <if test="chorCode != null">
+	        and chOr_Code=#{chorCode}
+	     </if>
+	     <if test="chorAppointmencode != null">
+	        and chOr_AppointmenCode=#{chorAppointmencode}
+	     </if>
+	     <if test="chorPilenumber != null">
+	        and chOr_PileNumber=#{chorPilenumber}
+	     </if>
+	     <if test="chorUserid != null">
+	        and chOr_UserId=#{chorUserid}
+	     </if>
+	     <if test="chorType != null">
+	        and chOr_Type=#{chorType}
+	     </if>
+	     <if test="chorMoeny != null">
+	        and chOr_Moeny=#{chorMoeny}
+	     </if>
+	     <if test="chorQuantityelectricity != null">
+	        and chOr_QuantityElectricity=#{chorQuantityelectricity}
+	     </if>
+	     <if test="chorTimequantum != null">
+	        and chOr_TimeQuantum=#{chorTimequantum}
+	     </if>
+	     <if test="chorMuzzle != null">
+	        and chOr_Muzzle=#{chorMuzzle}
+	     </if>
+	     <if test="chorChargingstatus != null">
+	        and chOr_ChargingStatus=#{chorChargingstatus}
+	     </if>
+	     <if test="chorTranstype != null">
+	        and chOr_TransType=#{chorTranstype}
+	     </if>
+	     <if test="chorCreatedate != null">
+	        and chOr_Createdate=#{chorCreatedate}
+	     </if>
+	     <if test="chorUpdatedate != null">
+	        and chOr_Updatedate=#{chorUpdatedate}
+	     </if>
+	     <if test="chorUsername != null">
+	        and chOr_UserName=#{chorUsername}
+	     </if>
+	     <if test="chorTransactionnumber != null">
+	        and chOr_TransactionNumber=#{chorTransactionnumber}
+	     </if>
+	     <if test="chorOrdertype != null">
+	        and chOr_OrderType=#{chorOrdertype}
+	     </if>
+	   </where>
+	</select>
+	
+	<select id="getUnpayOrder" parameterType="int" resultType="int">
+		select count(*) num from tbl_chargingorder 
+		where chOr_ChargingStatus = 1 and chOr_UserId = #{userId}
+	</select>
+	
+	<select id="getOrderStatus" parameterType="String" resultType="String">
+		select  max(chOr_ChargingStatus)  from tbl_chargingorder 
+		where chOr_TransactionNumber =#{chorTransactionnumber}
+	</select>
+	
+	<select id="getOrderStatusBytime" parameterType="TblChargingorder" resultType="String">
+		select  chOr_ChargingStatus  from tbl_chargingorder 
+		where chOr_PileNumber =#{chorPilenumber} and 
+		begin_charge_time =#{chargeBegintime} and 
+		end_charge_time =#{chargeEndtime}
+	</select>
+
+    <parameterMap type="map" id="chargeMap">
+        <parameter property="pkConsumeRecord" jdbcType="INTEGER" mode="IN"/>
+        <parameter property="rtn" jdbcType="INTEGER" mode="OUT"/>
+    </parameterMap>
+
+</mapper> 

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<server>
+	
+	<interface-server>
+		<description>接口服务器</description>
+		<server-ip>10.9.2.139</server-ip>
+		<server-port>2181</server-port>
+		<use>0</use>
+	</interface-server>
+
+</server>

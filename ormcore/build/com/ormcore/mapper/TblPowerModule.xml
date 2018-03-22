@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.TblPowerModuleDao">
+
+	<resultMap id="powerModuleResultMap" type="TblPowerModule">
+		<id property="pkPowerModuleid" column="pk_PowerModuleid" />
+		<result property="chargeSerialNo" column="pm_chargeSerialNo" />
+		<result property="PowerModuleName" column="pm_PowerModuleName" />
+		<result property="output_voltage" column="pm_output_voltage" />		
+		<result property="output_current" column="pm_output_current" />
+		<result property="a_voltage" column="pm_a_voltage" />
+		<result property="b_voltage" column="pm_b_voltage" />
+		<result property="c_voltage" column="pm_c_voltage" />
+		<result property="a_current" column="pm_a_current" />
+		<result property="b_current" column="pm_b_current" />
+		<result property="c_current" column="pm_c_current" />
+		<result property="temperature" column="pm_temperature" />
+		<result property="createdate" column="createdate" />
+		<result property="updatedate" column="updatedate" />
+		
+	</resultMap>
+	
+	
+	<insert id="insert" parameterType="TblPowerModule"  keyProperty="pk_PowerModuleid">
+	   insert into tbl_PowerModule (
+	   pm_chargeSerialNo,
+  		pm_PowerModuleName,
+  		pm_output_voltage,
+  		pm_output_current,
+        pm_a_voltage,
+        pm_b_voltage,
+        pm_c_voltage,
+        pm_a_current,
+        pm_b_current,
+        pm_c_current,
+        pm_temperature
+	   )
+	   values (
+	   	#{chargeSerialNo},
+	   	#{PowerModuleName},
+  		#{output_voltage},
+ 		#{output_current},
+		#{a_voltage},
+		#{b_voltage},
+		#{c_voltage},
+		#{a_current},
+		#{b_current},
+		#{c_current},
+		#{temperature}
+	   )
+	</insert>
+
+	<update id="update" parameterType="TblPowerModule">
+	   update tbl_PowerModule set
+	   pm_PowerModuleName=#{PowerModuleName},
+	   pm_output_voltage=#{output_voltage},
+		pm_output_current=#{output_current},
+		pm_a_voltage=#{a_voltage},
+		pm_b_voltage=#{b_voltage},
+		pm_c_voltage=#{c_voltage},
+		pm_a_current=#{a_current},
+		pm_b_current=#{b_current},
+		pm_c_current=#{c_current},
+		pm_temperature=#{c_current} 
+	   where 
+	   pk_PowerModuleid=#{pkPowerModuleid}
+	</update>
+	
+	<select id="select" parameterType="String" resultMap="powerModuleResultMap" >
+	   select 
+	   pk_PowerModuleid,
+	   pm_chargeSerialNo,
+	   pm_PowerModuleName,
+	   pm_output_voltage,
+		pm_output_current,
+		pm_a_voltage,
+		pm_b_voltage,
+		pm_c_voltage,
+		pm_a_current,
+		pm_c_current,
+		pm_temperature  
+		from tbl_PowerModule 
+	   where 
+	   pm_chargeSerialNo=#{SerialNo}
+	</select>
+
+
+	
+</mapper> 

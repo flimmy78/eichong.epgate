@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <type id="Spring" />
+  </component>
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/../ormcore/pom.xml" />
+        <option value="$PROJECT_DIR$/../libNetCore/pom.xml" />
+        <option value="$PROJECT_DIR$/../libECCommon/pom.xml" />
+        <option value="$PROJECT_DIR$/../libCooperate/pom.xml" />
+        <option value="$PROJECT_DIR$/../dPhoneGate/pom.xml" />
+        <option value="$PROJECT_DIR$/../usrlayer/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
+  <component name="SvnBranchConfigurationManager">
+    <option name="myConfigurationMap">
+      <map>
+        <entry key="$PROJECT_DIR$/src/main/java">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/branches" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dEpGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dPhoneGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dRegServer" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dThirdServer" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dUsrGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/doc" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libCooperate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libECCommon" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libNetCore" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/ormcore" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/usrlayer" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/branches/dEpGate/src" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../libCooperate/src/main/java">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="trunkUrl" value="" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../libCooperate/src/main/java/com">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/branches" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dEpGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dPhoneGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dRegServer" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dThirdServer" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dUsrGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/doc" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libCooperate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libECCommon" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libNetCore" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/ormcore" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/usrlayer" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/branches/libCooperate/src/com" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../libECCommon/src/main/java">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="trunkUrl" value="" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../libECCommon/src/main/java/com">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/branches" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dEpGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dPhoneGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dRegServer" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dThirdServer" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dUsrGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/doc" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libCooperate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libECCommon" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libNetCore" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/ormcore" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/usrlayer" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/branches/libECCommon/src/com" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../libNetCore/src/main/java/com">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/branches" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dEpGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dPhoneGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dRegServer" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dThirdServer" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dUsrGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/doc" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libCooperate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libECCommon" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libNetCore" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/ormcore" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/usrlayer" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/branches/libNetCore/src/com" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../ormcore/src/main/java/com">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/branches" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dEpGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dPhoneGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dRegServer" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dThirdServer" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dUsrGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/doc" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libCooperate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libECCommon" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libNetCore" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/ormcore" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/usrlayer" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/branches/ormcore/src/com" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../usrlayer/src">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/branches" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dEpGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dPhoneGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dRegServer" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dThirdServer" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/dUsrGate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/doc" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libCooperate" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libECCommon" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/libNetCore" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/ormcore" />
+                  <option value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/usrlayer" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://10.9.3.100/svn/eichong/trunk/protocol/dEpPlatform/branches/usrlayer/src" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="mySupportsUserInfoFilter" value="true" />
+  </component>
+</project>

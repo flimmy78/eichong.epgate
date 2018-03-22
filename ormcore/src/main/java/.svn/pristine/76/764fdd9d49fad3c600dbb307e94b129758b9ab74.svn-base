@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.TblCarVinDao">
+	<resultMap id="TblCarVinresultMap" type="TblCarVin">
+		<!-- 主键-->
+		<id property="pkCarVin" column="pk_car_vin" />
+		<!-- VIN码-->
+		<result property="vinCode" column="cv_vin_code" />
+		<!-- 汽车合作公司名字-->
+		<result property="vinName" column="cv_name" />
+		<!-- 服务费率-->
+		<result property="vinServicemoney" column="cv_servicemoney" />
+		<!-- 是否删除 默认 0 未删除 1 删除-->
+		<result property="vinIsdelete" column="cv_isdelete" />
+		<!-- 创建时间-->
+		<result property="cpCreatedate" column="cv_createdate" />
+		<!-- 修改时间-->
+		<result property="cpUpdatedate" column="cv_createdate" />
+
+	</resultMap>
+	
+	<resultMap id="findResultMap"  type="java.util.HashMap" extends="TblCarVinresultMap"></resultMap>
+	
+    <select id="selectByCode" parameterType="map" resultMap="TblCarVinresultMap">
+        SELECT 
+        pk_car_vin,
+		cv_vin_code,
+		cv_name,
+		cv_servicemoney,
+		cv_isdelete,
+		cv_createdate,
+		cv_createdate 
+        FROM 
+		tbl_car_vin 
+        WHERE 
+        cv_vin_code=#{vinCode} and cv_isdelete=0
+	</select>
+	
+	<select id="selectById" parameterType="map" resultMap="TblCarVinresultMap">
+        SELECT 
+        pk_car_vin,
+		cv_vin_code,
+		cv_name,
+		cv_servicemoney,
+		cv_isdelete,
+		cv_createdate,
+		cv_createdate 
+        FROM 
+		tbl_car_vin  
+        WHERE 
+        pk_car_vin=#{vinId} and cv_isdelete=0
+	</select>
+
+	
+</mapper>

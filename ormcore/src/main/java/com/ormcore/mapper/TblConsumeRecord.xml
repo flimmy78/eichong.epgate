@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ormcore.dao.TblConsumeRecordDao">
+	<resultMap id="get-ConsumeRecord-result" type="TblConsumeRecord">
+		<!-- 主键-->
+		<result property="pkConsumeRecord" column="pk_consume_record" />
+		<!-- 桩体编号-->
+		<result property="epCode" column="ep_code" />
+		<!-- 枪口编号(1,2,3……)-->
+		<result property="epGunNo" column="ep_gun_no" />
+		<!-- 交易流水号-->
+		<result property="transactionNumber" column="transaction_number" />
+		<!-- 账号类型-->
+		<result property="accountType" column="account_type" />
+		<!-- 用户来源-->
+		<result property="userOrigin" column="user_origin" />
+		<!-- 用户编号-->
+		<result property="userAccount" column="user_account" />
+		<!-- 离线交易类型-->
+		<result property="transType" column="trans_type" />
+		<!-- 充电开始时间-->
+		<result property="beginChargeTime" column="begin_charge_time" />
+		<!-- 充电结束时间-->
+		<result property="endChargeTime" column="end_charge_time" />
+		<!-- 尖时段用电度数-->
+		<result property="tipPower" column="tip_power" />
+		<!-- 尖时段金额-->
+		<result property="tipMoney" column="tip_money" />
+		<!-- 峰时段用电度数-->
+		<result property="peakPower" column="peak_power" />
+		<!-- 峰时段金额-->
+		<result property="peakMoney" column="peak_money" />
+		<!-- 平时段用电度数-->
+		<result property="usualPower" column="usual_power" />
+		<!-- 平时段金额-->
+		<result property="usualMoney" column="usual_money" />
+		<!-- 谷时段用电度数-->
+		<result property="valleyPower" column="valley_power" />
+		<!-- 谷时段金额-->
+		<result property="valleyMoney" column="valley_money" />
+		<!-- 总电量-->
+		<result property="totalPower" column="total_power" />
+		<!-- 总充电金额-->
+		<result property="chargeMoney" column="charge_money" />
+		<!-- 充电服务费-->
+		<result property="serviceMoney" column="service_money" />
+		<!-- 开始充电总电量-->
+		<result property="startMeterNum" column="start_meter_num" />
+		<!-- 结束充电总电量-->
+		<result property="endMeterNum" column="end_meter_num" />
+		<!-- 停止充电原因-->
+		<result property="stopCause" column="stop_cause" />
+		<!-- VIN码-->
+		<result property="carVinCode" column="car_vin_code" />
+		<!-- 开始SOC(电池容量)-->
+		<result property="startSoc" column="start_soc" />
+		<!-- 结束SOC(电池容量)-->
+		<result property="endSoc" column="end_soc" />
+		<!-- 默认两位 0 四位 1 -->
+		<result property="calcBitType" column="calc_bit_type" />
+		<!-- 操作标志-->
+		<result property="optFlag" column="opt_flag" />
+	</resultMap>
+	<sql id="ConsumeRecord_Base_Column_List">
+		<!-- 主键-->
+		pk_consume_record,
+		<!-- 桩体编号-->
+		ep_code,
+		<!-- 枪口编号(1,2,3……)-->
+		ep_gun_no,
+		<!-- 交易流水号-->
+		transaction_number,
+		<!-- 账号类型-->
+		account_type,
+		<!-- 用户来源-->
+		user_origin,
+		<!-- 用户编号-->
+		user_account,
+		<!-- 离线交易类型-->
+		trans_type,
+		<!-- 充电开始时间-->
+		begin_charge_time,
+		<!-- 充电结束时间-->
+		end_charge_time,
+		<!-- 尖时段用电度数-->
+		tip_power,
+		<!-- 尖时段金额-->
+		tip_money,
+		<!-- 峰时段用电度数-->
+		peak_power,
+		<!-- 峰时段金额-->
+		peak_money,
+		<!-- 平时段用电度数-->
+		usual_power,
+		<!-- 平时段金额-->
+		usual_money,
+		<!-- 谷时段用电度数-->
+		valley_power,
+		<!-- 谷时段金额-->
+		valley_money,
+		<!-- 总电量-->
+		total_power,
+		<!-- 总充电金额-->
+		charge_money,
+		<!-- 充电服务费-->
+		service_money,
+		<!-- 开始充电总电量-->
+		start_meter_num,
+		<!-- 结束充电总电量-->
+		end_meter_num,
+		<!-- 停止充电原因-->
+		stop_cause,
+		<!-- VIN码-->
+		car_vin_code,
+		<!-- 开始SOC(电池容量)-->
+		start_soc,
+		<!-- 结束SOC(电池容量)-->
+		end_soc,
+		<!-- 默认两位 0 四位 1 -->
+		calc_bit_type,
+		<!-- 操作标志-->
+		opt_flag
+	</sql>
+
+    <select id="ConsumeRecord_custlist"  resultMap="get-ConsumeRecord-result">
+        SELECT
+	        <include refid="ConsumeRecord_Base_Column_List" />
+        FROM
+		tbl_consume_record
+        WHERE 1=1
+		            <if test="pkConsumeRecord != null and pkConsumeRecord != ''">
+                AND pk_consume_record = #{pkConsumeRecord}
+            </if>
+		            <if test="epCode != null and epCode != ''">
+                AND ep_code = #{epCode}
+            </if>
+		            <if test="epGunNo != null and epGunNo != ''">
+                AND ep_gun_no = #{epGunNo}
+            </if>
+		            <if test="transactionNumber != null and transactionNumber != ''">
+                AND transaction_number = #{transactionNumber}
+            </if>
+		            <if test="accountType != null and accountType != ''">
+                AND account_type = #{accountType}
+            </if>
+		            <if test="userOrigin != null">
+                AND user_origin = #{userOrigin}
+            </if>
+		            <if test="userAccount != null and userAccount != ''">
+                AND user_account = #{userAccount}
+            </if>
+		            <if test="transType != null and transType != ''">
+                AND trans_type = #{transType}
+            </if>
+		            <if test="beginChargeTime != null and beginChargeTime != ''">
+                AND begin_charge_time = #{beginChargeTime}
+            </if>
+		            <if test="endChargeTime != null and endChargeTime != ''">
+                AND end_charge_time = #{endChargeTime}
+            </if>
+		            <if test="tipPower != null and tipPower != ''">
+                AND tip_power = #{tipPower}
+            </if>
+		            <if test="tipMoney != null and tipMoney != ''">
+                AND tip_money = #{tipMoney}
+            </if>
+		            <if test="peakPower != null and peakPower != ''">
+                AND peak_power = #{peakPower}
+            </if>
+		            <if test="peakMoney != null and peakMoney != ''">
+                AND peak_money = #{peakMoney}
+            </if>
+		            <if test="usualPower != null and usualPower != ''">
+                AND usual_power = #{usualPower}
+            </if>
+		            <if test="usualMoney != null and usualMoney != ''">
+                AND usual_money = #{usualMoney}
+            </if>
+		            <if test="valleyPower != null and valleyPower != ''">
+                AND valley_power = #{valleyPower}
+            </if>
+		            <if test="valleyMoney != null and valleyMoney != ''">
+                AND valley_money = #{valleyMoney}
+            </if>
+		            <if test="totalPower != null and totalPower != ''">
+                AND total_power = #{totalPower}
+            </if>
+		            <if test="chargeMoney != null and chargeMoney != ''">
+                AND charge_money = #{chargeMoney}
+            </if>
+		            <if test="serviceMoney != null and serviceMoney != ''">
+                AND service_money = #{serviceMoney}
+            </if>
+		            <if test="startMeterNum != null and startMeterNum != ''">
+                AND start_meter_num = #{startMeterNum}
+            </if>
+		            <if test="endMeterNum != null and endMeterNum != ''">
+                AND end_meter_num = #{endMeterNum}
+            </if>
+		            <if test="stopCause != null and stopCause != ''">
+                AND stop_cause = #{stopCause}
+            </if>
+		            <if test="carVinCode != null and carVinCode != ''">
+                AND car_vin_code = #{carVinCode}
+            </if>
+		            <if test="startSoc != null and startSoc != ''">
+                AND start_soc = #{startSoc}
+            </if>
+		            <if test="endSoc != null and endSoc != ''">
+                AND end_soc = #{endSoc}
+            </if>
+		            <if test="calcBitType != null and calcBitType != ''">
+                AND calc_bit_type = #{calcBitType}
+            </if>
+		            <if test="optFlag != null">
+                AND opt_flag = #{optFlag}
+            </if>
+		    </select>
+
+	<insert id="ConsumeRecord_insert" parameterType="TblConsumeRecord" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tbl_consume_record(
+		ep_code,
+		ep_gun_no,
+		transaction_number,
+		account_type,
+		user_origin,
+		user_account,
+		trans_type,
+		begin_charge_time,
+		end_charge_time,
+		tip_power,
+		tip_money,
+		peak_power,
+		peak_money,
+		usual_power,
+		usual_money,
+		valley_power,
+		valley_money,
+		total_power,
+		charge_money,
+		service_money,
+		start_meter_num,
+		end_meter_num,
+		stop_cause,
+		car_vin_code,
+		start_soc,
+		end_soc,
+		calc_bit_type,
+		opt_flag,
+		create_date
+		) values (
+		#{epCode},
+		#{epGunNo},
+		#{transactionNumber},
+		#{accountType},
+		#{userOrigin},
+		#{userAccount},
+		#{transType},
+		#{beginChargeTime},
+		#{endChargeTime},
+		#{tipPower},
+		#{tipMoney},
+		#{peakPower},
+		#{peakMoney},
+		#{usualPower},
+		#{usualMoney},
+		#{valleyPower},
+		#{valleyMoney},
+		#{totalPower},
+		#{chargeMoney},
+		#{serviceMoney},
+		#{startMeterNum},
+		#{endMeterNum},
+		#{stopCause},
+		#{carVinCode},
+		#{startSoc},
+		#{endSoc},
+		#{calcBitType},
+		#{optFlag},
+		SYSDATE()
+		)
+	</insert>
+	<update id="ConsumeRecord_update" parameterType="TblConsumeRecord">
+		UPDATE tbl_consume_record
+		set
+		pk_consume_record = #{pkConsumeRecord},
+		ep_code = #{epCode},
+		ep_gun_no = #{epGunNo},
+		transaction_number = #{transactionNumber},
+		account_type = #{accountType},
+		user_origin = #{userOrigin},
+		user_account = #{userAccount},
+		trans_type = #{transType},
+		begin_charge_time = #{beginChargeTime},
+		end_charge_time = #{endChargeTime},
+		tip_power = #{tipPower},
+		tip_money = #{tipMoney},
+		peak_power = #{peakPower},
+		peak_money = #{peakMoney},
+		usual_power = #{usualPower},
+		usual_money = #{usualMoney},
+		valley_power = #{valleyPower},
+		valley_money = #{valleyMoney},
+		total_power = #{totalPower},
+		charge_money = #{chargeMoney},
+		service_money = #{serviceMoney},
+		start_meter_num = #{startMeterNum},
+		end_meter_num = #{endMeterNum},
+		stop_cause = #{stopCause},
+		car_vin_code = #{carVinCode},
+		start_soc = #{startSoc},
+		end_soc = #{endSoc},
+		calc_bit_type = #{calcBitType},
+		opt_flag = #{optFlag},
+		create_date = SYSDATE()
+		WHERE
+		transaction_number = #{transactionNumber}
+		and trans_type = 0
+	</update>
+	<update id="ConsumeRecord_updateStatus" parameterType="TblConsumeRecord">
+		UPDATE tbl_consume_record
+		set
+		<if test="optFlag == null">
+		opt_flag = opt_flag + 1
+		</if>
+		<if test="optFlag != null and optFlag != ''">
+		opt_flag = #{optFlag}
+		</if>
+		WHERE
+		transaction_number = #{transactionNumber}
+		and opt_flag = 0
+	</update>
+</mapper>

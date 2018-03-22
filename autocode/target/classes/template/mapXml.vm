@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="$!{generatorContext.domain}">
+	<resultMap id="get-$!{className}-result" type="$!{className}">
+##属性-列对应
+#foreach ($column in $table.columns)
+		<!-- $!{column.columnCommnet}-->
+		<result property="$!{column.fieldName}" column="$!{column.columnName}" />
+#end
+	</resultMap>
+	<sql id="$!{className}_Base_Column_List">
+#foreach ($column in $table.columns)
+		<!-- $!{column.columnCommnet}-->
+		$!{column.columnName},
+#end
+	</sql>
+##查询列表
+	<select id="$!{className}_get" resultMap="get-$!{className}-result">
+		SELECT
+##查询列
+		<include refid="$!{className}_Base_Column_List" />
+		FROM
+		$!{tableName}
+		where
+		ID = #{id}
+	</select>
+
+##查询列表
+	<select id="$!{className}_list" resultMap="get-$!{className}-result">
+		SELECT
+##查询列
+		<include refid="$!{className}_Base_Column_List" />
+		FROM
+		$!{tableName}
+		<include refid="common.Select_Where_Clause" />
+	</select>
+
+##查询列表
+    <select id="$!{className}_custlist"  resultMap="get-$!{className}-result">
+        SELECT
+	##查询列
+        <include refid="$!{className}_Base_Column_List" />
+        FROM
+		$!{tableName}
+        WHERE valid='1'
+		#foreach ($column in $table.columns)
+            <if test="$!{column.fieldName} != null and $!{column.fieldName} != ''">
+                AND $!{column.columnName} = #{$!{column.fieldName}}
+            </if>
+		#end
+    </select>
+
+	<insert id="$!{className}_insert" parameterType="$!{className}" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO $!{tableName}(
+#foreach ($column in $table.columns)
+		$!{column.columnName},
+#end
+		) values (
+#foreach ($column in $table.columns)
+		#{$!{column.fieldName}},
+#end
+		)
+	</insert>
+	<update id="$!{className}_update" parameterType="$!{className}">
+		UPDATE $!{tableName}
+		set
+#foreach ($column in $table.columns)
+		$!{column.columnName} = #{$!{column.fieldName}},
+#end
+		WHERE
+		ID = #{id}
+	</update>
+	<update id="$!{className}_updateSelective" parameterType="map">
+		UPDATE $!{tableName}
+		set
+#foreach ($column in $table.columns)
+		<if test="record.$!{column.fieldName} != null" >
+			$!{column.columnName} = #{record.$!{column.fieldName}},
+		</if>
+#end
+		<include refid="common.Update_Where_Clause" />
+	</update>
+	<delete id="$!{className}_delete" parameterType="$!{className}">
+		DELETE FROM $!{tableName}
+		WHERE
+		ID = #{id}
+	</delete>
+</mapper>

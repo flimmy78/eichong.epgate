@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.TblVehicleBatteryDao">
+
+	<resultMap id="vehicleBatteryResultMap" type="TblVehicleBattery">
+		<id property="pkVehicleBattery" column="pk_VehicleBattery" />
+		<result property="chargeSerialNo" column="vb_chargeSerialNo" />
+		<result property="battery_type" column="vb_battery_type" />
+		<result property="battery_rated_capacity" column="vb_battery_rated_capacity" />
+		<result property="battery_rated_capacity" column="vb_Production_date" />
+		<result property="battery_rated_capacity" column="vb_cycle_count" />
+		<result property="single_max_vol" column="vb_single_max_vol" />
+		<result property="max_current" column="vb_max_current" />
+		<result property="total_energy" column="vb_total_energy" />
+		<result property="total_rated_voltage" column="vb_total_rated_voltage" />
+		<result property="max_temperature" column="vb_max_temperature" />
+		<result property="vin" column="vb_VIN" />
+		<result property="Battery_manufacturers" column="vb_Battery_manufacturers" />
+		<result property="createdate" column="createdate" />
+		<result property="updatedate" column="updatedate" />
+	</resultMap>
+	
+	<insert id="insert" parameterType="TblVehicleBattery"  keyProperty="pk_VehicleBattery">
+	   insert into tbl_VehicleBattery (
+  		vb_chargeSerialNo,
+  		vb_battery_type,
+  		vb_battery_rated_capacity,
+        vb_Production_date,
+        vb_cycle_count,
+        vb_single_max_vol,
+        vb_max_current,
+        vb_total_energy,
+        vb_total_rated_voltage,
+        vb_max_temperature,
+        vb_VIN,
+        vb_Battery_manufacturers 
+	   )
+	   values (
+	   	#{chargeSerialNo},
+	   	#{battery_type},
+  		#{battery_rated_capacity},
+ 		#{Production_date},
+		#{cycle_count},
+		#{single_max_vol},
+		#{max_current},
+		#{total_energy},
+		#{total_rated_voltage},
+		#{max_temperature},
+		#{vin},
+		#{Battery_manufacturers}
+	   )
+	</insert>
+
+	<update id="update" parameterType="TblVehicleBattery">
+	   update tbl_VehicleBattery set
+	   vb_battery_type=#{battery_type},
+	   vb_battery_rated_capacity=#{battery_rated_capacity},
+	   vb_Production_date=#{Production_date},
+	   vb_cycle_count=#{cycle_count},
+		vb_single_max_vol=#{single_max_vol},
+		vb_max_current=#{max_current},
+		vb_total_energy=#{total_energy},
+		vb_total_rated_voltage=#{total_rated_voltage},
+		vb_max_temperature=#{max_temperature},
+		vb_VIN=#{vin}, 
+		vb_Battery_manufacturers=#{Battery_manufacturers} 
+	   where 
+	   vb_chargeSerialNo=#{chargeSerialNo}
+	</update>
+	
+	<select id="select" parameterType="String" resultMap="vehicleBatteryResultMap" >
+	   select 
+	   pk_VehicleBattery,
+	   vb_chargeSerialNo,
+	   vb_battery_type,
+		vb_battery_rated_capacity,
+		vb_Production_date,
+		vb_cycle_count,
+		vb_single_max_vol,
+		vb_max_current,
+		vb_total_energy,
+		vb_total_rated_voltage,
+		vb_max_temperature
+		from tbl_VehicleBattery 
+	   where 
+	   vb_chargeSerialNo=#{SerialNo}
+	</select>
+
+	
+</mapper> 

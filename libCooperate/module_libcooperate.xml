@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_libcooperate" default="compile.module.libcooperate">
+  <dirname property="module.libcooperate.basedir" file="${ant.file.module_libcooperate}"/>
+  
+  <property name="module.jdk.home.libcooperate" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.libcooperate" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.libcooperate" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.libcooperate" value="-encoding UTF-8 -source 1.7 -target 1.7 ${compiler.args}"/>
+  
+  <property name="libcooperate.output.dir" value="${module.libcooperate.basedir}/target/classes"/>
+  <property name="libcooperate.testoutput.dir" value="${module.libcooperate.basedir}/target/test-classes"/>
+  
+  <path id="libcooperate.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="libcooperate.module.production.classpath">
+    <path refid="${module.jdk.classpath.libcooperate}"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.5.11.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-log4j12:1.5.11.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.14.classpath"/>
+    <path refid="library.maven:_net.sf.json-lib:json-lib:jdk15:2.4.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpclient:4.2.2.classpath"/>
+    <path refid="library.maven:_commons-logging:commons-logging:1.1.1.classpath"/>
+    <path refid="library.maven:_commons-codec:commons-codec:1.6.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore:4.2.2.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <pathelement location="${libeccommon.output.dir}"/>
+    <pathelement location="${netcore.output.dir}"/>
+  </path>
+  
+  <path id="libcooperate.runtime.production.module.classpath">
+    <pathelement location="${libcooperate.output.dir}"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.5.11.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-log4j12:1.5.11.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.14.classpath"/>
+    <path refid="library.maven:_net.sf.json-lib:json-lib:jdk15:2.4.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpclient:4.2.2.classpath"/>
+    <path refid="library.maven:_commons-logging:commons-logging:1.1.1.classpath"/>
+    <path refid="library.maven:_commons-codec:commons-codec:1.6.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore:4.2.2.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="libeccommon.runtime.production.module.classpath"/>
+    <path refid="netcore.runtime.production.module.classpath"/>
+  </path>
+  
+  <path id="libcooperate.module.classpath">
+    <pathelement location="${libcooperate.output.dir}"/>
+    <path refid="${module.jdk.classpath.libcooperate}"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.5.11.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-log4j12:1.5.11.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.14.classpath"/>
+    <path refid="library.maven:_net.sf.json-lib:json-lib:jdk15:2.4.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpclient:4.2.2.classpath"/>
+    <path refid="library.maven:_commons-logging:commons-logging:1.1.1.classpath"/>
+    <path refid="library.maven:_commons-codec:commons-codec:1.6.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore:4.2.2.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <pathelement location="${libeccommon.testoutput.dir}"/>
+    <pathelement location="${libeccommon.output.dir}"/>
+    <pathelement location="${netcore.testoutput.dir}"/>
+    <pathelement location="${netcore.output.dir}"/>
+  </path>
+  
+  <path id="libcooperate.runtime.module.classpath">
+    <pathelement location="${libcooperate.testoutput.dir}"/>
+    <pathelement location="${libcooperate.output.dir}"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.5.11.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-log4j12:1.5.11.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.14.classpath"/>
+    <path refid="library.maven:_net.sf.json-lib:json-lib:jdk15:2.4.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpclient:4.2.2.classpath"/>
+    <path refid="library.maven:_commons-logging:commons-logging:1.1.1.classpath"/>
+    <path refid="library.maven:_commons-codec:commons-codec:1.6.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore:4.2.2.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="libeccommon.runtime.module.classpath"/>
+    <path refid="netcore.runtime.module.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.libcooperate">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.libcooperate">
+    <patternset refid="excluded.from.module.libcooperate"/>
+  </patternset>
+  
+  <path id="libcooperate.module.sourcepath">
+    <dirset dir="${module.libcooperate.basedir}">
+      <include name="src/main/resources"/>
+      <include name="src/main/java"/>
+    </dirset>
+  </path>
+  
+  <path id="libcooperate.module.test.sourcepath">
+    <dirset dir="${module.libcooperate.basedir}">
+      <include name="src/test/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.libcooperate" depends="compile.module.libcooperate.production,compile.module.libcooperate.tests" description="Compile module libCooperate"/>
+  
+  <target name="compile.module.libcooperate.production" depends="register.custom.compilers,compile.module.libeccommon,compile.module.netcore" description="Compile module libCooperate; production classes">
+    <mkdir dir="${libcooperate.output.dir}"/>
+    <javac2 destdir="${libcooperate.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.libcooperate}/javac">
+      <compilerarg line="${compiler.args.libcooperate}"/>
+      <bootclasspath refid="libcooperate.module.bootclasspath"/>
+      <classpath refid="libcooperate.module.production.classpath"/>
+      <src refid="libcooperate.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.libcooperate"/>
+    </javac2>
+    
+    <copy todir="${libcooperate.output.dir}">
+      <fileset dir="${module.libcooperate.basedir}/src/main/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.libcooperate.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.libcooperate.tests" depends="register.custom.compilers,compile.module.libcooperate.production" description="compile module libCooperate; test classes" unless="skip.tests">
+    <mkdir dir="${libcooperate.testoutput.dir}"/>
+    <javac2 destdir="${libcooperate.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.libcooperate}/javac">
+      <compilerarg line="${compiler.args.libcooperate}"/>
+      <bootclasspath refid="libcooperate.module.bootclasspath"/>
+      <classpath refid="libcooperate.module.classpath"/>
+      <src refid="libcooperate.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.libcooperate"/>
+    </javac2>
+    
+    <copy todir="${libcooperate.testoutput.dir}">
+      <fileset dir="${module.libcooperate.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.libcooperate" description="cleanup module">
+    <delete dir="${libcooperate.output.dir}"/>
+    <delete dir="${libcooperate.testoutput.dir}"/>
+  </target>
+</project>

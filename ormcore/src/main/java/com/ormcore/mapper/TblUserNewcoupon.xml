@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.TblUserNewcouponDao">
+	
+	<resultMap id="UserNewcouponResultMap" type="TblUserNewcoupon">
+	    <id property="pkUserNewcoupon" column="pk_UserNewcoupon" />
+		<id property="userId" column="user_id" />
+		<result property="acStatus" column="ac_status" />
+		<result property="dcStatus" column="dc_status" />
+	</resultMap>
+	
+	<resultMap id="findResultMap"  type="java.util.HashMap" extends="UserNewcouponResultMap"></resultMap>
+
+
+	<select id="select" parameterType="int" resultMap="UserNewcouponResultMap">
+		select user_id,ac_status,dc_status
+		from tbl_user_newcoupon 
+	   where
+	    user_id=#{accountId}
+	</select>
+	
+	<update id="update" parameterType="TblUserNewcoupon">
+	   update tbl_user_newcoupon set 
+			ac_status=#{acStatus}, 
+			dc_status=#{dcStatus}
+	   where 
+	    user_id=#{userId}
+	</update>
+	
+	
+	
+	<insert id="insert" parameterType="TblUserNewcoupon">
+	   insert into tbl_user_newcoupon (
+			user_id,
+			ac_status,	
+			dc_status
+	   )values (
+		#{userId},
+	  	#{acStatus},
+	  	#{dcStatus}
+	   )
+	</insert>
+	
+</mapper> 

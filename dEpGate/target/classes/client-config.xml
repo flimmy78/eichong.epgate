@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?> 
+<server>
+	
+	<monitor-server>
+		<description>数据分析中心服务端</description>
+		<server-name>AnalyzeServer</server-name>
+		<server-ip>10.9.2.109</server-ip>
+		<server-port>8002</server-port>
+	</monitor-server>
+	
+    <third-server>
+		<description>第3方服务</description>
+		<server-name>thirdServer</server-name>
+		<server-ip>10.9.3.117</server-ip>
+		<server-port>8002</server-port>
+	</third-server>
+
+</server>

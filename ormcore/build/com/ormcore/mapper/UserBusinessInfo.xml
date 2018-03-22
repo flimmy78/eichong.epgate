@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.TblUserBusinessDao">
+
+    <resultMap id="busInfResultMap" type="TblUserBusiness">
+        <id property="id" column="user_id"/>
+
+        <result property="orgNo" column="cpy_CompanyNumber"/>
+        <result property="parterId" column="busi_parent_id"/>
+        <result property="companyId" column="busi_company_id"/>
+        <result property="phone" column="busi_phone"/>
+        <result property="balance" column="busi_account_balance"/>
+    </resultMap>
+
+    <resultMap id="findResultMap" type="java.util.HashMap" extends="busInfResultMap"></resultMap>
+
+    <select id="findUserInfoById" parameterType="int" resultMap="busInfResultMap">
+		select user_id,busi_parent_id,cpy_id,user_cpy_phone,busi_account_balance from tbl_user_business
+	   where user_id=#{accountId} 
+	</select>
+
+    <select id="findUserInfoByOrgNo" parameterType="int" resultType="Integer">
+		select r.user_id from tbl_company e left join tbl_user_company  r on e.cpy_id = r.cpy_id
+				where 	e.cpy_number=#{orgNo} limit 1;
+	</select>
+
+
+    <update id="addCost" parameterType="TblUserBusiness">
+	   update fin_account set
+			account_balance = account_balance +#{balance}
+	   where 
+	    account_id = (select account_id from tbl_user_normal WHERE user_id=#{id})
+	</update>
+    <update id="subCost" parameterType="TblUserBusiness">
+	 update fin_account set account_balance=account_balance-#{balance}
+	      where
+	      account_id = (select account_id from tbl_user_normal WHERE user_id=#{id})
+	</update>
+
+
+</mapper> 

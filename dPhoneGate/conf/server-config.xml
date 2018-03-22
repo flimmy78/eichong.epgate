@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<server>
+
+	
+	<gate-server>
+		<description>电桩服务</description>
+		<server-name>ep gate server</server-name>
+		<server-ip>127.0.0.1</server-ip>
+		<server-port>2406</server-port>
+	</gate-server>
+	
+	<gate-monitor-server>
+		<description>内部服务</description>
+		<server-name>monitor server</server-name>
+		<server-ip>127.0.0.1</server-ip>
+		<server-port>7777</server-port>
+	</gate-monitor-server>
+
+	<manage-server>
+		<description>app内网网关服</description>
+		<server-name>AppGateServer</server-name>
+		<server-ip>127.0.0.1</server-ip>
+		<server-port>30012</server-port>
+	</manage-server>
+	
+	<data-centre-server>
+		<description>内部服务</description>
+		<server-name>monitor server</server-name>
+		<server-ip>127.0.0.1</server-ip>
+		<server-port>9001</server-port>
+	</data-centre-server>
+	
+	<data-centre-montior-server>
+		<description>内部服务</description>
+		<server-name>monitor server</server-name>
+		<server-ip>127.0.0.1</server-ip>
+		<server-port>7787</server-port>
+	</data-centre-montior-server>
+	
+	<phone-server>
+		<description>内部服务</description>
+		<server-name>phone server</server-name>
+		<server-ip>127.0.0.1</server-ip>
+		<server-port>8001</server-port>
+	</phone-server>
+	<data-Analyze-server>
+		<description>数据分析中心服务端</description>
+		<server-name>dataAnalyzeserver</server-name>
+		<server-ip>127.0.0.1</server-ip>
+		<server-port>8002</server-port>
+	</data-Analyze-server>
+	
+	<http-server>
+		<description>httpServer</description>
+		<server-name>httpServer</server-name>
+		<server-ip>127.0.0.1</server-ip>
+		<server-port>2410</server-port>
+	</http-server>
+
+	
+	
+</server>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_netcore" default="compile.module.netcore">
+  <dirname property="module.netcore.basedir" file="${ant.file.module_netcore}"/>
+  
+  <property name="module.jdk.home.netcore" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.netcore" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.netcore" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.netcore" value="-encoding UTF-8 -source 1.5 -target 1.7 ${compiler.args}"/>
+  
+  <property name="netcore.output.dir" value="${module.netcore.basedir}/target/classes"/>
+  <property name="netcore.testoutput.dir" value="${module.netcore.basedir}/target/test-classes"/>
+  
+  <path id="netcore.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="netcore.module.production.classpath">
+    <path refid="${module.jdk.classpath.netcore}"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.5.11.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-log4j12:1.5.11.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.14.classpath"/>
+    <path refid="library.maven:_net.sf.json-lib:json-lib:jdk15:2.4.classpath"/>
+    <path refid="library.maven:_jdom:jdom:1.0.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="library.maven:_io.netty:netty-all:4.1.1.final.classpath"/>
+  </path>
+  
+  <path id="netcore.runtime.production.module.classpath">
+    <pathelement location="${netcore.output.dir}"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.5.11.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-log4j12:1.5.11.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.14.classpath"/>
+    <path refid="library.maven:_net.sf.json-lib:json-lib:jdk15:2.4.classpath"/>
+    <path refid="library.maven:_jdom:jdom:1.0.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="library.maven:_io.netty:netty-all:4.1.1.final.classpath"/>
+  </path>
+  
+  <path id="netcore.module.classpath">
+    <pathelement location="${netcore.output.dir}"/>
+    <path refid="${module.jdk.classpath.netcore}"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.5.11.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-log4j12:1.5.11.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.14.classpath"/>
+    <path refid="library.maven:_net.sf.json-lib:json-lib:jdk15:2.4.classpath"/>
+    <path refid="library.maven:_jdom:jdom:1.0.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="library.maven:_io.netty:netty-all:4.1.1.final.classpath"/>
+  </path>
+  
+  <path id="netcore.runtime.module.classpath">
+    <pathelement location="${netcore.testoutput.dir}"/>
+    <pathelement location="${netcore.output.dir}"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.5.11.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-log4j12:1.5.11.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.14.classpath"/>
+    <path refid="library.maven:_net.sf.json-lib:json-lib:jdk15:2.4.classpath"/>
+    <path refid="library.maven:_jdom:jdom:1.0.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="library.maven:_io.netty:netty-all:4.1.1.final.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.netcore">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.netcore">
+    <patternset refid="excluded.from.module.netcore"/>
+  </patternset>
+  
+  <path id="netcore.module.sourcepath">
+    <dirset dir="${module.netcore.basedir}">
+      <include name="src/main/resources"/>
+      <include name="src/main/java"/>
+    </dirset>
+  </path>
+  
+  <path id="netcore.module.test.sourcepath">
+    <dirset dir="${module.netcore.basedir}">
+      <include name="src/test/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.netcore" depends="compile.module.netcore.production,compile.module.netcore.tests" description="Compile module netCore"/>
+  
+  <target name="compile.module.netcore.production" depends="register.custom.compilers" description="Compile module netCore; production classes">
+    <mkdir dir="${netcore.output.dir}"/>
+    <javac2 destdir="${netcore.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.netcore}/javac">
+      <compilerarg line="${compiler.args.netcore}"/>
+      <bootclasspath refid="netcore.module.bootclasspath"/>
+      <classpath refid="netcore.module.production.classpath"/>
+      <src refid="netcore.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.netcore"/>
+    </javac2>
+    
+    <copy todir="${netcore.output.dir}">
+      <fileset dir="${module.netcore.basedir}/src/main/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.netcore.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.netcore.tests" depends="register.custom.compilers,compile.module.netcore.production" description="compile module netCore; test classes" unless="skip.tests">
+    <mkdir dir="${netcore.testoutput.dir}"/>
+    <javac2 destdir="${netcore.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.netcore}/javac">
+      <compilerarg line="${compiler.args.netcore}"/>
+      <bootclasspath refid="netcore.module.bootclasspath"/>
+      <classpath refid="netcore.module.classpath"/>
+      <src refid="netcore.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.netcore"/>
+    </javac2>
+    
+    <copy todir="${netcore.testoutput.dir}">
+      <fileset dir="${module.netcore.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.netcore" description="cleanup module">
+    <delete dir="${netcore.output.dir}"/>
+    <delete dir="${netcore.testoutput.dir}"/>
+  </target>
+</project>

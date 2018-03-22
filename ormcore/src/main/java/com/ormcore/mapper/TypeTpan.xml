@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.TypeSpanDao">
+	<resultMap id="typeSpanMap" type="TblTypeSpan">
+		<id property="typeSpanId" column="pk_TypeSpanId" />
+		<result property="typeSpan" column="ts_TypeSpan" />
+		
+	</resultMap>
+	
+	<resultMap id="findResultMap"  type="java.util.HashMap" extends="typeSpanMap"></resultMap>
+	
+	<select id="getAll"  resultMap="typeSpanMap">
+	   select 
+	   e.pk_TypeSpanId,
+	   e.ts_TypeSpan
+	   from tbl_TypeSpan e left join tbl_bomlist  r on r.pk_TypeSpanId = e.pk_TypeSpanId
+	   
+	</select>
+ 
+</mapper> 

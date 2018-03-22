@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.TblCompanyDao">
+
+    <resultMap id="CompanyResultMap" type="TblCompany">
+        <id property="pkCompanyId" column="pk_CompanyId"/>
+
+
+        <result property="cpyCompanyNumber" column="cpy_CompanyNumber"/>
+        <result property="cpynum" column="cpy_num"/>
+        <result property="isValid" column="is_valid"/>
+    </resultMap>
+
+    <resultMap id="findResultMap" type="java.util.HashMap" extends="CompanyResultMap"></resultMap>
+
+
+    <select id="findone" parameterType="int" resultMap="CompanyResultMap">
+		select
+		cpy_id pk_CompanyId,
+		cpy_number cpy_CompanyNumber,
+		cpy_num cpy_num,
+		is_valid is_valid
+		from tbl_company 
+	   where 
+	    cpy_number=#{cpyCompanyNumber}
+	</select>
+
+</mapper> 

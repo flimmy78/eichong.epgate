@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.TblUserNormalDao">
+
+    <resultMap id="normalInfResultMap" type="TblUserNormal">
+        <id property="id" column="user_id"/>
+
+        <result property="iccard" column="norm_driving_licence"/>
+        <result property="vehicleNumber" column="norm_vehicle_number"/>
+        <result property="deviceid" column="norm_device_id"/>
+        <result property="invitePhone" column="norm_invitePhone"/>
+        <result property="balance" column="norm_account_balance"/>
+    </resultMap>
+
+    <resultMap id="findResultMap" type="java.util.HashMap" extends="normalInfResultMap"></resultMap>
+
+    <select id="findUserInfoById" parameterType="int" resultMap="normalInfResultMap">
+		select tun.user_id,
+		tun.norm_driving_licence,
+		tun.norm_vehicle_number,
+		fa.account_balance,
+		tun.norm_device_id,
+		tun.norm_invitePhone
+		from tbl_user_normal tun,fin_account fa where tun.account_id=fa.account_id and user_id=#{accountId}
+	</select>
+
+    <update id="addCost" parameterType="TblUserNormal">
+	  update fin_account set account_balance = account_balance +#{balance}
+          where
+          account_id = (select account_id from tbl_user_normal WHERE user_id=#{id})
+	</update>
+    <update id="subCost" parameterType="TblUserNormal">
+	   update fin_account set account_balance=account_balance-#{balance}
+	      where
+	      account_id = (select account_id from tbl_user_normal WHERE user_id=#{id})
+	</update>
+
+</mapper> 

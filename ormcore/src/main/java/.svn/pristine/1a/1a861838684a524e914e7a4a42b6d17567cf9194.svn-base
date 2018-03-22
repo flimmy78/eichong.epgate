@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.TblTimingChargeDao">
+
+	<resultMap id="resultMap" type="TblTimingCharge">
+		<id property="pkTimingChargeID" column="PK_TIMING_CHARGE_ID" />
+		<result property="elpiElectricPileCode" column="ELPI_ELECTRICPILECODE" />
+		<result property="timingCharge" column="TIMING_CHARGE" />
+		<result property="timingChargeStatus" column="TIMING_CHARGE_STATUS" />
+		<result property="issuedStatus" column="ISSUED_STATUS" />
+		<result property="remark" column="REMARK" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="updateDate" column="UPDATE_DATE" />
+	</resultMap>
+
+	<!-- 查找定时充电记录 -->
+	<select id="findTimingCharge" parameterType="TblTimingCharge"
+		resultMap="resultMap">
+		select PK_TIMING_CHARGE_ID,
+		ELPI_ELECTRICPILECODE,
+		TIMING_CHARGE,
+		TIMING_CHARGE_STATUS,
+		ISSUED_STATUS,
+		REMARK,
+		CREATE_DATE,
+		UPDATE_DATE
+		from tbl_ep_timing_charge
+		where 1=1
+	    <if test="elpiElectricPileCode != null">
+			AND ELPI_ELECTRICPILECODE=#{elpiElectricPileCode}
+		</if>
+		<if test="timingChargeStatus != null">
+			AND TIMING_CHARGE_STATUS=#{timingChargeStatus}
+		</if>
+		<if test="issuedStatus != null">
+			AND ISSUED_STATUS=#{issuedStatus}
+		</if>
+	</select>
+
+	<!-- 更新定时充电记录 -->
+	<update id="updateTimingCharge" parameterType="TblTimingCharge">
+		update
+		tbl_ep_timing_charge set
+		ISSUED_STATUS=#{issuedStatus},
+		UPDATE_DATE=#{updateDate}
+		where
+		ELPI_ELECTRICPILECODE=#{elpiElectricPileCode} and
+		TIMING_CHARGE_STATUS=#{timingChargeStatus}
+	</update>
+</mapper> 

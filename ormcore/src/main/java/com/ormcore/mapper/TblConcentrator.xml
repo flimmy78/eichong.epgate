@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.TblConcentratorDao">
+
+    <resultMap id="concentratorResultMap" type="TblConcentrator">
+		<id property="pkConcentratorID" column="pk_concentratorID" />
+		<id property="coctTypeSpanId" column="coct_TypeSpanId" />
+		
+	</resultMap>
+   
+	<select id="findStation" parameterType="int" resultType="int">
+		select count(concentrator_id) from tbl_concentrator where concentrator_id=#{id};
+	</select>
+	
+	<select id="findResultObjectBySpanId" parameterType="int"  resultMap="concentratorResultMap">
+     select
+        concentrator_id pk_concentratorID,
+        TypeSpanId coct_TypeSpanId
+     	 from tbl_concentrator 
+     <where>
+         TypeSpanId=#{typeSpanId}
+     	 </where>
+	</select>
+</mapper> 

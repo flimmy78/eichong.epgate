@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.EpGunDao">
+
+	<resultMap id="tblEpGunResultMap" type="TblElectricPileGun">
+		<id property="pkEpGunId" column="pk_ElectricpileHead" />
+		<result property="epState" column="ePHe_ElectricpileHeadState" />
+		<result property="pkEpId" column="pk_ElectricPile" />
+		<result property="epGunNo" column="ePHe_ElectricpileHeadId" />
+		
+		<result property="totalChargeMeter" column="total_charge_dl" />
+		<result property="totalChargeTime" column="total_charge_time" />
+		<result property="totalChargeAmt" column="total_charge_amt" />
+		
+		<result property="hadLid" column="have_gun_lid" />
+		<result property="hadSitSignal" column="have_gun_site_signal" />
+		<result property="hadRadar" column="have_radar" />
+		<result property="hadCarPlaceLock" column="hava_car_place_lock" />
+		<result property="hadBmsComm" column="have_bms_comm" />
+		<result property="qr_codes" column="ePHe_qr_codes" />
+		<result property="qrdate" column="ePHe_qrdate" />
+	</resultMap>
+	
+	<resultMap id="findResultMap"  type="java.util.HashMap" extends="tblEpGunResultMap"></resultMap>
+
+	<select id="getPkEpGunId" parameterType="TblElectricPileGun" resultType="int">
+		select pk_ElectricpileHead  from tbl_electricpilehead where
+		pk_ElectricPile=#{pkEpId} and ePHe_ElectricpileHeadId=#{epGunNo}
+	</select>
+	
+	<select id="findEpGunInfo" parameterType="TblElectricPileGun" resultMap="tblEpGunResultMap">
+		select pk_ElectricpileHead,ePHe_ElectricpileHeadState,pk_ElectricPile,ePHe_ElectricpileHeadId,
+		total_charge_dl,total_charge_time,total_charge_amt,have_gun_lid, have_gun_site_signal,
+		have_radar,hava_car_place_lock,have_bms_comm,ePHe_qr_codes,ePHe_qrdate  
+		 from tbl_electricpilehead where
+		pk_ElectricPile=#{pkEpId} and ePHe_ElectricpileHeadId=#{epGunNo}
+	</select>
+	
+	
+
+	<select id="updateGunState"   parameterType="TblElectricPileGun">
+	   update tbl_electricpilehead set
+	   		ePHe_ElectricpileHeadState=#{epState}
+	   where 
+	    pk_ElectricpileHead=#{pkEpGunId}
+	</select>
+	
+	<update id="addChargeStat"   parameterType="TblElectricPileGun">
+	   update tbl_electricpilehead set
+	   		total_charge_dl = total_charge_dl + #{totalChargeMeter},
+	   		total_charge_time = total_charge_time + #{totalChargeTime},
+	   		total_charge_amt = total_charge_amt + #{totalChargeAmt}
+	   where 
+	    pk_ElectricpileHead=#{pkEpGunId}
+	</update>
+	
+
+	<update id="updateDeviceList"   parameterType="TblElectricPileGun">
+	   update tbl_electricpilehead set
+	   		have_gun_lid = #{hadLid},
+	   		have_gun_site_signal = #{hadSitSignal},
+	   		have_radar = #{hadRadar},
+	   		hava_car_place_lock = #{hadCarPlaceLock},
+	   		have_bms_comm = #{hadBmsComm}
+	   where 
+	    pk_ElectricpileHead=#{pkEpGunId}
+	</update>
+	
+	<update id="updateQR"   parameterType="TblElectricPileGun">
+	   update tbl_electricpilehead set
+	   		ePHe_qr_codes= #{qr_codes},
+	   		ePHe_qrdate = #{qrdate} 
+	   where 
+	    pk_ElectricpileHead=#{pkEpGunId}
+	</update>
+	
+</mapper> 

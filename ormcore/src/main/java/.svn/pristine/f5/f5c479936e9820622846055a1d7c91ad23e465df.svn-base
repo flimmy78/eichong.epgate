@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.ChargingrecordDao">
+	
+	<resultMap id="tblChargingrecordResultMap" type="TblChargingrecord">
+		<id property="pkChargingrecord" column="pk_ChargingRecord" />
+		<result property="chreElectricpileid" column="chRe_ElectricPileID" />
+		<result property="chreUsingmachinecode" column="chRe_UsingMachineCode" />
+		<result property="chreTransactionnumber" column="chRe_TransactionNumber" />
+		<result property="chreReservationnumber" column="chRe_ReservationNumber" />
+		<result property="chreStartdate" column="chRe_StartDate" />
+		<result property="chreChargingnumber" column="chRe_ChargingNumber" />
+		<result property="chreChargingmethod" column="chRe_ChargingMethod" />
+		<result property="chreResttime" column="chRe_RestTime" />
+		<result property="chreEnddate" column="chRe_EndDate" />
+		<result property="chreCode" column="chRe_Code" />
+		<result property="chreBeginshowsnumber" column="chRe_BeginShowsNumber" />
+		<result property="chreEndshowsnumber" column="chRe_EndShowsNumber" />
+		<result property="userPhone" column="user_phone"/>
+		<result property="userId" column="user_id"/>
+		<result property="userOrigin" column="chRe_UserOrigin"/>
+		<result property="status" column="chRe_Status"/>
+		<result property="JPrice" column="chRe_JPrice"/>
+		<result property="FPrice" column="chRe_FPrice"/>
+		<result property="PPrice" column="chRe_PPrice"/>
+		<result property="GPrice" column="chRe_GPrice"/>
+		<result property="ServicePrice" column="chRe_ServiceCharge"/>
+		<result property="QuantumDate" column="chRe_QuantumDate"/>
+        <result property="JMoney" column="chRe_JMoney"/>
+        <result property="FMoney" column="chRe_FMoney"/>
+        <result property="PMoney" column="chRe_PMoney"/>
+        <result property="GMoney" column="chRe_GMoney"/>
+		<result property="FrozenAmt" column="chRe_FrozenAmt"/>
+		<result property="RealAmt" column="chRe_RealAmt"/>
+		<result property="pkUserCard" column="pk_UserCard" />
+		<result property="userOrgNo" column="chRe_OrgNo" />
+		<result property="payMode" column="chRe_PayMode" />
+		<result property="thirdCode" column="chRe_ThirdCode" />
+		<result property="thirdType" column="chRe_ThirdType" />
+		<result property="thirdUsrIdentity" column="chre_parter_user_logo" />
+		<result property="thirdExtraData" column="chre_parter_extradata" />
+		<result property="usrGateIp" column="chre_usrgateip" />
+		<result property="accountId" column="account_id" />
+		
+		
+	</resultMap>
+	<resultMap id="findResultMap"  type="java.util.HashMap" extends="tblChargingrecordResultMap"></resultMap>
+	
+	<insert id="insertFullChargeRecord" parameterType="TblChargingrecord">
+	
+
+	     insert into tbl_ChargingRecord (
+	     chRe_ElectricPileID,
+	     chRe_UsingMachineCode,
+	     chRe_TransactionNumber,
+	     chRe_ReservationNumber,
+	     chRe_StartDate,
+	     chRe_ChargingNumber,
+	     chRe_ChargingMethod,
+	     chRe_RestTime,
+	     chRe_Code,
+	     chRe_BeginShowsNumber,
+	     chRe_EndShowsNumber,
+	     user_phone,
+	     user_id,
+	     chRe_Status,
+	     chRe_JPrice,
+	     chRe_FPrice,
+	     chRe_PPrice,
+	     chRe_GPrice,
+	     chRe_ServiceCharge,
+	     chRe_QuantumDate,
+	     chRe_JMoney,
+	     chRe_FMoney,
+	     chRe_PMoney,
+	     chRe_GMoney,
+	     chRe_EndDate,
+	     pk_UserCard,
+	     chRe_OrgNo,
+	     chRe_PayMode,
+	     chre_parter_user_logo,
+	     chre_parter_extradata,
+	     chRe_ThirdCode,
+	     chRe_ThirdType,
+	     account_id
+		
+	   )values (
+	     #{chreElectricpileid},
+	     #{chreUsingmachinecode},
+	     #{chreTransactionnumber},
+	     #{chreReservationnumber},
+	     #{chreStartdate},
+	     #{chreChargingnumber},
+	     #{chreChargingmethod},
+	     #{chreResttime},
+	     #{chreCode},
+	     #{chreBeginshowsnumber},
+	     #{chreEndshowsnumber},
+	     #{userPhone},
+	     #{userId},
+	     #{status},
+	     #{JPrice},
+	     #{FPrice},
+	     #{PPrice},
+	     #{GPrice},
+	     #{ServicePrice},
+	     #{QuantumDate},
+	     #{JMoney},
+	     #{FMoney},
+	     #{PMoney},
+	     #{GMoney},
+	     #{chreEnddate},
+		 #{pkUserCard},
+		 #{userOrgNo},
+		 #{payMode},#{thirdUsrIdentity},#{thirdExtraData},
+		 #{thirdCode}, 
+		 #{thirdType},
+		 #{accountId}
+	   )
+	</insert>
+	
+	<!-- 新增开始充电记录 -->
+	<insert id="insertBeginRecord" parameterType="TblChargingrecord">
+		insert into tbl_ChargingRecord (
+	     chRe_ElectricPileID,
+	     chRe_UsingMachineCode,
+	     chRe_TransactionNumber,
+	     chRe_ReservationNumber,
+	     chRe_StartDate,
+	     chRe_ChargingNumber,
+	     chRe_ChargingMethod,
+	     chRe_RestTime,
+	     chRe_Code,
+	     chRe_BeginShowsNumber,
+	     chRe_EndShowsNumber,
+	     user_phone,
+	     user_id,
+	     chRe_Status,
+	     chRe_JPrice,
+	     chRe_FPrice,
+	     chRe_PPrice,
+	     chRe_GPrice,
+	     chRe_ServiceCharge,
+	     chRe_QuantumDate,
+	     chRe_JMoney,
+	     chRe_FMoney,
+	     chRe_PMoney,
+	     chRe_GMoney,
+	     pk_UserCard,
+	     chRe_UserOrigin,
+	     chRe_FrozenAmt,
+	     chRe_RealAmt,
+	     chRe_OrgNo,
+	     chRe_PayMode ,
+	     chre_parter_user_logo,
+	     chre_parter_extradata,
+	     chre_usrgateip,
+	     account_id
+	   )values (
+	     #{chreElectricpileid},
+	     #{chreUsingmachinecode},
+	     #{chreTransactionnumber},
+	     #{chreReservationnumber},
+	     #{chreStartdate},
+	     #{chreChargingnumber},
+	     #{chreChargingmethod},
+	     #{chreResttime},
+	     #{chreCode},
+	     #{chreBeginshowsnumber},
+	     #{chreEndshowsnumber},
+	     #{userPhone},
+	     #{userId},
+	     #{status},
+	     #{JPrice},
+	     #{FPrice},
+	     #{PPrice},
+	     #{GPrice},
+	     #{ServicePrice},
+	     #{QuantumDate},
+	     #{JMoney},
+	     #{FMoney},
+	     #{PMoney},
+	     #{GMoney},
+	     #{pkUserCard},
+	     #{userOrigin},
+	     #{FrozenAmt},
+	     #{RealAmt},
+	     #{userOrgNo},
+		 #{payMode} ,#{thirdUsrIdentity},#{thirdExtraData},
+		 #{usrGateIp},
+		 #{accountId}
+	   )
+	  
+	</insert>
+	<!-- 新增结束充电记录 根据流水号更新数据 -->
+	<update id="insertEndRecord" parameterType="TblChargingrecord">
+		update tbl_ChargingRecord set
+		chRe_EndDate=#{chreEnddate},
+		chRe_EndShowsNumber=#{chreEndshowsnumber},
+		chRe_Status = #{status},
+		<if test="ServicePrice != null">
+		chRe_ServiceCharge = #{ServicePrice},
+		</if>
+		<if test="thirdCode != null">
+		chRe_ThirdCode =#{thirdCode},
+		</if>
+		chRe_ThirdType =#{thirdType}
+		where
+		chRe_TransactionNumber=#{chreTransactionnumber} 
+	</update>
+	<!-- 更新充电订单编号 -->
+	<update id="updatechReCode" parameterType="map">
+		update
+		tbl_ChargingRecord set
+		chRe_Code = #{chreCode},
+		chRe_Status = #{status}
+		where
+		chRe_TransactionNumber=#{chreTransactionnumber}
+	</update>
+	<!-- 根据充电订单主键获取充电记录 -->
+	<select id="selectByChreCode" parameterType="map"
+		resultMap="tblChargingrecordResultMap">
+		select
+		cr.pk_ChargingRecord,
+		cr.chRe_ElectricPileID,
+		cr.chRe_UsingMachineCode,
+		cr.chRe_TransactionNumber,
+		cr.chRe_ReservationNumber,
+		cr.chRe_StartDate,
+		cr.chRe_ChargingNumber,
+		cr.chRe_ChargingMethod,
+		cr.chRe_RestTime,
+		cr.chRe_EndDate,
+		cr.chRe_Code,
+		cr.chRe_BeginShowsNumber,
+		cr.chRe_EndShowsNumber
+		from tbl_ChargingRecord cr left join tbl_ChargingOrder co
+		on cr.chRe_Code = co.chOr_Code
+		where
+		co.pk_ChargingOrder=#{pkChargingOrder} 
+	</select>
+
+	<delete id="delete" parameterType="map">
+		delete from
+		tbl_ChargingRecord
+		where
+		pk_ChargingRecord=#{pkChargingrecord} 
+	</delete>
+	<!-- 根据流水号获取充电信息 -->
+	<select id="getByTranNumber" parameterType="String"
+		resultMap="tblChargingrecordResultMap">
+		select
+		pk_ChargingRecord,
+		chRe_ElectricPileID,
+		chRe_UsingMachineCode,
+		chRe_TransactionNumber,
+		chRe_ReservationNumber,
+		chRe_StartDate,
+		chRe_ChargingNumber,
+		chRe_ChargingMethod,
+		chRe_RestTime,
+		chRe_Code,
+		chRe_BeginShowsNumber,
+		chRe_EndShowsNumber,
+		user_phone,
+		user_id,
+     	chRe_Status,
+     	chRe_JPrice,
+     	chRe_FPrice,
+     	chRe_PPrice,
+        chRe_GPrice,
+        chRe_ServiceCharge,
+        chRe_QuantumDate,
+     	chRe_JMoney,
+     	chRe_FMoney,
+     	chRe_PMoney,
+        chRe_GMoney,
+        pk_UserCard,
+        chRe_UserOrigin,
+        chRe_FrozenAmt,
+        chRe_RealAmt,
+	    chRe_OrgNo,
+	    chRe_PayMode,
+	    chRe_ThirdCode,
+		chRe_ThirdType,
+	     chre_parter_user_logo,
+	     chre_parter_extradata,
+	     chre_usrgateip,
+	     account_id
+		from tbl_ChargingRecord
+		where
+		chRe_TransactionNumber=#{chreTransactionnumber} 
+	</select>
+	
+	<select id="getUnFinishedCharge" parameterType="TblChargingrecord" resultMap="tblChargingrecordResultMap">
+		select
+		pk_ChargingRecord,
+		chRe_ElectricPileID,
+		chRe_UsingMachineCode,
+		chRe_TransactionNumber,
+		chRe_ReservationNumber,
+		chRe_StartDate,
+		chRe_ChargingNumber,
+		chRe_ChargingMethod,
+		chRe_RestTime,
+		chRe_Code,
+		chRe_BeginShowsNumber,
+		chRe_EndShowsNumber,
+		user_phone,
+		user_id,
+     	chRe_Status,
+     	chRe_JPrice,
+     	chRe_FPrice,
+     	chRe_PPrice,
+        chRe_GPrice,
+        chRe_ServiceCharge,
+        chRe_QuantumDate,
+     	chRe_JMoney,
+     	chRe_FMoney,
+     	chRe_PMoney,
+        chRe_GMoney,
+        pk_UserCard,
+        chRe_UserOrigin,
+        chRe_FrozenAmt,
+	    chRe_OrgNo,
+	    chRe_PayMode,
+		chRe_ThirdCode,
+		chRe_ThirdType,
+		chre_parter_user_logo,
+	     chre_parter_extradata,
+	     chre_usrgateip  
+		from tbl_ChargingRecord
+		where
+     	 chRe_UsingMachineCode=#{chreUsingmachinecode} and chRe_ChargingNumber=#{chreChargingnumber} and (chRe_Status=2  or chRe_Status=0 or chRe_Status=4 or chRe_Status=8)  order by chRe_StartDate desc limit 1 
+	</select>
+	
+	<select id="getUnFinishedChargeByUsrId" parameterType="TblChargingrecord" resultMap="tblChargingrecordResultMap">
+		select
+		pk_ChargingRecord,
+		chRe_ElectricPileID,
+		chRe_UsingMachineCode,
+		chRe_TransactionNumber,
+		chRe_ReservationNumber,
+		chRe_StartDate,
+		chRe_ChargingNumber,
+		chRe_ChargingMethod,
+		chRe_RestTime,
+		chRe_Code,
+		chRe_BeginShowsNumber,
+		chRe_EndShowsNumber,
+		user_phone,
+		user_id,
+     	chRe_Status,
+     	chRe_JPrice,
+     	chRe_FPrice,
+     	chRe_PPrice,
+        chRe_GPrice,
+        chRe_ServiceCharge,
+        chRe_QuantumDate,
+     	chRe_JMoney,
+     	chRe_FMoney,
+     	chRe_PMoney,
+        chRe_GMoney,
+        pk_UserCard,
+        chRe_UserOrigin,
+        chRe_FrozenAmt,
+	    chRe_OrgNo,
+	    chRe_PayMode,
+		chRe_ThirdCode,
+		chRe_ThirdType,
+		chre_parter_user_logo,
+		chre_parter_extradata,
+	     chre_usrgateip  
+		from tbl_ChargingRecord
+		where
+     	 user_id=#{userId} and (chRe_Status=2  or chRe_Status=0 or chRe_Status=4 or chRe_Status=8)  order by chRe_StartDate desc limit 1 
+	</select>
+
+	<select id="getChargeByUser" parameterType="int" resultMap="tblChargingrecordResultMap">
+		select
+		pk_ChargingRecord,
+		chRe_ElectricPileID,
+		chRe_UsingMachineCode,
+		chRe_TransactionNumber,
+		chRe_ReservationNumber,
+		chRe_StartDate,
+		chRe_ChargingNumber,
+		chRe_ChargingMethod,
+		chRe_RestTime,
+		chRe_Code,
+		chRe_BeginShowsNumber,
+		chRe_EndShowsNumber,
+		user_phone,
+		user_id,
+     	chRe_Status,
+     	chRe_JPrice,
+     	chRe_FPrice,
+     	chRe_PPrice,
+        chRe_GPrice,
+        chRe_QuantumDate,
+     	chRe_JMoney,
+     	chRe_FMoney,
+     	chRe_PMoney,
+        chRe_GMoney,
+        pk_UserCard,
+        chRe_UserOrigin,
+        chRe_FrozenAmt,
+	    chRe_OrgNo,
+	    chRe_PayMode
+		from tbl_ChargingRecord
+		where
+     	 user_id=#{accountId} and (chRe_Status=2 or chRe_Status=0 or chRe_Status=4)
+	</select>
+
+	<select id="getChargeByThirdUser" parameterType="TblChargingrecord" resultMap="tblChargingrecordResultMap">
+		select
+		pk_ChargingRecord,
+		chRe_ElectricPileID,
+		chRe_UsingMachineCode,
+		chRe_TransactionNumber,
+		chRe_ReservationNumber,
+		chRe_StartDate,
+		chRe_ChargingNumber,
+		chRe_ChargingMethod,
+		chRe_RestTime,
+		chRe_Code,
+		chRe_BeginShowsNumber,
+		chRe_EndShowsNumber,
+		user_phone,
+		user_id,
+     	chRe_Status,
+     	chRe_JPrice,
+     	chRe_FPrice,
+     	chRe_PPrice,
+        chRe_GPrice,
+        chRe_QuantumDate,
+     	chRe_JMoney,
+     	chRe_FMoney,
+     	chRe_PMoney,
+        chRe_GMoney,
+        pk_UserCard,
+        chRe_UserOrigin,
+        chRe_FrozenAmt,
+	    chRe_OrgNo,
+	    chRe_PayMode,
+	     chre_usrgateip  
+		from tbl_ChargingRecord
+		where
+     	 user_id=#{userId} and chre_parter_user_logo=#{thirdUsrIdentity} and (chRe_Status=2 or chRe_Status=0 or chRe_Status=4)
+	</select>
+
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		pk_ChargingRecord,
+		chRe_ElectricPileID,
+		chRe_UsingMachineCode,
+		chRe_TransactionNumber,
+		chRe_ReservationNumber,
+		chRe_StartDate,
+		chRe_ChargingNumber,
+		chRe_ChargingMethod,
+		chRe_RestTime,
+		chRe_EndDate,
+		chRe_Code,
+		chRe_BeginShowsNumber,
+		chRe_EndShowsNumber
+		from tbl_ChargingRecord
+		where
+		pk_ChargingRecord=#{pkChargingrecord} 
+	</select>
+
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		pk_ChargingRecord,
+		chRe_ElectricPileID,
+		chRe_UsingMachineCode,
+		chRe_TransactionNumber,
+		chRe_ReservationNumber,
+		chRe_StartDate,
+		chRe_ChargingNumber,
+		chRe_ChargingMethod,
+		chRe_RestTime,
+		chRe_EndDate,
+		chRe_Code,
+		chRe_BeginShowsNumber,
+		chRe_EndShowsNumber
+		from tbl_ChargingRecord
+		<where>
+			<if test="pkChargingrecord != null">
+				pk_ChargingRecord=#{pkChargingrecord}
+	     </if>
+			<if test="chreElectricpileid != null">
+				and chRe_ElectricPileID=#{chreElectricpileid}
+	     </if>
+			<if test="chreUsingmachinecode != null">
+				and chRe_UsingMachineCode=#{chreUsingmachinecode}
+	     </if>
+			<if test="chreTransactionnumber != null">
+				and chRe_TransactionNumber=#{chreTransactionnumber}
+	     </if>
+			<if test="chreReservationnumber != null">
+				and chRe_ReservationNumber=#{chreReservationnumber}
+	     </if>
+			<if test="chreStartdate != null">
+				and chRe_StartDate=#{chreStartdate}
+	     </if>
+			<if test="chreChargingnumber != null">
+				and chRe_ChargingNumber=#{chreChargingnumber}
+	     </if>
+			<if test="chreChargingmethod != null">
+				and chRe_ChargingMethod=#{chreChargingmethod}
+	     </if>
+			<if test="chreResttime != null">
+				and chRe_RestTime=#{chreResttime}
+	     </if>
+			<if test="chreEnddate != null">
+				and chRe_EndDate=#{chreEnddate}
+	     </if>
+			<if test="chreCode != null">
+				and chRe_Code=#{chreCode}
+	     </if>
+			<if test="chreBeginshowsnumber != null">
+				and chRe_BeginShowsNumber=#{chreBeginshowsnumber}
+	     </if>
+			<if test="chreEndshowsnumber != null">
+				and chRe_EndShowsNumber=#{chreEndshowsnumber}
+	     </if>
+		</where>
+	</select>
+	
+	<!-- 根据实时电桩记录中的用户id来判断是否在充电 -->
+	<select id="ischarging" parameterType="int" resultType="int">
+		select sum(a)+sum(b) num from(
+		(select count(*) a from tbl_chargeinfo_ac where user_id = #{userId}) t1 ,
+		(select count(*) b from tbl_chargeinfo_dc where user_id = #{userId}) t2
+		)
+	</select>
+	
+	<update id="updateBeginRecord" parameterType="map">
+		update
+		tbl_ChargingRecord set	
+		chRe_ReservationNumber=#{chreReservationnumber},
+	     chRe_StartDate=#{chreStartdate},
+	    chRe_ChargingNumber=#{chreChargingnumber},
+	     chRe_ChargingMethod=#{chreChargingmethod},
+	     chRe_RestTime=#{chreResttime},
+	     chRe_EndDate=#{chreEnddate},
+	      chRe_Code=#{chreCode},
+	      chRe_BeginShowsNumber=#{chreBeginshowsnumber},
+	      chRe_EndShowsNumber=#{chreEndshowsnumber},
+	      chRe_Status = #{status},
+		  chRe_ThirdCode=#{thirdCode},
+		  chRe_ThirdType=#{thirdType} 
+
+		where
+		chRe_TransactionNumber=#{chreTransactionnumber}
+	</update>
+	
+	<update id="updateBeginRecordStatus" parameterType="map">
+		update 
+			tbl_ChargingRecord set 
+	      chRe_Status = #{status}
+		where
+		chRe_TransactionNumber=#{chreTransactionnumber}
+	</update>
+	
+	<update id="updateFailChargeRecord" parameterType="map">
+		update tbl_ChargingRecord set chRe_Status=#{status}
+
+		where
+		chRe_TransactionNumber=#{chreTransactionnumber}
+	</update>
+	
+	
+	<delete id="deleteBeginRecord" parameterType="map">
+		delete from
+		tbl_ChargingRecord
+		where
+		chRe_TransactionNumber=#{chreTransactionnumber}
+	</delete>
+	
+	<update id="updateThird" parameterType="map">
+		update 
+			tbl_ChargingRecord set 
+	      chRe_ThirdCode=#{thirdCode},
+	      chRe_ServiceCharge = #{ServicePrice},
+		chRe_ThirdType=#{thirdType} 
+		where
+		chRe_TransactionNumber=#{chreTransactionnumber}
+	</update>
+	
+	<update id="updateUsrGateIp" parameterType="map">
+		update 
+			tbl_ChargingRecord set 
+	      chre_usrgateip = #{usrGateIp}
+		where
+		chRe_TransactionNumber=#{chreTransactionnumber}
+	</update>
+</mapper> 

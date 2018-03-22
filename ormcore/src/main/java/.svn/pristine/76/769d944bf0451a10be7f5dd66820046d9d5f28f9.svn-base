@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ormcore.dao.ElectricpileWorkargDao">
+    <resultMap id="get-ElectricpileWorkarg-result" type="ElectricpileWorkarg">
+        <!-- 主键-->
+        <result property="id" column="id"/>
+        <!-- 桩体编号-->
+        <result property="epCode" column="ep_code"/>
+        <!-- 参数ID-->
+        <result property="argId" column="arg_id"/>
+        <!-- 参数值-->
+        <result property="argValue" column="arg_value"/>
+        <!-- 下发给电桩状态（0：未下发定时；1：已下发数据但未收到响应 ；2：下发定时成功；3：下发定时失败）-->
+        <result property="issuedStatus" column="issued_status"/>
+        <!-- 删除标志-->
+        <result property="deleteFlag" column="delete_flag"/>
+    </resultMap>
+    <sql id="ElectricpileWorkarg_Base_Column_List">
+        <!-- 主键-->
+        id,
+        <!-- 桩体编号-->
+        ep_code,
+        <!-- 参数ID-->
+        arg_id,
+        <!-- 参数值-->
+        arg_value,
+        <!-- 下发给电桩状态（0：未下发定时；1：已下发数据但未收到响应 ；2：下发定时成功；3：下发定时失败）-->
+        issued_status,
+        <!-- 删除标志-->
+        delete_flag
+    </sql>
+
+    <select id="ElectricpileWorkarg_custlist" resultMap="get-ElectricpileWorkarg-result">
+        SELECT
+        <include refid="ElectricpileWorkarg_Base_Column_List"/>
+        FROM
+        tbl_electricpile_workarg
+        WHERE 1=1
+        <if test="epCode != null">
+            AND ep_code = #{epCode}
+        </if>
+        <if test="argId != null">
+            AND arg_id = #{argId}
+        </if>
+    </select>
+
+    <update id="ElectricpileWorkarg_update" parameterType="ElectricpileWorkarg">
+        UPDATE tbl_electricpile_workarg
+        set
+        ep_code = #{epCode}
+        <if test="argId != null">
+            ,arg_id = #{argId}
+        </if>
+        <if test="argValue != null">
+            ,arg_value = #{argValue}
+        </if>
+        <if test="issuedStatus != null">
+            ,issued_status = #{issuedStatus}
+        </if>
+        <if test="deleteFlag != null">
+            ,delete_flag = #{deleteFlag}
+        </if>
+        ,update_date = now()
+        WHERE
+        ep_code = #{epCode}
+        <if test="argId != null">
+            and arg_id = #{argId}
+        </if>
+    </update>
+
+    <update id="ElectricpileWorkarg_updateFail" parameterType="ElectricpileWorkarg">
+		UPDATE tbl_electricpile_workarg
+		set
+		issued_status = 3
+		,update_date = now()
+		WHERE
+		ep_code = #{epCode}
+		and issued_status = 0
+	</update>
+
+    <insert id="ElectricpileWorkarg_insert" parameterType="ElectricpileWorkarg" useGeneratedKeys="true"
+            keyProperty="id">
+		INSERT INTO tbl_electricpile_workarg(
+		ep_code,
+		arg_id,
+		arg_value,
+		issued_status
+		) values (
+		#{epCode},
+		#{argId},
+		#{argValue},
+		#{issuedStatus}
+		)
+	</insert>
+</mapper>

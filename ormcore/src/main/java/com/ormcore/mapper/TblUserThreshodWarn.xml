@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.TblUserThreshodDao">
+	
+	<resultMap id="userInfResultMap" type="TblUserThreshod">
+		<result property="usrId" column="thw_user_id" />
+		<result property="warnMoney" column="thw_threshold" />
+		<result property="phone" column="thw_cellphone" />
+		<result property="customerPhone" column="thw_customer_phone" />
+	</resultMap>
+	
+	<resultMap id="findResultMap"  type="java.util.HashMap" extends="userInfResultMap"></resultMap>
+
+
+	
+	<select id="findUserThreshodInfo" parameterType="int" resultMap="userInfResultMap">
+		select thw_user_id,thw_threshold,thw_customer_phone,thw_cellphone 
+		from tbl_threshod_warning
+	   where
+	    thw_user_id=#{usrId} limit 1;
+	</select>
+	
+
+	
+</mapper> 

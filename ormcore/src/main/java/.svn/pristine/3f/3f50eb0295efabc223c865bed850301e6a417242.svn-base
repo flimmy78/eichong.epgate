@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.BespokeDao">
+
+	<resultMap id="tblBespoketMap" type="TblBespoke">
+		<id property="id" column="pk_Bespoke" />
+		<result property="pkEpId" column="besp_ElectricPileId" />
+		<result property="bespokeTime" column="besp_BespokeTime" />
+		<result property="bespokeTimes" column="besp_BespokeTimes" />
+		
+		<result property="ordertype" column="besp_OrderType" />
+		<result property="amt" column="besp_FrozenAmt" />
+		<result property="userid" column="besp_UserInfo" />
+		<result property="status" column="besp_BespokeStatus" />
+		<result property="pkEpId" column="besp_ElectricPileId" />
+		<result property="pkEpGunNo" column="besp_ElectricPileHead" />
+		
+		<result property="bespNo" column="besp_ResePaymentCode" />
+		<result property="userId" column="besp_UserInfo" />
+		<result property="beginTime" column="besp_BeginTime" />
+		<result property="endTime" column="besp_EndTime" />
+		<result property="realityTime" column="besp_RealityTime" />
+		<result property="updateTime" column="besp_Updatedate" />
+	
+		<result property="price" column="besp_BespokePrice" />
+		<result property="occurFrozenAmt" column="besp_OccurFrozenAmt" />
+		<result property="partnerIdentiy" column="besp_appclientip" />
+		<result property="userOrigin" column="besp_UserOrigin" />
+		<result property="userOrgNo" column="besp_OrgNo" />
+		<result property="payMode" column="besp_PayMode" />
+	</resultMap>
+	
+	<resultMap id="findResultMap"  type="java.util.HashMap" extends="tblBespoketMap"></resultMap>
+
+	<select id="getUnStopBesp"    parameterType="TblBespoke" resultMap="tblBespoketMap">
+
+   	select 
+	   	pk_Bespoke, 
+		besp_OrderType,
+		besp_FrozenAmt,
+		besp_UserInfo,
+		besp_BespokeStatus,
+		besp_RealityTime,
+		besp_ElectricPileId,
+		besp_ElectricPileHead,
+		besp_UserInfo,
+		besp_BeginTime,
+		besp_EndTime,
+		besp_appclientip,
+		besp_ResePaymentCode,
+		besp_BespokePrice,
+		besp_appclientip,
+		besp_UserOrigin,
+		besp_OrgNo,
+		besp_PayMode
+		
+	   from tbl_bespoke 
+	   where 
+	     besp_ElectricPileId =#{pkEpId} and besp_ElectricPileHead=#{pkEpGunNo} and besp_BespokeStatus =4 and  besp_OrderType=0 order by pk_Bespoke desc limit 1
+		
+	</select>
+	
+	<select id="getBespByUser" parameterType="int" resultMap="tblBespoketMap">
+   	select 
+	   	pk_Bespoke, 
+		besp_OrderType,
+		besp_FrozenAmt,
+		besp_UserInfo,
+		besp_BespokeStatus,
+		besp_RealityTime,
+		besp_ElectricPileId,
+		besp_ElectricPileHead,
+		besp_UserInfo,
+		besp_BeginTime,
+		besp_EndTime,
+		besp_appclientip,
+		besp_ResePaymentCode,
+		besp_BespokePrice,
+		besp_appclientip,
+		besp_UserOrigin,
+		besp_OrgNo,
+		besp_PayMode
+	   from tbl_bespoke 
+	   where 
+	     besp_UserInfo =#{accountId} and (besp_BespokeStatus =3 or besp_BespokeStatus =4) and besp_OrderType=0
+	</select>
+
+	<select id="getUnStopBespByUserId"    parameterType="TblBespoke" resultMap="tblBespoketMap">
+
+   	select 
+	   	pk_Bespoke, 
+		besp_OrderType,
+		besp_FrozenAmt,
+		besp_UserInfo,
+		besp_BespokeStatus,
+		besp_RealityTime,
+		besp_ElectricPileId,
+		besp_ElectricPileHead,
+		besp_UserInfo,
+		besp_BeginTime,
+		besp_EndTime,
+		besp_appclientip,
+		besp_ResePaymentCode,
+		besp_BespokePrice,
+		besp_appclientip,
+		besp_UserOrigin,
+		besp_OrgNo,
+		besp_PayMode
+		
+	   from tbl_bespoke 
+	   where 
+	     besp_UserInfo =#{userid} and besp_ElectricPileHead=#{pkEpGunNo} and besp_BespokeStatus =4 and  besp_OrderType=0 order by pk_Bespoke desc limit 1
+		
+	</select>
+	
+	<select id="getBesp" parameterType="long" resultMap="tblBespoketMap">
+	   select
+	    pk_Bespoke,
+	   	besp_ElectricPileId,
+		besp_BespokeTime,
+		besp_BespokeRemark,
+		besp_BespokeTimes,
+		besp_BespokePrice,
+		besp_BespokeStatus,
+		besp_Updatedate,
+		besp_ElectricPileHead,
+		besp_UserInfo,
+		besp_ResePaymentCode,
+		besp_FrozenAmt,
+		besp_BeginTime,
+		besp_EndTime,
+		besp_RealityTime,
+		besp_OrderType,
+		besp_appclientip,
+		besp_UserOrigin,
+		besp_OrgNo,
+		besp_PayMode
+		
+		from tbl_bespoke
+	   where 
+	    pk_Bespoke=#{id} 
+	</select>
+	
+	<select id="update"   parameterType="TblBespoke">
+	   update tbl_bespoke set
+	   		besp_FrozenAmt=#{amt},
+			besp_BespokeStatus=#{status},
+			besp_OrderType=#{ordertype},
+			besp_RealityTime=#{realityTime},
+			besp_Updatedate=#{updateTime},
+			besp_EndTime=#{endTime},
+			besp_BespokeTimes=#{bespokeTimes},
+			besp_BespokeTime=#{bespokeTime},
+			besp_EndTime=#{endTime}
+	   where 
+	    pk_Bespoke=#{id}
+	</select>
+	<select id="updateRedo"   parameterType="TblBespoke">
+	   update tbl_bespoke set
+	   		besp_FrozenAmt=#{amt},
+	   		besp_BespokeRemark = #{bespokeMark},
+			besp_RealityTime=#{realityTime},
+			besp_BespokeTimes=#{bespokeTimes},
+			besp_BespokeTime=#{bespokeTime},
+			besp_EndTime=#{endTime}
+	   where 
+	    pk_Bespoke=#{id}
+	</select>
+	
+	<select id="updateAppClient"   parameterType="TblBespoke">
+	   update tbl_bespoke set
+	   		besp_appclientip=#{appClientIp}
+	   where 
+	    pk_Bespoke=#{id}
+	</select>
+	
+	<insert id="insert" parameterType="TblBespoke" useGeneratedKeys="true" keyProperty="id">
+	
+	   insert into tbl_bespoke (
+			besp_ElectricPileId,
+			besp_FrozenAmt,
+			besp_UserInfo,
+			besp_BespokeStatus,
+			besp_RealityTime,
+			besp_ElectricPileHead,
+			besp_ResePaymentCode,
+			besp_BeginTime,
+			besp_EndTime,
+			besp_Updatedate,
+			besp_appclientip,
+			besp_BespokePrice,
+			besp_BespokeTimes,
+			besp_BespokeRemark,
+			besp_BespokeTime,
+			besp_OccurFrozenAmt,
+			besp_OrgNo,
+			besp_PayMode
+			
+	   )values (
+	    #{pkEpId},
+	  	#{amt},
+	  	#{userid},
+	  	#{status},
+	  	#{realityTime},
+	  	#{pkEpGunNo},
+	  	#{bespNo},
+	  	#{beginTime},
+	  	#{endTime},
+	  	#{updateTime},
+		#{partnerIdentiy},
+		#{price},
+		#{bespokeTimes},
+		#{bespokeMark},
+		#{bespokeTime},
+		#{amt},
+		#{userOrgNo},
+		#{payMode}
+	   )
+	</insert>
+
+	
+</mapper> 

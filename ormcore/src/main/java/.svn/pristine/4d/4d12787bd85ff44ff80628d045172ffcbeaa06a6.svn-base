@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ormcore.dao.ElectricpileMeternumDao">
+	<resultMap id="get-ElectricpileMeternum-result" type="ElectricpileMeternum">
+		<!-- 读表日期-->
+		<result property="readDate" column="read_date" />
+		<!-- 桩体编号-->
+		<result property="epCode" column="ep_code" />
+		<!-- 桩体总电度-->
+		<result property="totalMeter" column="total_meter" />
+		<!-- 枪口1总电度-->
+		<result property="gun1Meter" column="gun1_meter" />
+		<!-- 枪口2总电度-->
+		<result property="gun2Meter" column="gun2_meter" />
+		<!-- 枪口3总电度-->
+		<result property="gun3Meter" column="gun3_meter" />
+		<!-- 枪口4总电度-->
+		<result property="gun4Meter" column="gun4_meter" />
+	</resultMap>
+	<sql id="ElectricpileMeternum_Base_Column_List">
+		<!-- 读表日期-->
+		read_date,
+		<!-- 桩体编号-->
+		ep_code,
+		<!-- 桩体总电度-->
+		total_meter,
+		<!-- 枪口1总电度-->
+		gun1_meter,
+		<!-- 枪口2总电度-->
+		gun2_meter,
+		<!-- 枪口3总电度-->
+		gun3_meter,
+		<!-- 枪口4总电度-->
+		gun4_meter
+	</sql>
+
+    <select id="ElectricpileMeternum_custlist"  resultMap="get-ElectricpileMeternum-result">
+        SELECT
+	        <include refid="ElectricpileMeternum_Base_Column_List" />
+        FROM
+		tbl_electricpile_meternum
+        WHERE 1=1
+		            <if test="readDate != null">
+                AND read_date = #{readDate}
+            </if>
+		            <if test="epCode != null">
+                AND ep_code = #{epCode}
+            </if>
+		    </select>
+
+	<insert id="ElectricpileMeternum_insert" parameterType="ElectricpileMeternum" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tbl_electricpile_meternum(
+		read_date,
+		ep_code,
+		total_meter,
+		gun1_meter,
+		gun2_meter,
+		gun3_meter,
+		gun4_meter,
+		create_date
+		) values (
+		#{readDate},
+		#{epCode},
+		#{totalMeter},
+		#{gun1Meter},
+		#{gun2Meter},
+		#{gun3Meter},
+		#{gun4Meter},
+		now()
+		)
+	</insert>
+</mapper>

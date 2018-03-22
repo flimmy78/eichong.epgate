@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<config>
+
+	<phone-flow-cycle>
+		<cycle>300</cycle>
+		<cycle>60</cycle>
+	</phone-flow-cycle>
+
+	<ep-flow-cycle>
+		<cycle>180</cycle>
+		<cycle>120</cycle>
+	</ep-flow-cycle>
+
+	<phone-instruct-cycle>
+		<cycle>300</cycle>
+		<cycle>60</cycle>
+	</phone-instruct-cycle>
+
+	<ep-instruct-cycle>
+		<cycle>180</cycle>
+		<cycle>120</cycle>
+	</ep-instruct-cycle>
+
+</config>

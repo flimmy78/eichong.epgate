@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ormcore.dao.CompanyRelaDao">
+	<resultMap id="get-CompanyRela-result" type="CompanyRela">
+		<!-- 主键-->
+		<result property="pkId" column="pk_id" />
+		<!-- 合作公司ID-->
+		<result property="pkCpyOperateId" column="pk_cpy_operate_id" />
+		<!-- 电站ID-->
+		<result property="pkPowerstation" column="pk_powerstation" />
+		<!-- 桩ID-->
+		<result property="pkElectricpile" column="pk_electricpile" />
+		<result property="cpyCompanyNumber" column="cpy_CompanyNumber" />
+	</resultMap>
+	<sql id="CompanyRela_Base_Column_List">
+		<!-- 主键-->
+		pk_id,
+		<!-- 合作公司ID-->
+        pk_cpy_operate_id,
+        <!-- 电站ID-->
+        pk_powerstation,
+        <!-- 桩ID-->
+        pk_electricpile,
+        cpy_number cpy_CompanyNumber
+    </sql>
+
+    <select id="CompanyRela_custlist"  resultMap="get-CompanyRela-result">
+        SELECT
+        <include refid="CompanyRela_Base_Column_List" />
+        FROM
+        tbl_company_rela r
+        inner join tbl_company c
+        on c.cpy_id = r.pk_cpy_operate_id
+        WHERE 1=1
+        <if test="pkId != null and pkId != ''">
+            AND pk_id = #{pkId}
+        </if>
+        <if test="pkCpyOperateId != null and pkCpyOperateId != ''">
+            AND r.pk_cpy_operate_id = #{pkCpyOperateId}
+        </if>
+        <if test="pkPowerstation != null and pkPowerstation != ''">
+            AND pk_powerstation = #{pkPowerstation}
+        </if>
+        <if test="pkElectricpile != null and pkElectricpile != ''">
+            AND pk_electricpile = #{pkElectricpile}
+        </if>
+    </select>
+</mapper>

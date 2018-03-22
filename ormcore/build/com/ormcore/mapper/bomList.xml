@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.BomListDao">
+	<resultMap id="bomListMap" type="TblBomList">
+		<id property="bomListId" column="pk_BomListId" />
+		<result property="typeSpanId" column="pk_TypeSpanId" />
+		<result property="hardwareNumber" column="bl_HardwareNumber" />
+		<result property="hardwareVersion" column="bl_HardwareVersion" />
+		<result property="softNumber" column="bl_FirmwareNumber" />
+		<result property="softVersion" column="bl_FirmwareVersion" />
+		<result property="forceUpdate" column="bl_ForceUpdate" />
+		<result property="fileMd5" column="bl_FileMd5" />	
+		<result property="createDate" column="bl_Createdate" />	
+		<result property="updatedate" column="bl_Updatedate" />	
+		<result property="typeSpan" column="ts_TypeSpan" />	
+	</resultMap>
+	
+	<resultMap id="findResultMap"  type="java.util.HashMap" extends="bomListMap"></resultMap>
+	
+	<select id="getAll"   resultMap="bomListMap">
+	   select 
+	   pk_BomListId,
+	      e.pk_TypeSpanId,
+	      r.ts_TypeSpan,
+	     bl_HardwareNumber,
+	     bl_HardwareVersion,
+	     bl_FirmwareNumber,
+	     bl_FirmwareVersion,
+	     bl_ForceUpdate,
+	     bl_FileMd5,
+	     bl_Updatedate 
+	     from tbl_bomlist e left join tbl_TypeSpan  r on r.pk_TypeSpanId = e.pk_TypeSpanId
+	    
+ 
+	</select>
+	
+	<select id="getAllByTypeSpanId"   parameterType="int"  resultMap="bomListMap">
+	   select 
+	   pk_BomListId,
+	      pk_TypeSpanId,
+	     bl_HardwareNumber,
+	     bl_HardwareVersion,
+	     bl_FirmwareNumber,
+	     bl_FirmwareVersion,
+	     bl_ForceUpdate,
+	     bl_FileMd5,
+	     bl_Updatedate
+	     from tbl_bomlist 
+	     where pk_TypeSpanId = #{Id}
+	    
+ 
+	</select>
+	
+	<select id="getAllByBomListId"   parameterType="int"  resultMap="bomListMap">
+	   select 
+	   pk_BomListId,
+	      pk_TypeSpanId,
+	     bl_HardwareNumber,
+	     bl_HardwareVersion,
+	     bl_FirmwareNumber,
+	     bl_FirmwareVersion,
+	     bl_ForceUpdate,
+	     bl_FileMd5,
+	     bl_Updatedate
+	     from tbl_bomlist 
+	     where pk_BomListId = #{Id}
+	    
+ 
+	</select>
+
+	<select id="getBomByProductId" parameterType="map" resultMap="bomListMap">
+		select
+		pk_BomListId,
+		pk_TypeSpanId,
+		bl_HardwareNumber,
+		bl_HardwareVersion,
+		bl_FirmwareNumber,
+		bl_FirmwareVersion,
+		bl_ForceUpdate,
+		bl_FileMd5,
+		bl_Updatedate
+		from tbl_bomlist b
+		inner join tbl_equipmentversion e
+		on b.bl_HardwareNumber = e.ev_HardwareNumber
+		and b.bl_HardwareVersion = e.ev_HardwareVersion
+		and b.bl_FirmwareNumber = e.ev_FirmwareNumber
+		and b.bl_FirmwareVersion = e.ev_FirmwareVersion
+		where pk_TypeSpanId = #{typeSpanId}
+		and e.ev_ProductID = #{productId}
+		and e.ev_ProductType = 3
+	</select>
+	
+	  
+</mapper> 

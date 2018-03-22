@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.TblChargeACInfoDao">
+
+	<resultMap id="resultMap" type="TblChargeACInfo">
+		<id property="pk_chargeinfo" column="pk_chargeinfo" />
+		<result property="station_id" column="station_id" />
+		<result property="ep_code" column="ep_code" />
+		<result property="ep_gun_no" column="ep_gun_no" />
+		
+		<result property="linkCarStatus" column="cac_conn_battry" />
+		<result property="gunCloseStatus" column="cac_gun_close_status" />
+		<result property="gunLidStatus" column="cac_gun_lid_status" />
+		<result property="commStatusWithCar" column="cac_car_conn_pile" />
+		<result property="carPlaceStatus" column="cac_carplace_status" />
+		<result property="cardReaderFault" column="cac_card_reader_fault" />
+		<result property="urgentStopFault" column="cac_urgent_stop_fault" />
+		<result property="arresterFault" column="cac_arrester_fault" />
+		<result property="insulationCheckFault" column="cac_insulation_check_fault" />
+		<result property="gunUnconnectWarn" column="cac_gun_unconnect_warn" />
+		<result property="transRecordFullWarn" column="cac_trans_record_warn" />
+		<result property="meterError" column="cac_meter_error" />
+		<result property="acInVolWarn" column="cac_ac_in_vol_warn" />
+		<result property="chargeOverTemp" column="cac_charge_over_temp" />
+		<result property="acCurrentLoadWarn" column="cac_ac_current_over_load" />
+		<result property="outRelayStatus" column="cac_output_relay" />
+		<result property="workingStatus" column="cac_charger_status" />
+	
+		<result property="outVoltage" column="cac_output_voltage" />
+		<result property="outCurrent" column="cac_output_current" />
+		<result property="carPlaceLockStatus" column="cac_lock_status" />
+		<result property="soc" column="cac_soc" />
+		
+		<result property="chargedTime" column="cac_charged_time" />
+		<result property="chargeRemainTime" column="cac_charged_remain_time" />
+		<result property="totalActivMeterNum" column="cac_total_active_meternum" />
+		<result property="chargedCost" column="cac_charged_cost" />
+		<result property="chargePrice" column="cac_price" />
+		<result property="chargedMeterNum" column="chargedMeterNum" />
+		<result property="fronzeAmt" column="fronzeAmt" />
+		<result property="chargeStartTime" column="start_time" />
+		<result property="chargeStartMeterNum" column="start_dl" />
+		<result property="createdate" column="createdate" />
+		<result property="updatedate" column="updatedate" />
+		<result property="chargeStartMeterNum" column="start_dl" />
+		<result property="chargeUserId" column="user_id" />
+		<result property="chargeSerialNo" column="serialno" />
+
+	</resultMap>
+	<select id="findChargeInfo"  parameterType="TblChargeACInfo" resultMap="resultMap" >
+	select pk_chargeinfo,
+	ep_code,
+  	station_id,
+  	ep_gun_no,
+  cac_conn_battry,
+  cac_gun_close_status,
+  cac_gun_lid_status,
+  cac_car_conn_pile,
+  cac_carplace_status,
+  cac_card_reader_fault,
+  cac_urgent_stop_fault,
+  cac_arrester_fault,
+  cac_insulation_check_fault,
+  cac_gun_unconnect_warn,
+  cac_trans_record_warn,
+  cac_meter_error,
+  cac_ac_in_vol_warn,
+  cac_charge_over_temp,
+  cac_ac_current_over_load,
+  cac_output_relay,
+  cac_charger_status,
+  cac_output_voltage,
+  cac_output_current,
+  cac_lock_status,
+  cac_soc,
+  cac_charged_remain_time,
+  cac_total_active_meternum,
+  cac_charged_cost,
+  cac_price,
+  user_id,
+  serialno,
+  start_time
+   from tbl_chargeinfo_ac
+	   where 
+	    ep_code=#{ep_code} and  ep_gun_no=#{ep_gun_no}
+	</select>
+	
+	<insert id="insert" parameterType="TblChargeACInfo" useGeneratedKeys="true" keyProperty="pk_chargeinfo">
+	   insert into tbl_chargeinfo_ac (
+	   ep_code,
+  		station_id,
+  		ep_gun_no,
+ 	
+  		cac_conn_battry,
+  cac_gun_close_status,
+  cac_gun_lid_status,
+  cac_car_conn_pile,
+  cac_carplace_status,
+  cac_card_reader_fault,
+  cac_urgent_stop_fault,
+  cac_arrester_fault,
+  cac_insulation_check_fault,
+  cac_gun_unconnect_warn,
+  cac_trans_record_warn,
+  cac_meter_error,
+  cac_ac_in_vol_warn,
+  cac_charge_over_temp,
+  cac_ac_current_over_load,
+  cac_output_relay,
+  cac_charger_status,
+  cac_output_voltage,
+  cac_output_current,
+  cac_lock_status,
+  cac_soc,
+  cac_charged_time,
+  cac_charged_remain_time,
+  cac_total_active_meternum,
+  cac_charged_cost,
+  cac_price
+  
+   
+	   )
+	   values (
+	   	#{ep_code},
+	   	#{station_id},
+  		#{ep_gun_no},
+ 		#{linkCarStatus},
+		#{gunCloseStatus},
+		#{gunLidStatus},
+		#{commStatusWithCar},
+		#{carPlaceStatus},
+		#{cardReaderFault},
+		#{urgentStopFault},
+		#{arresterFault},
+		#{insulationCheckFault},
+		#{gunUnconnectWarn},
+		#{transRecordFullWarn},
+		#{meterError},
+		#{acInVolWarn},
+		#{chargeOverTemp},
+		#{acCurrentLoadWarn},
+		#{outRelayStatus},
+		#{workingStatus},
+	
+		#{outVoltage},
+		#{outCurrent},
+		#{carPlaceLockStatus},
+		#{soc},
+		
+		#{chargedTime},
+		#{chargeRemainTime},
+		#{totalActivMeterNum},
+		#{chargedCost},
+		#{chargePrice}
+	   )
+	</insert>
+
+	<update id="update" parameterType="TblChargeACInfo">
+	   update tbl_chargeinfo_ac set
+	   cac_conn_battry=#{linkCarStatus},
+	   cac_gun_close_status=#{gunCloseStatus},
+		cac_gun_lid_status=#{gunLidStatus},
+		cac_car_conn_pile=#{commStatusWithCar},
+		cac_carplace_status=#{carPlaceStatus},
+		cac_card_reader_fault=#{cardReaderFault},
+		cac_urgent_stop_fault=#{urgentStopFault},
+		cac_arrester_fault=#{arresterFault},
+		cac_insulation_check_fault=#{insulationCheckFault},
+		cac_gun_unconnect_warn=#{gunUnconnectWarn},
+		cac_trans_record_warn=#{transRecordFullWarn},
+		cac_meter_error=#{meterError},
+		cac_ac_in_vol_warn=#{acInVolWarn},
+		cac_charge_over_temp=#{chargeOverTemp},
+		cac_ac_current_over_load=#{acCurrentLoadWarn},
+		cac_output_relay=#{outRelayStatus},
+		cac_charger_status=#{workingStatus},
+	
+		cac_output_voltage=#{outVoltage},
+		cac_output_current=#{outCurrent},
+		cac_lock_status=#{carPlaceLockStatus},
+		cac_soc=#{soc},
+		
+		cac_charged_time=#{chargedTime},
+		cac_charged_remain_time=#{chargeRemainTime},
+		cac_total_active_meternum=#{totalActivMeterNum},
+		cac_charged_cost=#{chargedCost},
+		cac_price=#{chargePrice},
+  	
+	chargedMeterNum=#{chargedMeterNum}
+	
+			
+	   where 
+	   ep_code=#{ep_code} and  ep_gun_no=#{ep_gun_no}
+	</update>
+	
+
+	<update id="updateStartChargeInfo" parameterType="TblChargeACInfo">
+	
+   		update tbl_chargeinfo_ac set
+   		start_time=#{chargeStartTime},
+		start_dl=#{chargeStartMeterNum},
+		user_id=#{chargeUserId},
+		serialno=#{chargeSerialNo},
+		fronzeAmt=#{fronzeAmt}
+	   where 
+	     ep_code=#{ep_code} and ep_gun_no=#{ep_gun_no}
+	</update>
+	
+</mapper> 

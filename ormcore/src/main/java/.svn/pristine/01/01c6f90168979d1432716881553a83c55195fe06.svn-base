@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.TblUserInfoDao">
+
+    <resultMap id="userInfResultMap" type="TblUserInfo">
+        <id property="id" column="user_id"/>
+        <result property="password" column="user_password"/>
+        <result property="phone" column="user_account"/>
+        <result property="iccard" column="norm_driving_licence"/>
+        <result property="vehicleNumber" column="norm_vehicle_number"/>
+        <result property="balance" column="norm_account_balance"/>
+        <result property="accountId" column="account_id"/>
+        <result property="cpyNumber" column="cpy_number"/>
+        <result property="cpyId" column="cpy_id"/>
+        <result property="levelId" column="level_id"/>
+        <result property="deviceid" column="norm_device_id"/>
+        <result property="status" column="user_status"/>
+        <result property="level" column="user_leval"/>
+        <result property="invitePhone" column="norm_invitePhone"/>
+    </resultMap>
+
+    <resultMap id="findResultMap" type="java.util.HashMap" extends="userInfResultMap"></resultMap>
+
+    <!-- 根据电桩编码获取电桩费率信息-->
+    <select id="findUserInfoByPhone" parameterType="String" resultMap="userInfResultMap">
+        select e.user_id,if(r.flag=1,e.user_password,a.account_pwd) user_password,e.user_account,e.user_leval,e.user_status,e.level_id,r.norm_driving_licence,r.norm_vehicle_number,
+        a.account_balance norm_account_balance,r.account_id,tc.cpy_id,tc.cpy_number,r.norm_device_id,r.norm_invitePhone
+        from tbl_user e inner join (select user_id,account_id,cpy_id,norm_device_id,norm_invitePhone,norm_driving_licence,norm_vehicle_number,1 flag from tbl_user_normal where account_id > 0 union
+        select if(new_user_id!=0,new_user_id,user_id) user_id,account_id,cpy_id,null norm_device_id,null norm_invitePhone,null norm_driving_licence,null norm_vehicle_number,0 flag from tbl_usercard)  r on r.user_id = e.user_id
+        inner join fin_account a ON r.account_id = a.account_id and a.is_del = 0
+        inner join tbl_company tc on tc.cpy_id = r.cpy_id
+        where
+        e.user_account=#{account}
+        ORDER BY flag desc
+    </select>
+
+    <select id="findUserInfoById" parameterType="int" resultMap="userInfResultMap">
+        select e.user_id,if(r.flag=1,e.user_password,a.account_pwd) user_password,e.user_account,e.user_leval,e.user_status,e.level_id,r.norm_driving_licence,r.norm_vehicle_number,
+        a.account_balance norm_account_balance,r.account_id,tc.cpy_id,tc.cpy_number,r.norm_device_id,r.norm_invitePhone
+        from tbl_user e inner join (select user_id,account_id,cpy_id,norm_device_id,norm_invitePhone,norm_driving_licence,norm_vehicle_number,1 flag from tbl_user_normal where user_id=#{userId} and account_id > 0 union
+        select if(new_user_id!=0,new_user_id,user_id) user_id,account_id,cpy_id,null norm_device_id,null norm_invitePhone,null norm_driving_licence,null norm_vehicle_number,0 flag from tbl_usercard where user_id=#{userId})  r on r.user_id = e.user_id
+        inner join fin_account a ON r.account_id = a.account_id and a.is_del = 0
+        inner join tbl_company tc on tc.cpy_id = r.cpy_id
+        where
+        e.user_id=#{userId}
+        ORDER BY flag asc
+    </select>
+
+    <select id="findCardUserById" parameterType="int" resultMap="userInfResultMap">
+        select e.user_id,if(r.flag=1,e.user_password,a.account_pwd) user_password,e.user_account,e.user_leval,e.user_status,e.level_id,r.norm_driving_licence,r.norm_vehicle_number,
+        a.account_balance norm_account_balance,r.account_id,tc.cpy_id,tc.cpy_number,r.norm_device_id,r.norm_invitePhone
+        from tbl_user e inner join (
+        select if(new_user_id!=0,new_user_id,user_id) user_id,account_id,cpy_id,null norm_device_id,null norm_invitePhone,null norm_driving_licence,null norm_vehicle_number,0 flag from tbl_usercard where user_id=#{userId})  r on r.user_id = e.user_id
+        inner join fin_account a ON r.account_id = a.account_id and a.is_del = 0
+        inner join tbl_company tc on tc.cpy_id = r.cpy_id
+        where
+        e.user_id=#{userId}
+        ORDER BY a.account_id desc
+    </select>
+
+    <select id="findThirdUserById" parameterType="int" resultMap="userInfResultMap">
+        select e.user_id,if(r.flag=1,e.user_password,a.account_pwd) user_password,e.user_account,e.user_leval,e.user_status,e.level_id,r.norm_driving_licence,r.norm_vehicle_number,
+        a.account_balance norm_account_balance,r.account_id,tc.cpy_id,tc.cpy_number,r.norm_device_id,r.norm_invitePhone
+        from tbl_user e inner join (select user_id,account_id,cpy_id,norm_device_id,norm_invitePhone,norm_driving_licence,norm_vehicle_number,1 flag from tbl_user_normal where user_id=#{userId} and account_id > 0
+        )  r on r.user_id = e.user_id
+        inner join fin_account a ON r.account_id = a.account_id and a.is_del = 0
+        inner join tbl_company tc on tc.cpy_id = r.cpy_id
+        where
+        e.user_id=#{userId}
+        ORDER BY a.account_id desc
+    </select>
+
+    <select id="findOrgUserById" parameterType="int" resultMap="userInfResultMap">
+        select e.user_id,e.user_password user_password,e.user_account,e.user_leval,e.user_status,e.level_id,r.norm_driving_licence,r.norm_vehicle_number,
+        a.account_balance norm_account_balance,r.account_id,tc.cpy_id,tc.cpy_number,r.norm_device_id,r.norm_invitePhone
+        from tbl_user e inner join (select user_id,account_id,cpy_id,user_device_id norm_device_id,null norm_invitePhone,null norm_driving_licence,null norm_vehicle_number from tbl_user_company where user_id=#{userId}) r on r.user_id = e.user_id
+        inner join fin_account a on r.account_id = a.account_id and a.is_del = 0
+        inner join tbl_company tc on tc.cpy_id = r.cpy_id
+        where
+        e.user_id=#{userId}
+    </select>
+
+    <select id="findUserInfoByOrg" parameterType="int" resultMap="userInfResultMap">
+        select e.user_id user_id,e.user_password user_password,e.user_account,e.user_leval,e.user_status,e.level_id,
+        a.account_balance norm_account_balance,c.account_id,c.cpy_id,0 level_id
+        from tbl_user e inner join tbl_user_company r on r.user_id = e.user_id
+        inner join tbl_company c ON r.cpy_id = c.cpy_id
+        inner join fin_account a ON c.account_id = a.account_id and a.is_del = 0
+        where
+        c.cpy_number=#{orgno}
+    </select>
+
+    <select id="findAccountId" parameterType="int" resultType="int">
+        SELECT IFNULL(MIN(account_id),0) FROM
+        (SELECT r.account_id
+        FROM fin_account_relation r
+        INNER JOIN fin_account a ON r.account_id = a.account_id and a.is_del = 0
+        WHERE a.account_balance > 0
+        AND r.user_id=#{userId}
+        ORDER BY r.priority LIMIT 1) fa
+    </select>
+
+    <select id="findBalanceById" parameterType="int" resultType="BigDecimal">
+        select account_balance norm_account_balance
+        from fin_account
+        where
+        account_id=#{accountId}
+    </select>
+
+    <select id="executeSql" parameterType="String" resultType="String">
+        ${_parameter}
+    </select>
+
+
+    <update id="updateBalance" parameterType="TblUserInfo">
+        update fin_account set
+        account_balance=#{balance}
+        where
+        account_id=#{accountId}
+    </update>
+
+    <update id="addCost" parameterType="TblUserInfo">
+        update fin_account set account_balance = account_balance +#{balance}
+        where
+        account_id = #{accountId}
+    </update>
+    <update id="subCost" parameterType="TblUserInfo">
+	  update fin_account set account_balance=account_balance-#{balance}
+       where
+       account_id = #{accountId}
+	</update>
+
+    <insert id="insertUser" parameterType="map" useGeneratedKeys="true" keyProperty="id">
+	   insert into tbl_user (
+			user_account,
+			user_password,
+			user_leval,
+			user_status
+	   )values (
+			#{user_account},
+	  		#{user_password},
+	  		#{user_leval},
+	  		#{user_status}
+	   )
+	</insert>
+
+    <insert id="insertNormalUser" parameterType="map">
+	   insert into tbl_user_normal (
+			user_id,
+			norm_origin	
+	   )values (
+		#{user_id},
+	  	#{norm_origin}
+	   )
+	</insert>
+
+</mapper> 

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.PurchaseHistoryDao">
+
+	<resultMap id="purchaseHistoryMap" type="TblPurchaseHistory">
+		<id property="pk_PurchaseHistory" column="pk_PurchaseHistory" />
+		<result property="puHi_Type" column="puHi_Type" />
+		<result property="puHi_PurchaseHistoryTime" column="puHi_PurchaseHistoryTime" />
+		<result property="puHi_Monetary" column="puHi_Monetary" />
+		<result property="puHi_ConsumerRemark" column="puHi_ConsumerRemark" />
+		<result property="puHi_PurchaseContent" column="puHi_PurchaseContent" />
+		<result property="puHi_Createdate" column="puHi_Createdate" />
+		
+		<result property="puHi_UserId" column="puHi_UserId" />
+		<result property="puHi_UserOrigin" column="puHi_UserOrigin" />
+		<result property="puHi_EpCode" column="puHi_ElectricPileCode" />
+		<result property="puHi_SerialNo" column="puHi_TransactionNumber" />
+		<result property="puHi_BespokeNo" column="puHi_BespokeNumber" />
+        <result property="account_id" column="account_id" />
+		
+	
+	</resultMap>
+
+	<select id="getAccountId" parameterType="TblPurchaseHistory" resultType="int">
+		SELECT IFNULL(MIN(account_id),0)
+		FROM
+		tbl_purchasehistory
+        where
+        puHi_TransactionNumber=#{puHi_SerialNo}
+        and puHi_UserId=#{puHi_UserId}
+	</select>
+
+	<select id="getPayMode" parameterType="int" resultType="int">
+		SELECT IF(IFNULL(MIN(trade_type),2)=1,2,1) FROM
+		fin_account
+		where
+		account_id=#{account_id}
+		and is_del=0
+	</select>
+
+	<insert id="insertPurchaseRecord" parameterType="TblPurchaseHistory">
+		insert into tbl_purchasehistory (
+		puHi_Type,
+		puHi_PurchaseHistoryTime,
+		puHi_Monetary,
+		puHi_ConsumerRemark,
+		puHi_PurchaseContent,
+		puHi_Createdate,
+		puHi_UserId,
+		puHi_UserOrigin,
+		puHi_ElectricPileCode,
+		puHi_TransactionNumber,
+		puHi_BespokeNumber,
+		account_id
+		)values (
+		#{puHi_Type},
+		#{puHi_PurchaseHistoryTime},
+		#{puHi_Monetary},
+		#{puHi_ConsumerRemark},
+		#{puHi_PurchaseContent},
+		#{puHi_Createdate},
+		#{puHi_UserId},
+		#{puHi_UserOrigin},
+		#{puHi_EpCode},
+		#{puHi_SerialNo},
+		#{puHi_BespokeNo},
+		#{account_id}
+		)
+	</insert>
+</mapper>

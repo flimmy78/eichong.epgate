@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.EquipmentRepairDao">
+	
+	<resultMap id="tblEquipmentRepairResultMap" type="TblEquipmentRepair">
+		<id property="id" column="pk_EquipmentRepair" />
+		<result property="warrantyTypeId" column="eqRe_WarrantyTypeId" />
+		<result property="content" column="eqRe_Content" />
+		<result property="userId" column="eqRe_UserId" />
+		<result property="warrantyStatus" column="eqRe_WarrantyStatus" />
+		<result property="status" column="eqRe_Status" />
+		<result property="epid" column="epid" />
+		<result property="device_type" column="device_type" />
+		
+	</resultMap>
+	<resultMap id="findResultMap"  type="java.util.HashMap" extends="tblEquipmentRepairResultMap"></resultMap>
+	
+	<insert id="insert" parameterType="TblEquipmentRepair">
+	     insert into tbl_equipmentrepair (
+	     eqRe_WarrantyTypeId,
+	     eqRe_Content,
+	     eqRe_UserId,
+	     eqRe_WarrantyStatus,
+	     eqRe_Status,
+	     epid,
+	     device_type
+	   )values (
+	     #{warrantyTypeId},
+	     #{content},
+	     #{userId},
+	     #{warrantyStatus},
+	     #{status},
+	     #{epid},
+	     #{device_type}
+	   )
+	</insert>
+	
+</mapper> 

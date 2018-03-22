@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ormcore.dao.TblCouponDao">
+	<resultMap id="get-Coupon-result" type="TblCoupon">
+		<!-- 主键-->
+		<id property="pkCoupon" column="pk_coupon" />
+		<!-- 活动表主键-->
+		<result property="pkActivity" column="pk_activity" />
+		<!-- 优惠券品种主键-->
+		<result property="pkCouponvariety" column="pk_couponvariety" />
+		<!-- 优惠券状态（1-已使用）-->
+		<result property="cpStatus" column="cp_status" />
+		<!-- 电桩限制（1-仅限交流电桩，2-仅限直流电装，3-不限充电桩）-->
+		<result property="cpLimitation" column="cp_limitation" />
+		<!-- 优惠券面值-->
+		<result property="cpCouponvalue" column="cp_couponvalue" />
+		<!-- 优惠券使用条件-->
+		<result property="cpCouponcondition" column="cp_couponcondition" />
+		<!-- 优惠码-->
+		<result property="cpCouponcode" column="cp_couponcode" />
+		<!-- 持有人（用户ID）-->
+		<result property="cpUserid" column="cp_userid" />
+		<!-- 生效时间-->
+		<result property="cpBegindate" column="cp_begindate" />
+		<!-- 失效时间-->
+		<result property="cpEnddate" column="cp_enddate" />
+		<!-- 创建时间-->
+		<result property="cpCreatedate" column="cp_createdate" />
+		<!-- 修改时间-->
+		<result property="cpUpdatedate" column="cp_updatedate" />
+		<result property="cpRate" column="cp_rate" />
+	</resultMap>
+	<sql id="Coupon_Base_Column_List">
+		<!-- 主键-->
+		pk_coupon,
+		<!-- 活动表主键-->
+		pk_activity,
+		<!-- 优惠券品种主键-->
+		pk_couponvariety,
+		<!-- 优惠券状态（1-已使用）-->
+		cp_status,
+		<!-- 电桩限制（1-仅限交流电桩，2-仅限直流电装，3-不限充电桩）-->
+		cp_limitation,
+		<!-- 优惠券面值-->
+		cp_couponvalue,
+		<!-- 优惠券使用条件-->
+		cp_couponcondition,
+		<!-- 优惠码-->
+		cp_couponcode,
+		<!-- 持有人（用户ID）-->
+		cp_userid,
+		<!-- 生效时间-->
+		cp_begindate,
+		<!-- 失效时间-->
+		cp_enddate,
+		<!-- 创建时间-->
+		cp_createdate,
+		<!-- 修改时间-->
+		cp_updatedate
+	</sql>
+
+    <select id="queryCoupon" parameterType="map" resultMap="get-Coupon-result">
+        SELECT
+	        <include refid="Coupon_Base_Column_List" />
+	        ,if(cp_couponcondition=0,
+        	if(#{actActivityrule}=2 OR #{consemeAmt}>=cp_couponvalue,cp_couponvalue,0),
+        	if(#{consemeAmt}>=cp_couponcondition,cp_couponvalue/cp_couponcondition,0)) cp_rate
+        FROM
+		tbl_coupon INNER JOIN (SELECT pk_Activity pkActivity,pk_Powerstation FROM tbl_activity
+			WHERE act_Status = 0
+			AND (act_Scope = 0
+			OR (act_Scope = 1 AND city_code IN (SELECT te.elPi_OwnCityCode FROM tbl_electricpile te WHERE te.elPi_ElectricPileCode = #{epCode}))
+			OR (act_Scope = 2 AND pk_Powerstation IN (SELECT te.pk_ElectricPile FROM tbl_electricpile te WHERE te.elPi_ElectricPileCode = #{epCode})))
+			AND (CURRENT_DATE BETWEEN act_BeginDate AND act_EndDate)) a ON pk_Activity = pkActivity
+        WHERE cp_status = 0
+            AND (cp_limitation = #{cpLimitation} OR cp_limitation = 3 OR cp_limitation = 0)
+		    AND cp_userid = #{cpUserid}
+		    AND (current_date BETWEEN cp_begindate AND cp_enddate)
+		    <if test="actActivityrule == 0">
+		    	AND pk_activity NOT IN 
+		    	(SELECT pk_activity
+		    	FROM tbl_activity
+		    	WHERE act_Status = 0
+		    	AND (current_date BETWEEN act_BeginDate AND act_EndDate)
+                AND act_ActivityRule = 2)
+            </if>
+		    <if test="actActivityrule > 0">
+		    	AND pk_activity IN 
+		    	(SELECT pk_activity
+		    	FROM tbl_activity
+		    	WHERE act_Status = 0
+		    	AND (current_date BETWEEN act_BeginDate AND act_EndDate)
+                AND act_ActivityRule = #{actActivityrule})
+            </if>
+        ORDER BY if (cp_rate = 0,0,cp_couponvalue) DESC,cp_rate DESC,cp_enddate ASC limit 1
+	</select>
+
+	<insert id="insertCoupon" parameterType="TblCoupon" useGeneratedKeys="true" keyProperty="pk_coupon">
+		INSERT INTO tbl_coupon(
+		pk_activity,
+		pk_couponvariety,
+		cp_status,
+		cp_limitation,
+		cp_couponvalue,
+		cp_couponcondition,
+		cp_couponcode,
+		cp_userid,
+		cp_begindate,
+		cp_enddate,
+		cp_createdate,
+		cp_updatedate) values (
+		#{pkActivity},
+		#{pkCouponvariety},
+		#{cpStatus},
+		#{cpLimitation},
+		#{cpCouponvalue},
+		#{cpCouponcondition},
+		#{cpCouponcode},
+		#{cpUserid},
+		#{cpBegindate},
+		#{cpEnddate},
+		#{cpCreatedate},
+		#{cpUpdatedate})
+	</insert>
+	<update id="updateCoupon" parameterType="int">
+		UPDATE tbl_coupon
+		set
+		cp_status = 1,
+		cp_couponcode=if(TRIM(cp_couponcode)!='',CONCAT(TRIM(cp_couponcode),'_1'),cp_couponcode),
+		cp_updatedate = now()
+		WHERE
+		pk_coupon = #{pkCoupon}
+	</update>
+
+    <select id="queryActivity" parameterType="int" resultType="int">
+        SELECT
+	        pk_Activity
+        FROM
+		    tbl_activity
+        WHERE act_Status = 0
+            AND (current_date BETWEEN act_BeginDate AND act_EndDate)
+            AND act_ActivityRule = #{actActivityrule}
+	</select>
+
+
+	<parameterMap type="map" id="couponMap">    
+	    <parameter property="cpUserid" jdbcType="INTEGER" mode="IN"/>    
+	    <parameter property="pkActivity" jdbcType="INTEGER" mode="IN"/>    
+	</parameterMap>
+    <select id="insertInviteCoupon" parameterMap="couponMap" statementType="CALLABLE">
+        {call insert_coupon_proc(
+	        ?,?
+        )}
+	</select>
+</mapper>

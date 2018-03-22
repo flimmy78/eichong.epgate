@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<config>
+    <sendRealData>
+	<third orgNo="1000" orgType="1" desc="API接口" />
+	<third orgNo="1000" orgType="2" desc="手机接口" />
+	<third orgNo="1008" orgType="3" desc="北汽第3方" />
+    </sendRealData>
+</config>

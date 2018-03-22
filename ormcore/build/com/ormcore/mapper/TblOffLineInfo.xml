@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.TblOffLineInfoDao">
+
+    <resultMap id="tblOffLineInfo" type="TblOffLineInfo">
+        <id property="id" column="id"/>
+        <result property="elPiElectricPileCode" column="elPi_ElectricPileCode"/>
+        <result property="beginOfflineTime" column="begin_offline_time"/>
+        <result property="endOfflineTime" column="end_offline_time"/>
+        <result property="type" column="type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+    <resultMap id="pageResultMap" type="java.util.HashMap" extends="tblOffLineInfo"></resultMap>
+
+
+    <!-- 根据用户id获取用户推送信息 -->
+    <insert id="insertOffLineInfo" parameterType="tblOffLineInfo">
+       insert into tbl_ChargingOrder (
+       elPi_ElectricPileCode,
+       begin_offline_time,
+       end_offline_time,
+       `type`
+        )values (
+         #{elPiElectricPileCode},
+	     #{beginOfflineTime},
+	     #{endOfflineTime},
+	     #{type}
+        )
+   </insert>
+
+
+</mapper>

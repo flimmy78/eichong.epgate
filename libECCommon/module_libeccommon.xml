@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_libeccommon" default="compile.module.libeccommon">
+  <dirname property="module.libeccommon.basedir" file="${ant.file.module_libeccommon}"/>
+  
+  <property name="module.jdk.home.libeccommon" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.libeccommon" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.libeccommon" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.libeccommon" value="-encoding UTF-8 -source 1.5 -target 1.7 ${compiler.args}"/>
+  
+  <property name="libeccommon.output.dir" value="${module.libeccommon.basedir}/target/classes"/>
+  <property name="libeccommon.testoutput.dir" value="${module.libeccommon.basedir}/target/test-classes"/>
+  
+  <path id="libeccommon.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="libeccommon.module.production.classpath">
+    <path refid="${module.jdk.classpath.libeccommon}"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.5.11.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-log4j12:1.5.11.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.14.classpath"/>
+    <path refid="library.maven:_com.alibaba:fastjson:1.1.41.classpath"/>
+    <path refid="library.maven:_com.taobao:taobao-source:1.0.0.release.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpclient:4.2.2.classpath"/>
+    <path refid="library.maven:_commons-codec:commons-codec:1.6.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore:4.2.2.classpath"/>
+    <path refid="library.maven:_jdom:jdom:1.0.classpath"/>
+    <path refid="library.maven:_dom4j:dom4j:1.6.1.classpath"/>
+    <path refid="library.maven:_xml-apis:xml-apis:1.0.b2.classpath"/>
+    <path refid="library.maven:_org.apache.geronimo.bundles:commons-httpclient:3.0.1.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="library.maven:_commons-logging:commons-logging:1.1.1.classpath"/>
+    <path refid="library.maven:_com.xuanwu:postmsg-ump:2.1.classpath"/>
+    <path refid="library.maven:_cn.jpush.api:jpush-client:3.2.8.classpath"/>
+    <path refid="library.maven:_io.netty:netty-all:4.1.1.final.classpath"/>
+    <pathelement location="${netcore.output.dir}"/>
+  </path>
+  
+  <path id="libeccommon.runtime.production.module.classpath">
+    <pathelement location="${libeccommon.output.dir}"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.5.11.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-log4j12:1.5.11.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.14.classpath"/>
+    <path refid="library.maven:_com.alibaba:fastjson:1.1.41.classpath"/>
+    <path refid="library.maven:_com.taobao:taobao-source:1.0.0.release.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpclient:4.2.2.classpath"/>
+    <path refid="library.maven:_commons-codec:commons-codec:1.6.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore:4.2.2.classpath"/>
+    <path refid="library.maven:_jdom:jdom:1.0.classpath"/>
+    <path refid="library.maven:_dom4j:dom4j:1.6.1.classpath"/>
+    <path refid="library.maven:_xml-apis:xml-apis:1.0.b2.classpath"/>
+    <path refid="library.maven:_org.apache.geronimo.bundles:commons-httpclient:3.0.1.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="library.maven:_commons-logging:commons-logging:1.1.1.classpath"/>
+    <path refid="library.maven:_com.xuanwu:postmsg-ump:2.1.classpath"/>
+    <path refid="library.maven:_cn.jpush.api:jpush-client:3.2.8.classpath"/>
+    <path refid="library.maven:_io.netty:netty-all:4.1.1.final.classpath"/>
+    <path refid="netcore.runtime.production.module.classpath"/>
+  </path>
+  
+  <path id="libeccommon.module.classpath">
+    <pathelement location="${libeccommon.output.dir}"/>
+    <path refid="${module.jdk.classpath.libeccommon}"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.5.11.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-log4j12:1.5.11.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.14.classpath"/>
+    <path refid="library.maven:_com.alibaba:fastjson:1.1.41.classpath"/>
+    <path refid="library.maven:_com.taobao:taobao-source:1.0.0.release.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpclient:4.2.2.classpath"/>
+    <path refid="library.maven:_commons-codec:commons-codec:1.6.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore:4.2.2.classpath"/>
+    <path refid="library.maven:_jdom:jdom:1.0.classpath"/>
+    <path refid="library.maven:_dom4j:dom4j:1.6.1.classpath"/>
+    <path refid="library.maven:_xml-apis:xml-apis:1.0.b2.classpath"/>
+    <path refid="library.maven:_org.apache.geronimo.bundles:commons-httpclient:3.0.1.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="library.maven:_commons-logging:commons-logging:1.1.1.classpath"/>
+    <path refid="library.maven:_com.xuanwu:postmsg-ump:2.1.classpath"/>
+    <path refid="library.maven:_cn.jpush.api:jpush-client:3.2.8.classpath"/>
+    <path refid="library.maven:_io.netty:netty-all:4.1.1.final.classpath"/>
+    <pathelement location="${netcore.testoutput.dir}"/>
+    <pathelement location="${netcore.output.dir}"/>
+  </path>
+  
+  <path id="libeccommon.runtime.module.classpath">
+    <pathelement location="${libeccommon.testoutput.dir}"/>
+    <pathelement location="${libeccommon.output.dir}"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.5.11.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-log4j12:1.5.11.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.14.classpath"/>
+    <path refid="library.maven:_com.alibaba:fastjson:1.1.41.classpath"/>
+    <path refid="library.maven:_com.taobao:taobao-source:1.0.0.release.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpclient:4.2.2.classpath"/>
+    <path refid="library.maven:_commons-codec:commons-codec:1.6.classpath"/>
+    <path refid="library.maven:_org.apache.httpcomponents:httpcore:4.2.2.classpath"/>
+    <path refid="library.maven:_jdom:jdom:1.0.classpath"/>
+    <path refid="library.maven:_dom4j:dom4j:1.6.1.classpath"/>
+    <path refid="library.maven:_xml-apis:xml-apis:1.0.b2.classpath"/>
+    <path refid="library.maven:_org.apache.geronimo.bundles:commons-httpclient:3.0.1.classpath"/>
+    <path refid="library.maven:_commons-lang:commons-lang:2.6.classpath"/>
+    <path refid="library.maven:_commons-logging:commons-logging:1.1.1.classpath"/>
+    <path refid="library.maven:_com.xuanwu:postmsg-ump:2.1.classpath"/>
+    <path refid="library.maven:_cn.jpush.api:jpush-client:3.2.8.classpath"/>
+    <path refid="library.maven:_io.netty:netty-all:4.1.1.final.classpath"/>
+    <path refid="netcore.runtime.module.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.libeccommon">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.libeccommon">
+    <patternset refid="excluded.from.module.libeccommon"/>
+  </patternset>
+  
+  <path id="libeccommon.module.sourcepath">
+    <dirset dir="${module.libeccommon.basedir}">
+      <include name="src/main/resources"/>
+      <include name="src/main/java"/>
+    </dirset>
+  </path>
+  
+  <path id="libeccommon.module.test.sourcepath">
+    <dirset dir="${module.libeccommon.basedir}">
+      <include name="src/test/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.libeccommon" depends="compile.module.libeccommon.production,compile.module.libeccommon.tests" description="Compile module libECCommon"/>
+  
+  <target name="compile.module.libeccommon.production" depends="register.custom.compilers,compile.module.netcore" description="Compile module libECCommon; production classes">
+    <mkdir dir="${libeccommon.output.dir}"/>
+    <javac2 destdir="${libeccommon.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.libeccommon}/javac">
+      <compilerarg line="${compiler.args.libeccommon}"/>
+      <bootclasspath refid="libeccommon.module.bootclasspath"/>
+      <classpath refid="libeccommon.module.production.classpath"/>
+      <src refid="libeccommon.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.libeccommon"/>
+    </javac2>
+    
+    <copy todir="${libeccommon.output.dir}">
+      <fileset dir="${module.libeccommon.basedir}/src/main/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.libeccommon.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.libeccommon.tests" depends="register.custom.compilers,compile.module.libeccommon.production" description="compile module libECCommon; test classes" unless="skip.tests">
+    <mkdir dir="${libeccommon.testoutput.dir}"/>
+    <javac2 destdir="${libeccommon.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.libeccommon}/javac">
+      <compilerarg line="${compiler.args.libeccommon}"/>
+      <bootclasspath refid="libeccommon.module.bootclasspath"/>
+      <classpath refid="libeccommon.module.classpath"/>
+      <src refid="libeccommon.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.libeccommon"/>
+    </javac2>
+    
+    <copy todir="${libeccommon.testoutput.dir}">
+      <fileset dir="${module.libeccommon.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.libeccommon" description="cleanup module">
+    <delete dir="${libeccommon.output.dir}"/>
+    <delete dir="${libeccommon.testoutput.dir}"/>
+  </target>
+</project>

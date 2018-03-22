@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ormcore.dao.ElectricpileConfigDao">
+	<resultMap id="get-ElectricpileConfig-result" type="ElectricpileConfig">
+		<!-- 主键-->
+		<result property="id" column="id" />
+		<!-- 参数编号-->
+		<result property="argCode" column="arg_code" />
+		<!-- 参数名称-->
+		<result property="argName" column="arg_name" />
+		<!-- 参数类型-->
+		<result property="argType" column="arg_type" />
+		<!-- 有效标志-->
+		<result property="isValid" column="is_valid" />
+	</resultMap>
+	<sql id="ElectricpileConfig_Base_Column_List">
+		<!-- 主键-->
+		id,
+		<!-- 参数编号-->
+		arg_code,
+		<!-- 参数名称-->
+		arg_name,
+		<!-- 参数类型-->
+		arg_type,
+		<!-- 有效标志-->
+		is_valid
+	</sql>
+	<select id="ElectricpileConfig_get" resultMap="get-ElectricpileConfig-result">
+		SELECT
+		<include refid="ElectricpileConfig_Base_Column_List" />
+		FROM
+		tbl_electricpile_config
+		where
+		ID = #{id}
+	</select>
+
+    <select id="ElectricpileConfig_custlist"  resultMap="get-ElectricpileConfig-result">
+        SELECT
+	        <include refid="ElectricpileConfig_Base_Column_List" />
+        FROM
+		tbl_electricpile_config
+        WHERE 1=1
+		            <if test="argCode != null">
+                AND arg_code = #{argCode}
+            </if>
+		            <if test="argName != null">
+                AND arg_name = #{argName}
+            </if>
+		            <if test="argType != null">
+                AND arg_type = #{argType}
+            </if>
+		            <if test="isValid != null">
+                AND is_valid = #{isValid}
+            </if>
+		    </select>
+</mapper>

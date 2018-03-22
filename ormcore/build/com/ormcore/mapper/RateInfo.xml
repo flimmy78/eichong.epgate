@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.RateInfoDao">
+
+	<resultMap id="tblRateinformationResultMap" type="RateInfo">
+		<id property="id" column="pk_RateInformation" />
+		<result property="modelId" column="raIn_type" />
+		<result property="freezingMoney" column="raIn_FreezingMoney" />
+		<result property="minFreezingMoney" column="raIn_MinFreezingMoney" />
+		<result property="quantumDate" column="raIn_QuantumDate" />
+		<result property="j_Rate" column="raIn_TipTimeTariff" />
+		<result property="f_Rate" column="raIn_PeakElectricityPrice" />
+		<result property="p_Rate" column="raIn_UsualPrice" />
+		<result property="g_Rate" column="raIn_ValleyTimePrice" />
+		<result property="bespokeRate" column="raIn_ReservationRate" />
+		<result property="ServiceRate" column="raIn_ServiceCharge" />
+		<result property="WarnAmt" column="raIn_WarnMoney" />
+        <result property="j_RateMoney" column="raIn_TipTimeTariffMoney" />
+        <result property="f_RateMoney" column="raIn_PeakElectricityMoney" />
+        <result property="p_RateMoney" column="raIn_UsualMoney" />
+        <result property="g_RateMoney" column="raIn_ValleyTimeMoney" />
+	</resultMap>
+	<resultMap id="findResultMap"  type="java.util.HashMap" extends="tblRateinformationResultMap"></resultMap>
+
+	<!-- 根据电桩编码获取电桩费率信息-->
+	<select id="findRateInfo" parameterType="String" resultMap="tblRateinformationResultMap">
+	   select 
+	    r.pk_RateInformation,
+	    r.raIn_type,
+	    r.raIn_FreezingMoney,
+	    r.raIn_MinFreezingMoney,
+	    r.raIn_QuantumDate,
+	    r.raIn_TipTimeTariffPrice raIn_TipTimeTariff,
+	    r.raIn_PeakElectricityPrice,
+	    r.raIn_UsualPrice,
+	    r.raIn_ValleyTimePrice,
+	    r.raIn_ReservationRate,
+	    r.raIn_ServiceCharge,r.raIn_WarnMoney,
+	    r.raIn_TipTimeTariffMoney,
+	    r.raIn_PeakElectricityMoney,
+	    r.raIn_UsualMoney,
+	    r.raIn_ValleyTimeMoney
+	   from tbl_ElectricPile e left join tbl_RateInformation  r on r.pk_RateInformation = e.elPi_RateInformationId
+	   where 
+	    e.elPi_ElectricPileCode=#{code} 
+	</select>
+	
+	<select id="getAll"  resultMap="tblRateinformationResultMap">
+	   select 
+	    pk_RateInformation,
+	    raIn_type,
+	    raIn_FreezingMoney,
+	    raIn_MinFreezingMoney,
+	    raIn_QuantumDate,
+	    raIn_TipTimeTariffPrice raIn_TipTimeTariff,
+	    raIn_PeakElectricityPrice,
+	    raIn_UsualPrice,
+	    raIn_ValleyTimePrice,
+	    raIn_ReservationRate,
+	    raIn_ServiceCharge,
+	    raIn_WarnMoney,
+	    raIn_TipTimeTariffMoney,
+	    raIn_PeakElectricityMoney,
+	    raIn_UsualMoney,
+	    raIn_ValleyTimeMoney
+	   from tbl_RateInformation
+	</select>
+	
+	<select id="getLastUpdate"  resultMap="tblRateinformationResultMap">
+	   select 
+	    pk_RateInformation,
+	    raIn_type,
+	    raIn_FreezingMoney,
+	    raIn_MinFreezingMoney,
+	    raIn_QuantumDate,
+	    raIn_TipTimeTariffPrice raIn_TipTimeTariff,
+	    raIn_PeakElectricityPrice,
+	    raIn_UsualPrice,
+	    raIn_ValleyTimePrice,
+	    raIn_ReservationRate,
+	    raIn_ServiceCharge,
+	    raIn_WarnMoney,
+	    raIn_TipTimeTariffMoney,
+	    raIn_PeakElectricityMoney,
+	    raIn_UsualMoney,
+	    raIn_ValleyTimeMoney
+	   from tbl_RateInformation where TO_DAYS(NOW()) - TO_DAYS(raIn_Updatedate) &lt; 2;
+	</select>
+	
+	<!-- 根据费率表ID号查询费率-->
+    <select id="findRateInfofromId" parameterType="int" resultMap="tblRateinformationResultMap">
+	   select 
+	    pk_RateInformation,
+	    raIn_type,
+	    raIn_FreezingMoney,
+	    raIn_MinFreezingMoney,
+	    raIn_QuantumDate,
+	    raIn_TipTimeTariffPrice raIn_TipTimeTariff,
+	    raIn_PeakElectricityPrice,
+	    raIn_UsualPrice,
+	    raIn_ValleyTimePrice,
+	    raIn_ReservationRate,
+	    raIn_ServiceCharge,
+	    raIn_WarnMoney,
+	    raIn_TipTimeTariffMoney,
+	    raIn_PeakElectricityMoney,
+	    raIn_UsualMoney,
+	    raIn_ValleyTimeMoney
+	   from tbl_RateInformation 
+	   where 
+	   pk_RateInformation=#{rateid} 
+	</select>
+
+    <select id="findPerRateId" parameterType="map" resultType="int">
+        select IFNULL(max(rateinfo_id),0) from tbl_rate_unique_rela
+        where cpy_id = #{cpyId} and level_id = #{levelId} and electricpile_id = #{pkEpId}
+    </select>
+</mapper> 

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.TblJpushDao">
+
+	<resultMap id="tblJpushResultMap" type="TblJpush">
+		<id property="pkJpush" column="pk_JPush" />
+		<result property="jpushUserinfo" column="jpush_UserInfo" />
+		<result property="jpushRegistrationid" column="jpush_registrationID" />
+		<result property="jpushDevicetype" column="jpush_deviceType" />
+		<result property="jpushCreatedate" column="jpush_Createdate" />
+		<result property="jpushUpdatedate" column="jpush_Updatedate" />
+	</resultMap>
+	<resultMap id="pageResultMap"  type="java.util.HashMap" extends="tblJpushResultMap"></resultMap>
+	<resultMap id="findResultMap"  type="java.util.HashMap" extends="tblJpushResultMap"></resultMap>
+
+	
+	<!-- 根据用户id获取用户推送信息 -->
+	<select id="getByuserInfo" parameterType="int" resultMap="tblJpushResultMap">
+	   select 
+	    pk_JPush,
+	    jpush_UserInfo,
+	    jpush_registrationID,
+	    jpush_deviceType,
+	    jpush_Createdate,
+	    jpush_Updatedate
+	   from tbl_JPush
+	   where 
+	    jpush_UserInfo=#{jpushUserInfo} 
+	</select>
+
+	
+
+</mapper> 
