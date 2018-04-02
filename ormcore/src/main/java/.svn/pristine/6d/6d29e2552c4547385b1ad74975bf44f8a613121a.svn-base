@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ormcore.dao.ChargeCardDao">
+
+    <resultMap id="userCardmap" type="TblChargeCard">
+
+        <id property="pk_UserCard" column="pk_UserCard"/>
+        <result property="uc_InternalCardNumber" column="uc_InternalCardNumber"/>
+        <result property="uc_ExternalCardNumber" column="uc_ExternalCardNumber"/>
+        <result property="uc_Balance" column="uc_Balance"/>
+        <result property="uc_CompanyNumber" column="uc_CompanyNumber"/>
+        <result property="uc_UserId" column="uc_UserId"/>
+        <result property="uc_Status" column="uc_Status"/>
+        <result property="is_valid" column="is_valid"/>
+        <result property="uc_pay_mode" column="uc_pay_mode"/>
+        <result property="account_id" column="account_id"/>
+        <result property="uc_Createdate" column="uc_Createdate"/>
+        <result property="uc_Updatedate" column="uc_Updatedate"/>
+
+    </resultMap>
+
+    <resultMap id="findResultMap" type="java.util.HashMap" extends="userCardmap"></resultMap>
+
+    <select id="findCard" parameterType="String" resultMap="userCardmap">
+	 select 
+		uc.uc_id pk_UserCard,
+		uc.uc_InternalCardNumber,
+		uc.uc_ExternalCardNumber,
+		fi.account_balance uc_Balance,
+		tc.cpy_number uc_CompanyNumber,
+		if(new_user_id!=0,new_user_id,uc.user_id) uc_UserId,
+		uc.uc_Status,
+		uc.is_valid,
+		uc.uc_type uc_pay_mode,
+		uc.account_id account_id
+	   from tbl_usercard uc,fin_account fi,tbl_company tc
+	   where
+	   uc.account_id=fi.account_id AND uc.cpy_id = tc.cpy_id and uc.uc_Status=0
+	   AND
+	   uc.uc_InternalCardNumber=#{uc_InternalCardNumber}
+	</select>
+
+    <select id="findCardById" parameterType="int" resultMap="userCardmap">
+	  select
+		uc.uc_id pk_UserCard,
+		uc.uc_InternalCardNumber,
+		uc.uc_ExternalCardNumber,
+		fi.account_balance uc_Balance,
+		tc.cpy_number uc_CompanyNumber,
+		if(new_user_id!=0,new_user_id,uc.user_Id) uc_UserId,
+		uc.uc_Status,
+		uc.is_valid,
+		uc.uc_type uc_pay_mode,
+		uc.account_id account_id
+	   from tbl_usercard uc,fin_account fi,tbl_company tc
+	   where
+	   uc.account_id=fi.account_id AND uc.cpy_id = tc.cpy_id and uc.uc_Status=0
+	   AND
+	    uc.uc_id=#{Id}
+	</select>
+
+    <insert id="insertCard" parameterType="TblChargeCard" useGeneratedKeys="true" keyProperty="pk_UserCard">
+	 
+	 insert into tbl_usercard (
+		uc_InternalCardNumber,
+		uc_ExternalCardNumber,
+		cpy_id,
+		user_id,
+		uc_Status,
+		uc_type,
+		account_id
+	   )
+	   select
+		#{uc_InternalCardNumber},
+		#{uc_ExternalCardNumber},
+		cpy_id,
+		#{uc_UserId},
+		#{uc_Status},
+		#{uc_pay_mode},
+		#{account_id}
+		from tbl_company where cpy_number = #{uc_CompanyNumber};
+	</insert>
+
+</mapper> 

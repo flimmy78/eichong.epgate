@@ -513,7 +513,7 @@ public class EpChargeService {
 		return epGunCache.stopChargeAction(orgNo, userId, account, source, apiClientIp);
 	}
 
-	public static void handEpStartChargeResp(EpCommClient epCommClient,ChargeCmdResp chargeCmdResp,byte []cmdTimes )
+	public static void handEpStartChargeResp(EpCommClient epCommClient,ChargeCmdResp chargeCmdResp,byte []cmdTimes,byte[] msg )
 	{
 		logger.info(LogUtil.addExtLog("cmd|epCode|epGunNo|cmdTime|ChargeCmdResp")
 				,new Object[]{LogConstants.FUNC_ONSTARTCHARGE,chargeCmdResp.getEpCode(),chargeCmdResp.getEpGunNo(),cmdTimes,chargeCmdResp});
@@ -522,7 +522,7 @@ public class EpChargeService {
 		
 		if(epGunCache!=null)
 		{
-			epGunCache.onEpStartCharge(chargeCmdResp);
+			epGunCache.onEpStartCharge(chargeCmdResp,msg);
 		}
 	}
 	/*

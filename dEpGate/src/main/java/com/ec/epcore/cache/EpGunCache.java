@@ -978,7 +978,7 @@ public class EpGunCache {
 		
 	}
 	
-	public void onStartChargeFail(int method,int errorCode)
+	public void onStartChargeFail(int method,int errorCode,byte[] msg)
 	{
 		logger.debug("onStartChargeFail,epCharge,epCode:{},epGunNo:{},method:{},errorCode:{}",
 				new Object[]{epCode,epGunNo,method,errorCode});
@@ -986,6 +986,7 @@ public class EpGunCache {
 		//电桩接受充电失败.
 		if(chargeCache!=null && chargeCache.getStatus()== ChargeRecordConstants.CS_ACCEPT_CONSUMEER_CMD) // 没有在充电状态
 		{
+			if (msg != null) logger.info(LogUtil.addExtLog("onStartChargeFail"), WmIce104Util.ConvertHex(msg, 1));
 			int usrId= chargeCache.getUserId();
 			
 			String messagekey = String.format("%03d%s", Iec104Constant.C_START_ELECTRICIZE,chargeCache.getChargeSerialNo());
@@ -1267,7 +1268,7 @@ public class EpGunCache {
 			long diff = now - this.chargeCache.getLastCmdTime();//超时判断为充电后10分钟
 			if(diff > GameConfig.chargeCmdTime)
 			{
-				this.onStartChargeFail(method, 6001);
+				this.onStartChargeFail(method, 6001, null);
 				
 			}
 		}
@@ -1637,7 +1638,7 @@ public class EpGunCache {
 	 * @param chargeCmdResp
 	 * @return
 	 */
-	public int onEpStartCharge(ChargeCmdResp chargeCmdResp)
+	public int onEpStartCharge(ChargeCmdResp chargeCmdResp,byte[] msg)
 	{
 		logger.debug(LogUtil.addExtLog("chargeCmdResp"),chargeCmdResp);
 		
@@ -1648,7 +1649,7 @@ public class EpGunCache {
 		else
 		{
 			//电桩接受充电失败
-			onStartChargeFail(1, chargeCmdResp.getErrorCause());
+			onStartChargeFail(1, chargeCmdResp.getErrorCause(), msg);
 		}
 		
 		return 0;
@@ -1851,7 +1852,7 @@ public class EpGunCache {
 
 		if (this.chargeCache != null) {
 			if (chargeCache.getStatus()== ChargeRecordConstants.CS_ACCEPT_CONSUMEER_CMD) {
-				onStartChargeFail(3, ErrorCodeConstants.EPE_STOP_CHARGE);
+				onStartChargeFail(3, ErrorCodeConstants.EPE_STOP_CHARGE, null);
 			} else if (chargeCache.getStatus() == ChargeRecordConstants.CS_WAIT_INSERT_GUN ||
 					chargeCache.getStatus() == ChargeRecordConstants.CS_WAIT_CHARGE) {
 				onStartChargeEventFail(3, ErrorCodeConstants.EPE_STOP_CHARGE);
@@ -2330,7 +2331,7 @@ public class EpGunCache {
 			consumeRecord.setEndTime(timeEnd);
 			logger.warn(LogUtil.addExtLog("1 serialNo|startTime|endTime"),
 					new Object[]{consumeRecord.getSerialNo(),consumeRecord.getStartTime(),consumeRecord.getEndTime()});
-		} else {
+		/*} else {
 			chargeTime = (int) ((consumeRecord.getEndTime() - timeEnd) / 60);
 			if (chargeTime > 0) {
 				consumeRecord.setEndTime(timeEnd);
@@ -2343,7 +2344,7 @@ public class EpGunCache {
 					logger.warn(LogUtil.addExtLog("3 serialNo|startTime|endTime"),
 							new Object[]{consumeRecord.getSerialNo(),consumeRecord.getStartTime(),consumeRecord.getEndTime()});
 				}
-			}
+			}*/
 		}
 		if(consumeRecord.getTotalDl()>GameConfig.maxChargeMeterNum  || consumeRecord.getTotalDl()<0 )
 		{
@@ -4025,7 +4026,7 @@ public class EpGunCache {
 		long diff = now - sendInfo3rd.getLastTime();
 		if(diff<rd.getPeriod() && checkPushOrgNo(orgNo) == 0)
 		{
-			logger.info(LogUtil.addExtLog("fail now|sendInfo3rd.getLastTime()|diff:|osc.getPeriod()"),
+			logger.debug(LogUtil.addExtLog("fail now|sendInfo3rd.getLastTime()|diff:|osc.getPeriod()"),
 					new Object[]{now,sendInfo3rd.getLastTime(),diff,rd.getPeriod()});
 			return;
 		}

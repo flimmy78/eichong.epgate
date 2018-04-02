@@ -1747,7 +1747,7 @@ public class EpDecoder extends ByteToMessageDecoder {
 		}
 	}
 	
-	public static void decodeEpStartChargeResp(EpCommClient epCommClient,ByteBuffer byteBuffer) throws IOException 
+	public static void decodeEpStartChargeResp(EpCommClient epCommClient,ByteBuffer byteBuffer,byte[] msg) throws IOException
     {
 		// 1 终端机器编码 BCD码 8Byte 16位编码
 		String epCode = ByteBufferUtil.readBCDWithLength(byteBuffer, 8);
@@ -1762,7 +1762,7 @@ public class EpDecoder extends ByteToMessageDecoder {
 				errorCause);
 
 		EpChargeService.handEpStartChargeResp(epCommClient, chargeCmdResp,
-				time);
+				time, msg);
 	}
 	/*
 	 * 
