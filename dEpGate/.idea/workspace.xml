@@ -35,6 +35,7 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ec/epcore/cache/EpGunCache.java" afterPath="$PROJECT_DIR$/src/main/java/com/ec/epcore/cache/EpGunCache.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ec/epcore/net/codec/EpDecoder.java" afterPath="$PROJECT_DIR$/src/main/java/com/ec/epcore/net/codec/EpDecoder.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ec/epcore/net/server/EpMessageHandler.java" afterPath="$PROJECT_DIR$/src/main/java/com/ec/epcore/net/server/EpMessageHandler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ec/epcore/net/server/ShEpMessageHandler.java" afterPath="$PROJECT_DIR$/src/main/java/com/ec/epcore/net/server/ShEpMessageHandler.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ec/epcore/service/EpChargeService.java" afterPath="$PROJECT_DIR$/src/main/java/com/ec/epcore/service/EpChargeService.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ec/epcore/service/UserService.java" afterPath="$PROJECT_DIR$/src/main/java/com/ec/epcore/service/UserService.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ec/epcore/test/ImitateEpService.java" afterPath="$PROJECT_DIR$/src/main/java/com/ec/epcore/test/ImitateEpService.java" />
@@ -56,6 +57,7 @@
     <ignored path="$PROJECT_DIR$/../usrlayer/target/" />
     <ignored path="$PROJECT_DIR$/../dPhoneGate/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <file path="$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/netty/server/ServerChannelInitializer.java" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,125 +83,211 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="EpGunCache.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/cache/EpGunCache.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="2359" column="0" lean-forward="true" selection-start-line="2359" selection-start-column="0" selection-end-line="2359" selection-end-column="0" />
-              <folding>
-                <element signature="e#2235#2256#0" expanded="true" />
-                <element signature="e#2323#2344#0" expanded="true" />
-                <element signature="e#6270#6291#0" expanded="true" />
-                <element signature="e#16486#16502#0" expanded="true" />
-                <element signature="e#17648#17664#0" expanded="true" />
-                <element signature="e#18836#18857#0" expanded="true" />
-                <element signature="e#23262#23278#0" expanded="true" />
-                <element signature="e#26211#26227#0" expanded="true" />
-                <element signature="e#28448#28464#0" expanded="true" />
-                <element signature="e#30623#30639#0" expanded="true" />
-                <element signature="e#33560#33576#0" expanded="true" />
-                <element signature="e#38353#38380#0" expanded="true" />
-                <element signature="e#44190#44206#0" expanded="true" />
-                <element signature="e#80276#80292#0" expanded="true" />
-                <element signature="e#83109#83125#0" expanded="true" />
-                <element signature="e#96489#96505#0" expanded="true" />
-                <element signature="e#98368#98384#0" expanded="true" />
-                <element signature="e#102121#102137#0" expanded="true" />
-                <element signature="e#103453#103468#0" expanded="true" />
-                <element signature="e#109071#109086#0" expanded="true" />
-                <element signature="e#119409#119425#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ImitateConsumeService.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/test/ImitateConsumeService.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="32402">
-              <caret line="1961" column="36" lean-forward="false" selection-start-line="1961" selection-start-column="36" selection-end-line="1961" selection-end-column="36" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AppApiService.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/service/AppApiService.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6511">
-              <caret line="407" column="23" lean-forward="false" selection-start-line="407" selection-start-column="23" selection-end-line="407" selection-end-column="23" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AliSMS.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../libECCommon/src/main/java/com/ec/net/message/AliSMS.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="31" column="26" lean-forward="false" selection-start-line="31" selection-start-column="26" selection-end-line="31" selection-end-column="26" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="EpMessageHandler.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/net/server/EpMessageHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7123">
-              <caret line="447" column="39" lean-forward="false" selection-start-line="447" selection-start-column="39" selection-end-line="447" selection-end-column="39" />
+            <state relative-caret-position="510">
+              <caret line="373" column="33" lean-forward="false" selection-start-line="373" selection-start-column="33" selection-end-line="373" selection-end-column="33" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EpDecoder.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="EpDecoder.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/net/codec/EpDecoder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="32402">
-              <caret line="1941" column="31" lean-forward="false" selection-start-line="1941" selection-start-column="31" selection-end-line="1941" selection-end-column="31" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="EpChargeService.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/service/EpChargeService.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7786">
-              <caret line="515" column="23" lean-forward="false" selection-start-line="515" selection-start-column="23" selection-end-line="515" selection-end-column="23" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="UserService.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/service/UserService.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="13260">
-              <caret line="802" column="9" lean-forward="false" selection-start-line="802" selection-start-column="9" selection-end-line="802" selection-end-column="9" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ElectricPile.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../ormcore/src/main/java/com/ormcore/mapper/ElectricPile.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1768">
-              <caret line="104" column="59" lean-forward="false" selection-start-line="104" selection-start-column="7" selection-end-line="104" selection-end-column="59" />
+            <state relative-caret-position="405">
+              <caret line="2723" column="24" lean-forward="true" selection-start-line="2723" selection-start-column="24" selection-end-line="2723" selection-end-column="24" />
               <folding>
-                <marker date="1504237326267" expanded="true" signature="3546:4040" ph="select pk_El... tbl_electricpile" />
+                <element signature="docComment;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeAcRealInfo#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeWholeAcRealInfo1#0;class#EpDecoder#0" expanded="false" />
+                <element signature="e#6555#6575#0" expanded="true" />
+                <element signature="e#6643#6663#0" expanded="true" />
+                <element signature="e#6728#6748#0" expanded="true" />
+                <element signature="e#6816#6836#0" expanded="true" />
+                <element signature="method#decodeWholeAcRealInfo3#0;class#EpDecoder#0" expanded="false" />
+                <element signature="e#11467#11487#0" expanded="true" />
+                <element signature="e#11555#11575#0" expanded="true" />
+                <element signature="e#11640#11660#0" expanded="true" />
+                <element signature="e#11728#11748#0" expanded="true" />
+                <element signature="e#11967#11979#0" expanded="false" />
+                <element signature="e#13599#13611#0" expanded="false" />
+                <element signature="method#decodeWholeDcRealInfo#0;class#EpDecoder#0" expanded="false" />
+                <element signature="e#18459#18489#0" expanded="true" />
+                <element signature="method#decodeWholeDCRealInfo4#0;class#EpDecoder#0" expanded="false" />
+                <element signature="e#18910#18930#0" expanded="true" />
+                <element signature="e#18998#19018#0" expanded="true" />
+                <element signature="e#19083#19103#0" expanded="true" />
+                <element signature="e#19171#19191#0" expanded="true" />
+                <element signature="e#19410#19422#0" expanded="false" />
+                <element signature="e#21042#21054#0" expanded="false" />
+                <element signature="e#21264#21277#0" expanded="false" />
+                <element signature="e#25384#25393#0" expanded="false" />
+                <element signature="e#25585#25598#0" expanded="false" />
+                <element signature="e#25819#25832#0" expanded="false" />
+                <element signature="e#26207#26243#0" expanded="false" />
+                <element signature="e#29044#29074#0" expanded="true" />
+                <element signature="method#decodeWholeDCRealInfo2#0;class#EpDecoder#0" expanded="false" />
+                <element signature="e#29500#29520#0" expanded="true" />
+                <element signature="e#29588#29608#0" expanded="true" />
+                <element signature="e#29673#29693#0" expanded="true" />
+                <element signature="e#29761#29781#0" expanded="true" />
+                <element signature="e#29963#29975#0" expanded="false" />
+                <element signature="e#30163#30171#0" expanded="false" />
+                <element signature="e#30336#30348#0" expanded="false" />
+                <element signature="e#30534#30546#0" expanded="false" />
+                <element signature="e#30718#30729#0" expanded="false" />
+                <element signature="e#35429#35459#0" expanded="true" />
+                <element signature="method#decodeOneBitYx#0;class#EpDecoder#0" expanded="false" />
+                <element signature="e#38632#38662#0" expanded="true" />
+                <element signature="method#decodeTwoBitYx#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeYc#0;class#EpDecoder#0" expanded="false" />
+                <element signature="e#45239#45269#0" expanded="true" />
+                <element signature="method#decodeConsumeModelReq#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeNoCardAuthByPw#0;class#EpDecoder#0" expanded="false" />
+                <element signature="e#50556#50627#0" expanded="false" />
+                <element signature="method#decodeEpBespRet#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeEpCancelBespRet#0;class#EpDecoder#0" expanded="false" />
+                <element signature="e#52522#52541#0" expanded="false" />
+                <element signature="method#decodeNoCardAuthByYZM#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeStartElectricizeEventV3#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeStopElectricizeEvent#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeEpStartChargeResp#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeEpStopChargeResp#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeConsumeRecordWithRate#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeConsumeRecordWithReaseon#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeQueryConsumeRecord#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeBalanceWarning#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeEpHexFileSumaryReq#0;class#EpDecoder#0" expanded="false" />
+                <element signature="e#68090#68156#0" expanded="false" />
+                <element signature="method#decodeEpHexFileDownReq#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeStatReq#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeCommSignal#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeEpIdentyCodeQuery#0;class#EpDecoder#0" expanded="false" />
+                <element signature="e#71714#71751#0" expanded="false" />
+                <element signature="method#decodeLockGunFailWaring#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeEpDevices#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeCardFronzeAmt#0;class#EpDecoder#0" expanded="false" />
+                <element signature="e#73038#73066#0" expanded="false" />
+                <element signature="method#decodeUserCardAuth#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeVINAuth#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeVersionAck#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeUpdateAck#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeConcentroterSetEPRet#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeConcentroterGetEPRet#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeGetConsumeModelRet#0;class#EpDecoder#0" expanded="false" />
+                <element signature="e#81846#81861#0" expanded="true" />
+                <element signature="method#decodeGetFlashRamRet#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#handleMsgTime#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeSetTempChargeRet#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeGetTempChargeRet#0;class#EpDecoder#0" expanded="false" />
+                <element signature="docComment;method#decodeSetTimingChargeRet#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeSetTimingChargeRet#0;class#EpDecoder#0" expanded="false" />
+                <element signature="docComment;method#changeTimingCharge#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#changeTimingCharge#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeSetWorkArgRet#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeSetEpInfoRet#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#updateWorkArg#0;class#EpDecoder#0" expanded="false" />
+                <element signature="method#decodeGetEpOffLineRet#0;class#EpDecoder#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EpService.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/service/EpService.java">
+      <file leaf-file-name="ByteBufferUtil.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../libECCommon/src/main/java/com/ec/net/proto/ByteBufferUtil.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6613">
-              <caret line="439" column="8" lean-forward="false" selection-start-line="439" selection-start-column="8" selection-end-line="439" selection-end-column="8" />
+            <state relative-caret-position="304">
+              <caret line="111" column="31" lean-forward="false" selection-start-line="111" selection-start-column="31" selection-end-line="111" selection-end-column="31" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AbstractNettyServer.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/netty/server/AbstractNettyServer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1479">
+              <caret line="108" column="22" lean-forward="false" selection-start-line="108" selection-start-column="22" selection-end-line="108" selection-end-column="22" />
+              <folding>
+                <element signature="e#2722#3450#0" expanded="true" />
+                <element signature="e#3449#3450#0" expanded="true" />
+                <element signature="e#4250#4251#0" expanded="true" />
+                <element signature="e#4285#4286#0" expanded="true" />
+                <element signature="e#4333#4334#0" expanded="true" />
+                <element signature="e#4368#4369#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ServerStart.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/ServerStart.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="51">
+              <caret line="7" column="13" lean-forward="false" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AbstractGameServer.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/server/impl/AbstractGameServer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-74">
+              <caret line="133" column="22" lean-forward="false" selection-start-line="133" selection-start-column="22" selection-end-line="133" selection-end-column="22" />
+              <folding>
+                <element signature="e#1427#1428#0" expanded="true" />
+                <element signature="e#1454#1455#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="WmIce104Util.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../libECCommon/src/main/java/com/ec/net/proto/WmIce104Util.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-442">
+              <caret line="101" column="2" lean-forward="false" selection-start-line="101" selection-start-column="2" selection-end-line="101" selection-end-column="2" />
+              <folding>
+                <element signature="method#bcd2Str_div_ff#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#littleEninaBcd2Str#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#bcd2StrDividFF#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="docComment;method#str2Bcd#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#getframenum#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#appendFF#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#appendZero#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#bytes2int#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#int2Bytes2#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#dumpHex#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#ConvertHex2#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#getP56Time2a#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#getP56Time2a#1;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#getP56Time2aTime#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="docComment;method#timeToByte#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#timeToByte#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="docComment;method#timeToByte#1;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#timeToByte#1;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#stringToDate#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#Hex2BCD#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#BCD2Hex#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#byteToHexString#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="docComment;method#byteArrayToHexString#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#MD5Encode#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="docComment;method#CRCSum#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#CRCSum#0;class#WmIce104Util#0" expanded="false" />
+                <element signature="method#removeByte#0;class#WmIce104Util#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="StreamUtil.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../libECCommon/src/main/java/com/ec/net/proto/StreamUtil.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="136">
+              <caret line="25" column="13" lean-forward="false" selection-start-line="25" selection-start-column="13" selection-end-line="25" selection-end-column="13" />
               <folding />
             </state>
           </provider>
@@ -209,26 +297,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>fail chargeCache</find>
-      <find>thirdRealData</find>
-      <find>real3rdFactory</find>
-      <find>sendOrderInfo</find>
-      <find>handleChargeOrder</find>
-      <find>charge reponse fail</find>
-      <find>onStartChargeFail</find>
-      <find>onEpStartCharge</find>
-      <find>handEpStartChargeResp</find>
-      <find>decodeEpStartChargeResp</find>
-      <find>not found rate info from</find>
-      <find>getRateInfo from epCache fail</find>
-      <find>133</find>
-      <find>C_SD_NA</find>
-      <find>Package</find>
-      <find>getEpsByStationId</find>
-      <find>ORG_TCEC_SHENZHEN</find>
-      <find>handleEpHexFileSumaryReq fail</find>
-      <find>ORG_TCEC_XIAOJU</find>
-      <find>did not TblEquipmentVersion</find>
       <find>InitEp</find>
       <find>concentratorConfig</find>
       <find>AddConCentrator</find>
@@ -239,6 +307,26 @@
       <find>onChargeOrder</find>
       <find>240</find>
       <find>getReal</find>
+      <find>insertBeginRecord</find>
+      <find>insertChargeRecordToDb</find>
+      <find>startChargeAction</find>
+      <find>RECEIVED</find>
+      <find>log</find>
+      <find>setFrameType</find>
+      <find>decode</find>
+      <find>00000090</find>
+      <find>decompressBytes</find>
+      <find>getIpAndPortByChannel</find>
+      <find>---</find>
+      <find>+-</find>
+      <find>length</find>
+      <find>getChannel</find>
+      <find>..</find>
+      <find>0x000000FF</find>
+      <find>hexStringToByte</find>
+      <find>LoggingHandler</find>
+      <find>ServerChannelInitializer</find>
+      <find>ServerHandler</find>
     </findStrings>
   </component>
   <component name="GradleLocalSettings">
@@ -249,9 +337,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/com/ec/epcore/cache/ChargeCache.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/ec/epcore/cache/BespCache.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/ec/epcore/service/EpBespokeService.java" />
         <option value="$PROJECT_DIR$/../ormcore/src/main/java/com/ormcore/mapper/ElectricUserInfo.xml" />
         <option value="$PROJECT_DIR$/../ormcore/src/main/java/com/ormcore/mapper/Chargingrecord.xml" />
         <option value="$PROJECT_DIR$/src/main/java/com/ec/epcore/service/EpGunService.java" />
@@ -296,10 +381,13 @@
         <option value="$PROJECT_DIR$/../libECCommon/src/main/java/com/ec/constants/UserConstants.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ec/epcore/service/UserService.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ec/epcore/net/server/EpMessageHandler.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/ec/epcore/net/codec/EpDecoder.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ec/epcore/service/EpChargeService.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ec/epcore/test/ImitateEpService.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/ec/epcore/cache/EpGunCache.java" />
+        <option value="$PROJECT_DIR$/../libCooperate/src/main/java/com/cooperate/TCEC/shenzhen/TCECEShenZhenService.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/ec/epcore/net/server/ShEpMessageHandler.java" />
+        <option value="$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/netty/server/ServerChannelInitializer.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/ec/epcore/net/codec/EpDecoder.java" />
       </list>
     </option>
   </component>
@@ -576,6 +664,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -626,7 +715,7 @@
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="ec" type="462c0819:PsiDirectoryNode" />
               <item name="epcore" type="462c0819:PsiDirectoryNode" />
-              <item name="cache" type="462c0819:PsiDirectoryNode" />
+              <item name="config" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
@@ -636,75 +725,51 @@
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="ec" type="462c0819:PsiDirectoryNode" />
               <item name="epcore" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
-              <item name="libCooperate" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
-              <item name="libCooperate" type="462c0819:PsiDirectoryNode" />
-              <item name="conf" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
-              <item name="libCooperate" type="462c0819:PsiDirectoryNode" />
-              <item name="conf" type="462c0819:PsiDirectoryNode" />
-              <item name="cooperate" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
-              <item name="libCooperate" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
-              <item name="libCooperate" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
-              <item name="libCooperate" type="462c0819:PsiDirectoryNode" />
+              <item name="dEpGate" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="ec" type="462c0819:PsiDirectoryNode" />
+              <item name="epcore" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="462c0819:PsiDirectoryNode" />
+              <item name="client" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
-              <item name="libCooperate" type="462c0819:PsiDirectoryNode" />
+              <item name="dEpGate" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="cooperate" type="462c0819:PsiDirectoryNode" />
+              <item name="ec" type="462c0819:PsiDirectoryNode" />
+              <item name="epcore" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="462c0819:PsiDirectoryNode" />
+              <item name="codec" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
-              <item name="libCooperate" type="462c0819:PsiDirectoryNode" />
+              <item name="dEpGate" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="cooperate" type="462c0819:PsiDirectoryNode" />
-              <item name="cczc" type="462c0819:PsiDirectoryNode" />
+              <item name="ec" type="462c0819:PsiDirectoryNode" />
+              <item name="epcore" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="462c0819:PsiDirectoryNode" />
+              <item name="proto" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
-              <item name="libCooperate" type="462c0819:PsiDirectoryNode" />
+              <item name="dEpGate" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="cooperate" type="462c0819:PsiDirectoryNode" />
-              <item name="elease" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
-              <item name="libCooperate" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="cooperate" type="462c0819:PsiDirectoryNode" />
-              <item name="utils" type="462c0819:PsiDirectoryNode" />
+              <item name="ec" type="462c0819:PsiDirectoryNode" />
+              <item name="epcore" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
@@ -735,6 +800,15 @@
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="ec" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libECCommon" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="ec" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
@@ -744,6 +818,25 @@
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="ec" type="462c0819:PsiDirectoryNode" />
               <item name="constants" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libECCommon" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="ec" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libECCommon" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="ec" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="462c0819:PsiDirectoryNode" />
+              <item name="proto" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
@@ -792,6 +885,187 @@
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="netcore" type="462c0819:PsiDirectoryNode" />
               <item name="client" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="conf" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="constants" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="pool" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="task" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="thread" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="threadFactory" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="model" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="model" type="462c0819:PsiDirectoryNode" />
+              <item name="conf" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="netty" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="netty" type="462c0819:PsiDirectoryNode" />
+              <item name="buffer" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="netty" type="462c0819:PsiDirectoryNode" />
+              <item name="client" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="netty" type="462c0819:PsiDirectoryNode" />
+              <item name="httpserver" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="netty" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="queue" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
+              <item name="impl" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="service" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="libNetCore" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="netcore" type="462c0819:PsiDirectoryNode" />
+              <item name="util" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
@@ -834,14 +1108,17 @@
               <item name="usrcore" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="dEpGate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="Scope" />
-      <pane id="AndroidView" />
       <pane id="PackagesPane" />
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -883,6 +1160,136 @@
       <recent name="D:\idea\eichong\usrlayer\src\com\ec\usrcore\cache" />
     </key>
   </component>
+  <component name="RestoreUpdateTree" date="Moments ago" ActionInfo="_Update">
+    <UpdatedFiles>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Updated from server" />
+        <option name="myStatusName" value="Changed on server" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="CHANGED_ON_SERVER" />
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Updated" />
+          <option name="myStatusName" value="Changed" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="UPDATED" />
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\cczc\CCZCPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\IPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\shenzhen\TCECEShenZhenPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\xiaojukeji\TCECEXiaoJuPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\EChong\TCECEChongPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\qingxiang\TCECEQingXiangPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\heshun\TCECHeShunPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\nanchong\TCECNanChongPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\chuanhua\TCECChuanHuaPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\nanrui\TCECENanRuiPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\EVC\TCECEVCPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\util\CommonPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\hainan\TCECHaiNanPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\SGCC\TCECSGCCPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\alipay\TCECAliPayPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\elease\EleasePush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\shstop\SHStopPush.java</PATH>
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Created" />
+          <option name="myStatusName" value="Created" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="CREATED" />
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\amap</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\amap\TCECAmapPush.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\amap\CheckTCECAmapPushTask.java</PATH>
+          <PATH vcs="svn" revision="19771">D:\idea\eichong\libCooperate\src\main\java\com\cooperate\TCEC\amap\TCECAmapService.java</PATH>
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Deleted" />
+          <option name="myStatusName" value="Deleted" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="true" />
+          <option name="myId" value="REMOVED_FROM_REPOSITORY" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Restored" />
+          <option name="myStatusName" value="Will be restored" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="RESTORED" />
+        </FILE-GROUP>
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Modified" />
+        <option name="myStatusName" value="Modified" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MODIFIED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Skipped" />
+        <option name="myStatusName" value="Skipped" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="SKIPPED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with conflicts" />
+        <option name="myStatusName" value="Will be merged with conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_CONFLICTS" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with tree conflicts" />
+        <option name="myStatusName" value="Merged with tree conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_TREE_CONFLICT" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with property conflicts" />
+        <option name="myStatusName" value="Will be merged with property conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_PROPERTY_CONFLICT" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged" />
+        <option name="myStatusName" value="Will be merged" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Not in repository" />
+        <option name="myStatusName" value="Not in repository" />
+        <option name="mySupportsDeletion" value="true" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="UNKNOWN" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Locally added" />
+        <option name="myStatusName" value="Locally added" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="LOCALLY_ADDED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Locally removed" />
+        <option name="myStatusName" value="Locally removed" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="LOCALLY_REMOVED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Switched" />
+        <option name="myStatusName" value="Switched" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="SWITCHED" />
+      </FILE-GROUP>
+    </UpdatedFiles>
+  </component>
   <component name="RunDashboard">
     <option name="ruleStates">
       <list>
@@ -895,7 +1302,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Remote.depgate123">
+  <component name="RunManager" selected="Application.EpDecoder">
     <configuration name="10.30.91.26 （ep）" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
@@ -906,6 +1313,25 @@
         <option name="DEBUG_PORT" value="8011" />
         <option name="LOCAL" value="false" />
       </RunnerSettings>
+    </configuration>
+    <configuration name="EpDecoder" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="com.ec.epcore.net.codec.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="MAIN_CLASS_NAME" value="com.ec.epcore.net.codec.EpDecoder" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="EpGate" />
+      <envs />
     </configuration>
     <configuration name="LogUtil" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
@@ -1272,7 +1698,7 @@
         <option name="LOCAL" value="false" />
       </RunnerSettings>
     </configuration>
-    <list size="10">
+    <list size="11">
       <item index="0" class="java.lang.String" itemvalue="Remote.dphonegate233" />
       <item index="1" class="java.lang.String" itemvalue="Remote.dphonegate81" />
       <item index="2" class="java.lang.String" itemvalue="Remote.dphonegate110" />
@@ -1283,11 +1709,13 @@
       <item index="7" class="java.lang.String" itemvalue="Remote.10.30.91.26 （ep）" />
       <item index="8" class="java.lang.String" itemvalue="Application.LogUtil" />
       <item index="9" class="java.lang.String" itemvalue="Application.ServerStop" />
+      <item index="10" class="java.lang.String" itemvalue="Application.EpDecoder" />
     </list>
     <recent_temporary>
-      <list size="2">
-        <item index="0" class="java.lang.String" itemvalue="Application.LogUtil" />
-        <item index="1" class="java.lang.String" itemvalue="Application.ServerStop" />
+      <list size="3">
+        <item index="0" class="java.lang.String" itemvalue="Application.EpDecoder" />
+        <item index="1" class="java.lang.String" itemvalue="Application.LogUtil" />
+        <item index="2" class="java.lang.String" itemvalue="Application.ServerStop" />
       </list>
     </recent_temporary>
   </component>
@@ -1615,7 +2043,11 @@
       <workItem from="1522199152589" duration="20884000" />
       <workItem from="1522285751518" duration="20754000" />
       <workItem from="1522371773684" duration="16460000" />
-      <workItem from="1522630607882" duration="4347000" />
+      <workItem from="1522630607882" duration="7631000" />
+      <workItem from="1522657566321" duration="4462000" />
+      <workItem from="1522667712531" duration="596000" />
+      <workItem from="1522716789036" duration="27419000" />
+      <workItem from="1522803210449" duration="20126000" />
     </task>
     <task id="LOCAL-00001" summary="新账户提交">
       <created>1513846219534</created>
@@ -1698,7 +2130,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2798828000" />
+    <option name="totallyTimeSpent" value="2854715000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1726,8 +2158,9 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.66979164" sideWeight="0.77424484" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21566464" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17760618" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32910696" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.7875" sideWeight="0.54213035" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2491731" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24931054" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1745,7 +2178,6 @@
       <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" x="93" y="100" width="1118" height="575" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="JRebel" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.7875" sideWeight="0.54213035" order="1" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -1830,7 +2262,7 @@
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="459" />
+      <option name="time" value="469" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -1839,182 +2271,424 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../dPhoneGate/src/com/ec/phonegate/config/GameConfig.java">
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/util/StringUtil.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="15" column="25" lean-forward="false" selection-start-line="15" selection-start-column="25" selection-end-line="15" selection-end-column="25" />
+        <state relative-caret-position="-4596">
+          <caret line="10" column="13" lean-forward="false" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../usrlayer/src/com/ec/usrcore/service/UserService.java">
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/util/NetUtils.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1479">
-          <caret line="102" column="31" lean-forward="false" selection-start-line="102" selection-start-column="31" selection-end-line="102" selection-end-column="31" />
+        <state relative-caret-position="68">
+          <caret line="7" column="13" lean-forward="false" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../dPhoneGate/src/com/ec/phonegate/service/PhoneService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1275">
-          <caret line="106" column="60" lean-forward="false" selection-start-line="106" selection-start-column="60" selection-end-line="106" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../usrlayer/src/com/ec/usrcore/server/CommonServer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1360">
-          <caret line="98" column="37" lean-forward="false" selection-start-line="98" selection-start-column="37" selection-end-line="98" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../usrlayer/src/com/ec/usrcore/cache/ElectricPileCache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2312">
-          <caret line="185" column="15" lean-forward="false" selection-start-line="185" selection-start-column="15" selection-end-line="185" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../ormcore/src/main/java/com/ormcore/dao/ChargeCardDao.java">
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/util/IPUtil.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
-          <caret line="8" column="31" lean-forward="false" selection-start-line="8" selection-start-column="31" selection-end-line="8" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../ormcore/src/main/java/com/ormcore/mapper/TblChargeCard.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="515">
-          <caret line="37" column="57" lean-forward="true" selection-start-line="37" selection-start-column="12" selection-end-line="37" selection-end-column="57" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../usrlayer/src/com/ec/usrcore/service/CacheService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="447">
-          <caret line="53" column="35" lean-forward="false" selection-start-line="53" selection-start-column="23" selection-end-line="53" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="646">
-          <caret line="38" column="15" lean-forward="true" selection-start-line="38" selection-start-column="15" selection-end-line="38" selection-end-column="15" />
+          <caret line="6" column="25" lean-forward="false" selection-start-line="6" selection-start-column="25" selection-end-line="6" selection-end-column="25" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../dPhoneGate/src/com/ec/phonegate/server/GateServer.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/net/codec/ApiDecoder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="45" column="18" lean-forward="true" selection-start-line="45" selection-start-column="18" selection-end-line="45" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/util/DeflaterAndInflater.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="640">
+          <caret line="45" column="40" lean-forward="false" selection-start-line="45" selection-start-column="25" selection-end-line="45" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/util/ByteUtil.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2091">
+          <caret line="30" column="27" lean-forward="true" selection-start-line="30" selection-start-column="27" selection-end-line="30" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/util/ChannelUtil.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
-          <caret line="43" column="58" lean-forward="false" selection-start-line="43" selection-start-column="58" selection-end-line="43" selection-end-column="58" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../ormcore/src/main/java/com/ormcore/mapper/ChargingOrder.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="26" column="41" lean-forward="false" selection-start-line="26" selection-start-column="26" selection-end-line="26" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../usrlayer/src/com/ec/usrcore/service/EpChargeService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="147" column="56" lean-forward="false" selection-start-line="147" selection-start-column="56" selection-end-line="147" selection-end-column="56" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../usrlayer/src/com/ec/usrcore/service/EpService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1938">
-          <caret line="125" column="22" lean-forward="false" selection-start-line="125" selection-start-column="22" selection-end-line="125" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../libCooperate/src/main/java/com/cooperate/cczc/CCZCService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="508">
-          <caret line="56" column="25" lean-forward="false" selection-start-line="56" selection-start-column="25" selection-end-line="56" selection-end-column="25" />
+          <caret line="16" column="46" lean-forward="false" selection-start-line="16" selection-start-column="25" selection-end-line="16" selection-end-column="46" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/server/GateServer.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/net/server/InnerApiMessage.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1037">
-          <caret line="99" column="67" lean-forward="false" selection-start-line="99" selection-start-column="67" selection-end-line="99" selection-end-column="67" />
+        <state relative-caret-position="85">
+          <caret line="5" column="3" lean-forward="false" selection-start-line="5" selection-start-column="3" selection-end-line="5" selection-end-column="3" />
+          <folding>
+            <element signature="e#837#838#0" expanded="false" />
+            <element signature="e#857#858#0" expanded="false" />
+            <element signature="e#895#896#0" expanded="false" />
+            <element signature="e#922#923#0" expanded="false" />
+            <element signature="e#956#957#0" expanded="false" />
+            <element signature="e#981#982#0" expanded="false" />
+            <element signature="e#1031#1032#0" expanded="false" />
+            <element signature="e#1068#1069#0" expanded="false" />
+            <element signature="e#1100#1101#0" expanded="false" />
+            <element signature="e#1124#1125#0" expanded="false" />
+            <element signature="e#1171#1172#0" expanded="false" />
+            <element signature="e#1206#1207#0" expanded="false" />
+            <element signature="e#1237#1238#0" expanded="false" />
+            <element signature="e#1258#1259#0" expanded="false" />
+            <element signature="e#1300#1301#0" expanded="false" />
+            <element signature="e#1329#1330#0" expanded="false" />
+            <element signature="e#1358#1359#0" expanded="false" />
+            <element signature="e#1377#1378#0" expanded="false" />
+            <element signature="e#1416#1417#0" expanded="false" />
+            <element signature="e#1441#1442#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../usrlayer/src/com/ec/usrcore/service/EpGateService.java">
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/queue/RepeatMessage.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1938">
-          <caret line="152" column="59" lean-forward="false" selection-start-line="152" selection-start-column="59" selection-end-line="152" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/cooperate/real3rdFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="130">
-          <caret line="24" column="8" lean-forward="false" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../libECCommon/src/main/java/com/ec/constants/ErrorCodeConstants.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="31" column="54" lean-forward="true" selection-start-line="31" selection-start-column="54" selection-end-line="31" selection-end-column="54" />
+        <state relative-caret-position="68">
+          <caret line="6" column="13" lean-forward="false" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/queue/RepeatConQueue.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1111">
+          <caret line="9" column="13" lean-forward="false" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/netty/httpserver/HttpResponse.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="12" column="13" lean-forward="false" selection-start-line="12" selection-start-column="13" selection-end-line="12" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/netty/httpserver/AbstractHttpServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="17" column="22" lean-forward="false" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/core/threadFactory/ServerThreadFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="11" column="13" lean-forward="false" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/client/ChannelManage.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2199">
+          <caret line="13" column="13" lean-forward="false" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/client/ECTcpClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="7" column="13" lean-forward="false" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/client/ITcpClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="17" lean-forward="false" selection-start-line="4" selection-start-column="17" selection-end-line="4" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/core/pool/TaskPoolFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-788">
+          <caret line="10" column="13" lean-forward="false" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/core/pool/ThreadPoolFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-533">
+          <caret line="19" column="13" lean-forward="false" selection-start-line="19" selection-start-column="13" selection-end-line="19" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/core/pool/TimerService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1604">
+          <caret line="13" column="13" lean-forward="false" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/net/server/EpMessage.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="679">
+          <caret line="55" column="17" lean-forward="false" selection-start-line="55" selection-start-column="17" selection-end-line="55" selection-end-column="17" />
+          <folding>
+            <element signature="e#1072#1073#0" expanded="false" />
+            <element signature="e#1096#1097#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/netty/buffer/DynamicByteBuffer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="68" column="0" lean-forward="true" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
+          <folding>
+            <element signature="e#4166#4167#0" expanded="false" />
+            <element signature="e#4207#4208#0" expanded="false" />
+            <element signature="e#4245#4246#0" expanded="false" />
+            <element signature="e#4283#4284#0" expanded="false" />
+            <element signature="e#5929#5930#0" expanded="false" />
+            <element signature="e#5964#5965#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/net/codec/EpEncoder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="935">
-          <caret line="86" column="26" lean-forward="false" selection-start-line="86" selection-start-column="26" selection-end-line="86" selection-end-column="26" />
+        <state relative-caret-position="-6087">
+          <caret line="71" column="12" lean-forward="true" selection-start-line="71" selection-start-column="12" selection-end-line="71" selection-end-column="12" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../libECCommon/src/main/java/com/ec/net/proto/Iec104Constant.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/net/server/EpNettyServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="103" column="36" lean-forward="false" selection-start-line="103" selection-start-column="29" selection-end-line="103" selection-end-column="36" />
+        <state relative-caret-position="153">
+          <caret line="23" column="10" lean-forward="false" selection-start-line="23" selection-start-column="10" selection-end-line="23" selection-end-column="10" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/sender/EpMessageSender.java">
+    <entry file="jar://E:/maven/repository/io/netty/netty-all/4.1.1.Final/netty-all-4.1.1.Final.jar!/io/netty/buffer/PooledByteBufAllocator.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-40">
-          <caret line="28" column="37" lean-forward="false" selection-start-line="28" selection-start-column="37" selection-end-line="28" selection-end-column="37" />
+        <state relative-caret-position="323">
+          <caret line="33" column="47" lean-forward="false" selection-start-line="33" selection-start-column="47" selection-end-line="33" selection-end-column="47" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/service/RateService.java">
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/netty/server/INettyServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="49">
-          <caret line="283" column="23" lean-forward="false" selection-start-line="283" selection-start-column="23" selection-end-line="283" selection-end-column="23" />
+        <state relative-caret-position="170">
+          <caret line="13" column="17" lean-forward="false" selection-start-line="13" selection-start-column="17" selection-end-line="13" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../ormcore/src/main/java/com/ormcore/dao/TblElectricPileDao.java">
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/netty/server/ServerHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="22" column="34" lean-forward="false" selection-start-line="22" selection-start-column="34" selection-end-line="22" selection-end-column="34" />
+        <state relative-caret-position="68">
+          <caret line="5" column="26" lean-forward="false" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="26" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/cache/ElectricPileCache.java">
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/netty/server/ServerChannelInitializer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="35" column="40" lean-forward="false" selection-start-line="35" selection-start-column="40" selection-end-line="35" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/server/IGameServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="40" lean-forward="true" selection-start-line="9" selection-start-column="40" selection-end-line="9" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libECCommon/src/main/java/com/ec/net/proto/WmIce104Util.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-442">
+          <caret line="101" column="2" lean-forward="false" selection-start-line="101" selection-start-column="2" selection-end-line="101" selection-end-column="2" />
+          <folding>
+            <element signature="method#bcd2Str_div_ff#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#littleEninaBcd2Str#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#bcd2StrDividFF#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="docComment;method#str2Bcd#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#getframenum#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#appendFF#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#appendZero#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#bytes2int#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#int2Bytes2#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#dumpHex#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#ConvertHex2#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#getP56Time2a#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#getP56Time2a#1;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#getP56Time2aTime#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="docComment;method#timeToByte#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#timeToByte#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="docComment;method#timeToByte#1;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#timeToByte#1;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#stringToDate#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#Hex2BCD#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#BCD2Hex#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#byteToHexString#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="docComment;method#byteArrayToHexString#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#MD5Encode#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="docComment;method#CRCSum#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#CRCSum#0;class#WmIce104Util#0" expanded="false" />
+            <element signature="method#removeByte#0;class#WmIce104Util#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libECCommon/src/main/java/com/ec/net/proto/StreamUtil.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="25" column="13" lean-forward="false" selection-start-line="25" selection-start-column="13" selection-end-line="25" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/model/conf/ServerConfig.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="13" lean-forward="false" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/server/IServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="17" lean-forward="false" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/netty/httpserver/INettyHttpServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="10" column="46" lean-forward="false" selection-start-line="10" selection-start-column="46" selection-end-line="10" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://E:/maven/repository/io/netty/netty-all/4.1.1.Final/netty-all-4.1.1.Final.jar!/io/netty/handler/codec/http/HttpRequestDecoder.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="8" column="11" lean-forward="false" selection-start-line="8" selection-start-column="11" selection-end-line="8" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://E:/maven/repository/io/netty/netty-all/4.1.1.Final/netty-all-4.1.1.Final.jar!/io/netty/handler/codec/http/multipart/HttpPostRequestDecoder.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="311">
-          <caret line="260" column="16" lean-forward="false" selection-start-line="260" selection-start-column="16" selection-end-line="260" selection-end-column="16" />
+          <caret line="122" column="43" lean-forward="false" selection-start-line="122" selection-start-column="43" selection-end-line="122" selection-end-column="43" />
           <folding>
-            <element signature="e#5428#5429#0" expanded="false" />
-            <element signature="e#5451#5452#0" expanded="false" />
+            <element signature="e#4547#4548#0" expanded="true" />
+            <element signature="e#4597#4598#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/netty/httpserver/HttpServerHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="643">
+          <caret line="115" column="22" lean-forward="true" selection-start-line="115" selection-start-column="22" selection-end-line="115" selection-end-column="22" />
+          <folding>
+            <element signature="e#3183#3184#0" expanded="false" />
+            <element signature="e#3216#3217#0" expanded="false" />
+            <element signature="e#3455#3456#0" expanded="false" />
+            <element signature="e#3490#3491#0" expanded="false" />
+            <element signature="e#3533#3534#0" expanded="false" />
+            <element signature="e#3568#3569#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/netty/httpserver/HttpServerInitializer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="527">
+          <caret line="51" column="40" lean-forward="false" selection-start-line="51" selection-start-column="40" selection-end-line="51" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libECCommon/src/main/java/com/ec/net/proto/ByteBufferUtil.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="304">
+          <caret line="111" column="31" lean-forward="false" selection-start-line="111" selection-start-column="31" selection-end-line="111" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/net/server/EpMessageHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="373" column="33" lean-forward="false" selection-start-line="373" selection-start-column="33" selection-end-line="373" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://E:/maven/repository/log4j/log4j/1.2.14/log4j-1.2.14.jar!/org/apache/log4j/xml/DOMConfigurator.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="311">
+          <caret line="518" column="23" lean-forward="false" selection-start-line="518" selection-start-column="23" selection-end-line="518" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/service/GlobalConfigService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="32" column="37" lean-forward="true" selection-start-line="32" selection-start-column="37" selection-end-line="32" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/conf/CoreConfig.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="640">
+          <caret line="59" column="8" lean-forward="true" selection-start-line="59" selection-start-column="8" selection-end-line="59" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/core/task/DumpMemoryTask.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="9" column="13" lean-forward="false" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/conf/server-config.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2022,234 +2696,157 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/conf/GameConfig.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="14" column="0" lean-forward="true" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/service/EpCommClientService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1048">
-          <caret line="166" column="48" lean-forward="true" selection-start-line="166" selection-start-column="48" selection-end-line="166" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../usrlayer/src/com/ec/usrcore/net/client/EpGateNetConnect.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="583">
-          <caret line="206" column="0" lean-forward="true" selection-start-line="206" selection-start-column="0" selection-end-line="206" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/net/client/EpCommClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1498">
-          <caret line="126" column="4" lean-forward="true" selection-start-line="126" selection-start-column="4" selection-end-line="126" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../libECCommon/src/main/java/com/ec/constants/UserConstants.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1104">
-          <caret line="86" column="43" lean-forward="false" selection-start-line="86" selection-start-column="28" selection-end-line="86" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../libCooperate/src/main/java/com/cooperate/CooperateFactory.java">
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/core/thread/StopServerThread.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
-          <caret line="53" column="17" lean-forward="true" selection-start-line="53" selection-start-column="17" selection-end-line="53" selection-end-column="17" />
+          <caret line="17" column="13" lean-forward="false" selection-start-line="17" selection-start-column="13" selection-end-line="17" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../libCooperate/src/main/java/com/cooperate/IPush.java">
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/core/thread/GameServerShutdownHook.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="626">
-          <caret line="52" column="16" lean-forward="false" selection-start-line="52" selection-start-column="16" selection-end-line="52" selection-end-column="16" />
+        <state relative-caret-position="425">
+          <caret line="27" column="0" lean-forward="true" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../libCooperate/src/main/java/com/cooperate/Push.java">
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/server/impl/AbstractGameServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="764">
-          <caret line="85" column="16" lean-forward="false" selection-start-line="85" selection-start-column="16" selection-end-line="85" selection-end-column="16" />
+        <state relative-caret-position="-74">
+          <caret line="133" column="22" lean-forward="false" selection-start-line="133" selection-start-column="22" selection-end-line="133" selection-end-column="22" />
           <folding>
-            <element signature="e#1875#1876#0" expanded="false" />
-            <element signature="e#1904#1905#0" expanded="false" />
+            <element signature="e#1427#1428#0" expanded="true" />
+            <element signature="e#1454#1455#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../libCooperate/conf/cooperate/elease.properties">
+    <entry file="file://$PROJECT_DIR$/../libNetCore/src/main/java/com/ec/netcore/netty/server/AbstractNettyServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="6" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../libCooperate/src/main/java/com/cooperate/RealDataRT.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="11" lean-forward="false" selection-start-line="8" selection-start-column="11" selection-end-line="8" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/service/EpConcentratorService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2482">
-          <caret line="173" column="15" lean-forward="false" selection-start-line="173" selection-start-column="15" selection-end-line="173" selection-end-column="15" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../libCooperate/src/main/java/com/cooperate/elease/EleasePush.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3060">
-          <caret line="194" column="51" lean-forward="false" selection-start-line="194" selection-start-column="51" selection-end-line="194" selection-end-column="51" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/service/EqVersionService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="208" column="23" lean-forward="false" selection-start-line="208" selection-start-column="23" selection-end-line="208" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../libECCommon/src/main/java/com/ec/net/message/MobiCommon.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1785">
-          <caret line="130" column="25" lean-forward="false" selection-start-line="130" selection-start-column="25" selection-end-line="130" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../libCooperate/src/main/java/com/cooperate/cczc/CCZCPush.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="595">
-          <caret line="163" column="29" lean-forward="false" selection-start-line="163" selection-start-column="16" selection-end-line="163" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/test/ImitateEpService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="861">
-          <caret line="143" column="4" lean-forward="true" selection-start-line="143" selection-start-column="4" selection-end-line="143" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/cache/EpGunCache.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="2359" column="0" lean-forward="true" selection-start-line="2359" selection-start-column="0" selection-end-line="2359" selection-end-column="0" />
+        <state relative-caret-position="1479">
+          <caret line="108" column="22" lean-forward="false" selection-start-line="108" selection-start-column="22" selection-end-line="108" selection-end-column="22" />
           <folding>
-            <element signature="e#2235#2256#0" expanded="true" />
-            <element signature="e#2323#2344#0" expanded="true" />
-            <element signature="e#6270#6291#0" expanded="true" />
-            <element signature="e#16486#16502#0" expanded="true" />
-            <element signature="e#17648#17664#0" expanded="true" />
-            <element signature="e#18836#18857#0" expanded="true" />
-            <element signature="e#23262#23278#0" expanded="true" />
-            <element signature="e#26211#26227#0" expanded="true" />
-            <element signature="e#28448#28464#0" expanded="true" />
-            <element signature="e#30623#30639#0" expanded="true" />
-            <element signature="e#33560#33576#0" expanded="true" />
-            <element signature="e#38353#38380#0" expanded="true" />
-            <element signature="e#44190#44206#0" expanded="true" />
-            <element signature="e#80276#80292#0" expanded="true" />
-            <element signature="e#83109#83125#0" expanded="true" />
-            <element signature="e#96489#96505#0" expanded="true" />
-            <element signature="e#98368#98384#0" expanded="true" />
-            <element signature="e#102121#102137#0" expanded="true" />
-            <element signature="e#103453#103468#0" expanded="true" />
-            <element signature="e#109071#109086#0" expanded="true" />
-            <element signature="e#119409#119425#0" expanded="true" />
+            <element signature="e#2722#3450#0" expanded="true" />
+            <element signature="e#3449#3450#0" expanded="true" />
+            <element signature="e#4250#4251#0" expanded="true" />
+            <element signature="e#4285#4286#0" expanded="true" />
+            <element signature="e#4333#4334#0" expanded="true" />
+            <element signature="e#4368#4369#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/test/ImitateConsumeService.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/ServerStart.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="32402">
-          <caret line="1961" column="36" lean-forward="false" selection-start-line="1961" selection-start-column="36" selection-end-line="1961" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/service/AppApiService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6511">
-          <caret line="407" column="23" lean-forward="false" selection-start-line="407" selection-start-column="23" selection-end-line="407" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../libECCommon/src/main/java/com/ec/net/message/AliSMS.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="31" column="26" lean-forward="false" selection-start-line="31" selection-start-column="26" selection-end-line="31" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/net/server/EpMessageHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7123">
-          <caret line="447" column="39" lean-forward="false" selection-start-line="447" selection-start-column="39" selection-end-line="447" selection-end-column="39" />
+        <state relative-caret-position="51">
+          <caret line="7" column="13" lean-forward="false" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/net/codec/EpDecoder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="32402">
-          <caret line="1941" column="31" lean-forward="false" selection-start-line="1941" selection-start-column="31" selection-end-line="1941" selection-end-column="31" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/service/EpChargeService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7786">
-          <caret line="515" column="23" lean-forward="false" selection-start-line="515" selection-start-column="23" selection-end-line="515" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/service/UserService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="13260">
-          <caret line="802" column="9" lean-forward="false" selection-start-line="802" selection-start-column="9" selection-end-line="802" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../ormcore/src/main/java/com/ormcore/mapper/ElectricPile.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1768">
-          <caret line="104" column="59" lean-forward="false" selection-start-line="104" selection-start-column="7" selection-end-line="104" selection-end-column="59" />
+        <state relative-caret-position="405">
+          <caret line="2723" column="24" lean-forward="true" selection-start-line="2723" selection-start-column="24" selection-end-line="2723" selection-end-column="24" />
           <folding>
-            <marker date="1504237326267" expanded="true" signature="3546:4040" ph="select pk_El... tbl_electricpile" />
+            <element signature="docComment;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeAcRealInfo#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeWholeAcRealInfo1#0;class#EpDecoder#0" expanded="false" />
+            <element signature="e#6555#6575#0" expanded="true" />
+            <element signature="e#6643#6663#0" expanded="true" />
+            <element signature="e#6728#6748#0" expanded="true" />
+            <element signature="e#6816#6836#0" expanded="true" />
+            <element signature="method#decodeWholeAcRealInfo3#0;class#EpDecoder#0" expanded="false" />
+            <element signature="e#11467#11487#0" expanded="true" />
+            <element signature="e#11555#11575#0" expanded="true" />
+            <element signature="e#11640#11660#0" expanded="true" />
+            <element signature="e#11728#11748#0" expanded="true" />
+            <element signature="e#11967#11979#0" expanded="false" />
+            <element signature="e#13599#13611#0" expanded="false" />
+            <element signature="method#decodeWholeDcRealInfo#0;class#EpDecoder#0" expanded="false" />
+            <element signature="e#18459#18489#0" expanded="true" />
+            <element signature="method#decodeWholeDCRealInfo4#0;class#EpDecoder#0" expanded="false" />
+            <element signature="e#18910#18930#0" expanded="true" />
+            <element signature="e#18998#19018#0" expanded="true" />
+            <element signature="e#19083#19103#0" expanded="true" />
+            <element signature="e#19171#19191#0" expanded="true" />
+            <element signature="e#19410#19422#0" expanded="false" />
+            <element signature="e#21042#21054#0" expanded="false" />
+            <element signature="e#21264#21277#0" expanded="false" />
+            <element signature="e#25384#25393#0" expanded="false" />
+            <element signature="e#25585#25598#0" expanded="false" />
+            <element signature="e#25819#25832#0" expanded="false" />
+            <element signature="e#26207#26243#0" expanded="false" />
+            <element signature="e#29044#29074#0" expanded="true" />
+            <element signature="method#decodeWholeDCRealInfo2#0;class#EpDecoder#0" expanded="false" />
+            <element signature="e#29500#29520#0" expanded="true" />
+            <element signature="e#29588#29608#0" expanded="true" />
+            <element signature="e#29673#29693#0" expanded="true" />
+            <element signature="e#29761#29781#0" expanded="true" />
+            <element signature="e#29963#29975#0" expanded="false" />
+            <element signature="e#30163#30171#0" expanded="false" />
+            <element signature="e#30336#30348#0" expanded="false" />
+            <element signature="e#30534#30546#0" expanded="false" />
+            <element signature="e#30718#30729#0" expanded="false" />
+            <element signature="e#35429#35459#0" expanded="true" />
+            <element signature="method#decodeOneBitYx#0;class#EpDecoder#0" expanded="false" />
+            <element signature="e#38632#38662#0" expanded="true" />
+            <element signature="method#decodeTwoBitYx#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeYc#0;class#EpDecoder#0" expanded="false" />
+            <element signature="e#45239#45269#0" expanded="true" />
+            <element signature="method#decodeConsumeModelReq#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeNoCardAuthByPw#0;class#EpDecoder#0" expanded="false" />
+            <element signature="e#50556#50627#0" expanded="false" />
+            <element signature="method#decodeEpBespRet#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeEpCancelBespRet#0;class#EpDecoder#0" expanded="false" />
+            <element signature="e#52522#52541#0" expanded="false" />
+            <element signature="method#decodeNoCardAuthByYZM#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeStartElectricizeEventV3#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeStopElectricizeEvent#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeEpStartChargeResp#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeEpStopChargeResp#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeConsumeRecordWithRate#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeConsumeRecordWithReaseon#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeQueryConsumeRecord#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeBalanceWarning#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeEpHexFileSumaryReq#0;class#EpDecoder#0" expanded="false" />
+            <element signature="e#68090#68156#0" expanded="false" />
+            <element signature="method#decodeEpHexFileDownReq#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeStatReq#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeCommSignal#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeEpIdentyCodeQuery#0;class#EpDecoder#0" expanded="false" />
+            <element signature="e#71714#71751#0" expanded="false" />
+            <element signature="method#decodeLockGunFailWaring#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeEpDevices#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeCardFronzeAmt#0;class#EpDecoder#0" expanded="false" />
+            <element signature="e#73038#73066#0" expanded="false" />
+            <element signature="method#decodeUserCardAuth#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeVINAuth#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeVersionAck#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeUpdateAck#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeConcentroterSetEPRet#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeConcentroterGetEPRet#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeGetConsumeModelRet#0;class#EpDecoder#0" expanded="false" />
+            <element signature="e#81846#81861#0" expanded="true" />
+            <element signature="method#decodeGetFlashRamRet#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#handleMsgTime#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeSetTempChargeRet#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeGetTempChargeRet#0;class#EpDecoder#0" expanded="false" />
+            <element signature="docComment;method#decodeSetTimingChargeRet#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeSetTimingChargeRet#0;class#EpDecoder#0" expanded="false" />
+            <element signature="docComment;method#changeTimingCharge#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#changeTimingCharge#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeSetWorkArgRet#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeSetEpInfoRet#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#updateWorkArg#0;class#EpDecoder#0" expanded="false" />
+            <element signature="method#decodeGetEpOffLineRet#0;class#EpDecoder#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/service/EpService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6613">
-          <caret line="439" column="8" lean-forward="false" selection-start-line="439" selection-start-column="8" selection-end-line="439" selection-end-column="8" />
-          <folding />
         </state>
       </provider>
     </entry>

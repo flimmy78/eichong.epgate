@@ -15,6 +15,7 @@ import com.ec.net.proto.ByteBufferUtil;
 import com.ec.net.proto.Iec104Constant;
 import com.ec.net.proto.SingleInfo;
 import com.ec.net.proto.WmIce104Util;
+import com.ec.netcore.util.ByteUtil;
 import com.ec.utils.*;
 import com.ormcore.dao.DB;
 import com.ormcore.model.ElectricpileWorkarg;
@@ -2711,5 +2712,137 @@ public class EpDecoder extends ByteToMessageDecoder {
         tblOffLineInfo.setType(tblOffLineInfo.getType());
         DB.tblOffLineInfoDao.insertOffLineInfo(tblOffLineInfo);
     }
+
+	public static ConsumeRecord decodeConsume(String arg) throws IOException
+	{
+		ConsumeRecord consumeRecord = new ConsumeRecord();
+		//String arg = "68A900000000008201000000000000003433010610193214430133010610193214431804021721541687010000018806711756FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF01E8031611020412E0AB171102041200000000000000000000000000000000000000000000000028000000B09A000028000000B09A0000E19A0000646301008C630100020000000000000000000000000000000000000000000011172C8E28";
+		byte[] msg = hexStringToByte(arg);
+
+		byte bbyte = msg[3 + ApciHeader.NUM_CTRL];
+		if (bbyte != Iec104Constant.M_RE_NA) {
+			return null;
+		}
+
+		int record_type = (short) msg[3 + ApciHeader.NUM_CTRL
+				+ AsduHeader.H_LEN] & 0xff;
+		ByteBuffer byteBuffer = ByteBuffer.wrap(msg);
+		ByteBufferUtil.readWithLength(byteBuffer, 3 + ApciHeader.NUM_CTRL
+				+ AsduHeader.H_LEN + 1);
+
+		// 1 终端机器编码 BCD码 8Byte 16位编码
+		String epCode = ByteBufferUtil.readBCDWithLength(byteBuffer, 8);
+		int epGunNo = byteBuffer.get();
+
+		consumeRecord.setEpCode(epCode);
+		consumeRecord.setEpGunNo(epGunNo);
+
+
+		// 2 交易流水号 BCD码 10Byte 16位交易代码
+		consumeRecord.setSerialNo(ByteBufferUtil.readBCDWithLength(
+				byteBuffer,
+				YXCConstants.LEN_BCD_ELECTRICIZE_SERIALNO));
+
+		int accountType = (int)byteBuffer.get();
+
+		consumeRecord.setAccountType(accountType);
+
+		int userOrgin = (int)ByteBufferUtil.readUB2(byteBuffer);
+
+		consumeRecord.setUserOrgin(userOrgin);
+
+		// 3 用户编号 BCD码 8Byte 16位设备编码
+		String Account = "";
+		if(accountType == 1 )
+		{
+			byte[] bAccount = ByteBufferUtil.readWithLength(byteBuffer, 6);
+			ByteBufferUtil.readWithLength(byteBuffer, 26);
+			Account = WmIce104Util.bcd2StrDividFF(bAccount);
+		}
+		else
+		{
+			byte[] bAccount = ByteBufferUtil.readWithLength(byteBuffer, 32);
+			Account = StringUtil.getCString(bAccount);
+		}
+
+		consumeRecord.setEpUserAccount(Account);
+
+		// 4 离线交易类型 BIN码 1Byte 0:
+		consumeRecord.setTransType((int) byteBuffer.get());
+
+		// 5 开始时间 BIN码 7Byte CP56Time2a
+		byte[] bStartTime = ByteBufferUtil.readCP56Time2a(byteBuffer);
+		consumeRecord.setStartTime(WmIce104Util
+				.getP56Time2aTime(bStartTime));
+		// 6 结束时间 BIN码 7Byte CP56Time2a
+		byte[] bEndTime = ByteBufferUtil.readCP56Time2a(byteBuffer);
+		consumeRecord.setEndTime(WmIce104Util
+				.getP56Time2aTime(bEndTime));
+
+		// 7 尖度量
+		consumeRecord.setjDl(ByteBufferUtil.readInt(byteBuffer));
+		// 8 尖金额
+		consumeRecord.setjAmt(ByteBufferUtil.readInt(byteBuffer));
+
+		// 9 峰度量
+		consumeRecord.setfDl(ByteBufferUtil.readInt(byteBuffer));
+		// 10 峰金额
+		consumeRecord.setfAmt(ByteBufferUtil.readInt(byteBuffer));
+
+		// 11平度量
+		consumeRecord.setpDl(ByteBufferUtil.readInt(byteBuffer));
+		// 12 平金额
+		consumeRecord.setpAmt(ByteBufferUtil.readInt(byteBuffer));
+
+		// 13谷度量
+		consumeRecord.setgDl(ByteBufferUtil.readInt(byteBuffer));
+		// 14 谷金额
+		consumeRecord.setgAmt(ByteBufferUtil.readInt(byteBuffer));
+
+		// 15总电量
+		consumeRecord.setTotalDl(ByteBufferUtil.readInt(byteBuffer));
+
+		// 16总充电金额
+		consumeRecord.setTotalChargeAmt(ByteBufferUtil.readInt(byteBuffer));
+
+		// 17服务费
+		consumeRecord.setServiceAmt(ByteBufferUtil.readInt(byteBuffer));
+
+		// 18开始充电总电量
+		consumeRecord.setStartMeterNum(ByteBufferUtil.readInt(byteBuffer));
+		// 19结束充电总电量
+		consumeRecord.setEndMeterNum(ByteBufferUtil.readInt(byteBuffer));
+		//20停止充电原因
+		String stopCause = String.valueOf(ByteBufferUtil.readUB2(byteBuffer));
+		consumeRecord.setStopCause(stopCause);
+
+		if (record_type >= 50) {
+			byte[] bVinCode = ByteBufferUtil.readWithLength(byteBuffer, 17);
+			byte [] bVinCode2=WmIce104Util.removeFFAndO(bVinCode);
+			String carVinCode = StringUtil.getByteString(bVinCode2);
+			consumeRecord.setCarVinCode(carVinCode);
+			if (record_type >= 52) {
+				consumeRecord.setStartSoc(ByteBufferUtil.readUB2(byteBuffer));
+				consumeRecord.setEndSoc(ByteBufferUtil.readUB2(byteBuffer));
+			}
+		}
+		return consumeRecord;
+	}
+
+	public static byte[] hexStringToByte(String hex) {
+		int len = (hex.length() / 2);
+		byte[] result = new byte[len];
+		char[] achar = hex.toCharArray();
+		for (int i = 0; i < len; i++) {
+			int pos = i * 2;
+			result[i] = (byte) (toByte(achar[pos]) << 4 | toByte(achar[pos + 1]));
+		}
+		return result;
+	}
+
+	private static int toByte(char c) {
+		byte b = (byte) "0123456789ABCDEF".indexOf(c);
+		return b;
+	}
 }
 
