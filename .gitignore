@@ -1,3 +1,4 @@
 /.svn/
 /.idea/
-
+*.class
+/target/
