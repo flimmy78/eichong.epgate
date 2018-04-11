@@ -216,8 +216,8 @@
       <file leaf-file-name="EpGunCache.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/cache/EpGunCache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="572">
-              <caret line="2547" column="17" lean-forward="true" selection-start-line="2547" selection-start-column="17" selection-end-line="2547" selection-end-column="17" />
+            <state relative-caret-position="436">
+              <caret line="2539" column="88" lean-forward="true" selection-start-line="2539" selection-start-column="88" selection-end-line="2539" selection-end-column="88" />
               <folding />
             </state>
           </provider>
@@ -1600,7 +1600,7 @@
       <workItem from="1523149040958" duration="15831000" />
       <workItem from="1523235137298" duration="16286000" />
       <workItem from="1523321790349" duration="7156000" />
-      <workItem from="1523407981874" duration="17896000" />
+      <workItem from="1523407981874" duration="18561000" />
     </task>
     <task id="LOCAL-00001" summary="新账户提交">
       <created>1513846219534</created>
@@ -1683,7 +1683,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2916266000" />
+    <option name="totallyTimeSpent" value="2916931000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -2296,8 +2296,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/ec/epcore/cache/EpGunCache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="572">
-          <caret line="2547" column="17" lean-forward="true" selection-start-line="2547" selection-start-column="17" selection-end-line="2547" selection-end-column="17" />
+        <state relative-caret-position="436">
+          <caret line="2539" column="88" lean-forward="true" selection-start-line="2539" selection-start-column="88" selection-end-line="2539" selection-end-column="88" />
           <folding />
         </state>
       </provider>
