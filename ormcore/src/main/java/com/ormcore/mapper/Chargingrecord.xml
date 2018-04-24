@@ -43,7 +43,14 @@
 		<result property="thirdExtraData" column="chre_parter_extradata" />
 		<result property="usrGateIp" column="chre_usrgateip" />
 		<result property="accountId" column="account_id" />
-		
+		<result property="tipPrice" column="chRe_TipPrice"/>
+		<result property="peakPrice" column="chRe_PeakPrice"/>
+		<result property="flatPrice" column="chRe_FlatPrice"/>
+		<result property="valleyPrice" column="chRe_valleyPrice"/>
+        <result property="tipMoney" column="chRe_TipMoney"/>
+        <result property="peakMoney" column="chRe_PeakMoney"/>
+        <result property="flatMoney" column="chRe_FlatMoney"/>
+        <result property="valleyMoney" column="chRe_valleyMoney"/>
 		
 	</resultMap>
 	<resultMap id="findResultMap"  type="java.util.HashMap" extends="tblChargingrecordResultMap"></resultMap>
@@ -84,8 +91,15 @@
 	     chre_parter_extradata,
 	     chRe_ThirdCode,
 	     chRe_ThirdType,
-	     account_id
-		
+	     account_id,
+	     chRe_TipPrice,
+	     chRe_PeakPrice,
+	     chRe_FlatPrice,
+	     chRe_valleyPrice,
+	     chRe_TipMoney,
+	     chRe_PeakMoney,
+	     chRe_FlatMoney,
+	     chRe_valleyMoney
 	   )values (
 	     #{chreElectricpileid},
 	     #{chreUsingmachinecode},
@@ -117,7 +131,15 @@
 		 #{payMode},#{thirdUsrIdentity},#{thirdExtraData},
 		 #{thirdCode}, 
 		 #{thirdType},
-		 #{accountId}
+		 #{accountId},
+	     #{tipPrice},
+	     #{peakPrice},
+	     #{flatPrice},
+	     #{valleyPrice},
+	     #{tipMoney},
+	     #{peakMoney},
+	     #{flatMoney},
+	     #{valleyMoney}
 	   )
 	</insert>
 	
@@ -157,7 +179,15 @@
 	     chre_parter_user_logo,
 	     chre_parter_extradata,
 	     chre_usrgateip,
-	     account_id
+	     account_id,
+	     chRe_TipPrice,
+	     chRe_PeakPrice,
+	     chRe_FlatPrice,
+	     chRe_valleyPrice,
+	     chRe_TipMoney,
+	     chRe_PeakMoney,
+	     chRe_FlatMoney,
+	     chRe_valleyMoney
 	   )values (
 	     #{chreElectricpileid},
 	     #{chreUsingmachinecode},
@@ -190,7 +220,15 @@
 	     #{userOrgNo},
 		 #{payMode} ,#{thirdUsrIdentity},#{thirdExtraData},
 		 #{usrGateIp},
-		 #{accountId}
+		 #{accountId},
+	     #{tipPrice},
+	     #{peakPrice},
+	     #{flatPrice},
+	     #{valleyPrice},
+	     #{tipMoney},
+	     #{peakMoney},
+	     #{flatMoney},
+	     #{valleyMoney}
 	   )
 	  
 	</insert>
@@ -203,17 +241,29 @@
 		<if test="ServicePrice != null">
 		chRe_ServiceCharge = #{ServicePrice},
 		</if>
-		<if test="JMoney != null">
-			chRe_JMoney =#{JMoney},
+		<if test="tipPrice != null">
+			chRe_TipPrice =#{tipPrice},
 		</if>
-		<if test="FMoney != null">
-			chRe_FMoney =#{FMoney},
+		<if test="peakPrice != null">
+			chRe_PeakPrice =#{peakPrice},
 		</if>
-		<if test="PMoney != null">
-			chRe_PMoney =#{PMoney},
+		<if test="flatPrice != null">
+			chRe_FlatPrice =#{flatPrice},
 		</if>
-		<if test="GMoney != null">
-			chRe_GMoney =#{GMoney},
+		<if test="valleyPrice != null">
+			chRe_valleyPrice =#{valleyPrice},
+		</if>
+		<if test="tipMoney != null">
+			chRe_TipMoney =#{tipMoney},
+		</if>
+		<if test="peakMoney != null">
+			chRe_PeakMoney =#{peakMoney},
+		</if>
+		<if test="flatMoney != null">
+			chRe_FlatMoney =#{flatMoney},
+		</if>
+		<if test="valleyMoney != null">
+			chRe_valleyMoney =#{valleyMoney},
 		</if>
 		<if test="thirdCode != null">
 		chRe_ThirdCode =#{thirdCode},
@@ -300,7 +350,15 @@
 	     chre_parter_user_logo,
 	     chre_parter_extradata,
 	     chre_usrgateip,
-	     account_id
+	     account_id,
+	     chRe_TipPrice,
+	     chRe_PeakPrice,
+	     chRe_FlatPrice,
+	     chRe_valleyPrice,
+	     chRe_TipMoney,
+	     chRe_PeakMoney,
+	     chRe_FlatMoney,
+	     chRe_valleyMoney
 		from tbl_ChargingRecord
 		where
 		chRe_TransactionNumber=#{chreTransactionnumber} 

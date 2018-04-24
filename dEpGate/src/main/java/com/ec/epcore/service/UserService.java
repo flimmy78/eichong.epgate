@@ -174,7 +174,7 @@ public class UserService {
 
     public static void subAmt(int accountId, BigDecimal amt, BigDecimal present, String serialNo) {
         try {
-            logger.info("subAmt start. accountId:{},amt:{},serialNo:{}", new Object[]{accountId, amt, serialNo});
+            logger.info("subAmt start. accountId:{},amt:{},present:{},serialNo:{}", new Object[]{accountId, amt, present, serialNo});
             UserCache uc = getUserCache(accountId);
             if (uc == null) {
                 logger.info("subAmt fail,accountId:{},amt:{},getUserCache()==null", accountId, amt);
@@ -189,7 +189,7 @@ public class UserService {
 
             DB.userInfoDao.subCost(u);
 
-            logger.info("subAmt finish!accountId:{},amt:{},serialNo:{}", new Object[]{accountId, amt, serialNo});
+            logger.info("subAmt finish!accountId:{},amt:{},present:{},serialNo:{}", new Object[]{accountId, amt, present, serialNo});
 
 
         } catch (Exception e) {
@@ -815,7 +815,7 @@ public class UserService {
     {
         if (orgNo == UserConstants.ORG_EC || orgNo == UserConstants.ORG_CCZC || orgNo == UserConstants.ORG_TJD
                 || orgNo == UserConstants.ORG_TCEC_ECHONG || orgNo == UserConstants.ORG_EVC || orgNo == UserConstants.ORG_TCEC_SHENZHEN
-                || orgNo == UserConstants.ORG_CHAT|| orgNo == UserConstants.ORG_TCEC_BEIQI || orgNo == UserConstants.ORG_TCEC_HESHUN
+                || orgNo == UserConstants.ORG_CHAT || orgNo == UserConstants.ORG_AMAP|| orgNo == UserConstants.ORG_TCEC_BEIQI || orgNo == UserConstants.ORG_TCEC_HESHUN
                 || orgNo == UserConstants.ORG_TCEC_BAIDU || orgNo == UserConstants.ORG_TCEC_GUOWANG || orgNo == UserConstants.ORG_TCEC_BEIQI || orgNo == UserConstants.ORG_TCEC_NANRUI
                 || orgNo == UserConstants.ORG_TCEC_NANCHONG || orgNo == UserConstants.ORG_TCEC_ALIPAY || orgNo == UserConstants.ORG_TCEC_HAINAN || orgNo == UserConstants.ORG_TCEC_XIAOJU)
             return true;

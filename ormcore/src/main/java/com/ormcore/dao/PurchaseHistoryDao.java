@@ -13,7 +13,5 @@ public interface PurchaseHistoryDao {
 	public int getAccountId(TblPurchaseHistory info);
 
 	public int getPayMode(int accountID);
-
-	public int getCount(TblPurchaseHistory info);
 }
 

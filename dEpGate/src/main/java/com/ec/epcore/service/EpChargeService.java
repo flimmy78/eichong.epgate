@@ -173,16 +173,29 @@ public class EpChargeService {
 		chargeCache.setUserOrigin(userOrigin);
 		
 		RateInfo rateInfo = new RateInfo();
-		rateInfo.setJ_Rate(tcr.getJPrice());
-		rateInfo.setF_Rate(tcr.getFPrice());
-		rateInfo.setP_Rate(tcr.getPPrice());
-		rateInfo.setG_Rate(tcr.getGPrice());
+		if (tcr.getTipPrice() != null) {
+			rateInfo.setModelId(3);
+			rateInfo.setJ_Rate(tcr.getTipPrice());
+			rateInfo.setF_Rate(tcr.getPeakPrice());
+			rateInfo.setP_Rate(tcr.getFlatPrice());
+			rateInfo.setG_Rate(tcr.getValleyPrice());
+			rateInfo.setJ_RateMoney(tcr.getTipMoney());
+			rateInfo.setF_RateMoney(tcr.getPeakMoney());
+			rateInfo.setP_RateMoney(tcr.getFlatMoney());
+			rateInfo.setG_RateMoney(tcr.getValleyMoney());
+		} else {
+			rateInfo.setModelId(0);
+			rateInfo.setJ_Rate(tcr.getJPrice());
+			rateInfo.setF_Rate(tcr.getFPrice());
+			rateInfo.setP_Rate(tcr.getPPrice());
+			rateInfo.setG_Rate(tcr.getGPrice());
+			rateInfo.setJ_RateMoney(tcr.getJMoney());
+			rateInfo.setF_RateMoney(tcr.getFMoney());
+			rateInfo.setP_RateMoney(tcr.getPMoney());
+			rateInfo.setG_RateMoney(tcr.getGMoney());
+		}
 		rateInfo.setServiceRate(tcr.getServicePrice());
 		rateInfo.setQuantumDate(tcr.getQuantumDate());
-		rateInfo.setJ_RateMoney(tcr.getJMoney());
-		rateInfo.setF_RateMoney(tcr.getFMoney());
-		rateInfo.setP_RateMoney(tcr.getPMoney());
-		rateInfo.setG_RateMoney(tcr.getGMoney());
 
 		chargeCache.setRateInfo(rateInfo);
 		
@@ -451,7 +464,7 @@ public class EpChargeService {
 			return errorCode;
 		}
 
-		errorCode = epGunCache.startChargeAction(u, thirdUsrIdentity,card,rateInfo, bespNo, startChargeStyle, frozenAmt,
+		errorCode = epGunCache.startChargeAction(u, thirdUsrIdentity,card,RateService.getRateById(epCache.getRateid()),rateInfo, bespNo, startChargeStyle, frozenAmt,
 				payMode, orgNo,fromSource,actionIdentity,token,cmdTimes);
 		
 		
@@ -513,7 +526,7 @@ public class EpChargeService {
 		return epGunCache.stopChargeAction(orgNo, userId, account, source, apiClientIp);
 	}
 
-	public static void handEpStartChargeResp(EpCommClient epCommClient,ChargeCmdResp chargeCmdResp,byte []cmdTimes,byte[] msg )
+	public static void handEpStartChargeResp(EpCommClient epCommClient,ChargeCmdResp chargeCmdResp,byte []cmdTimes )
 	{
 		logger.info(LogUtil.addExtLog("cmd|epCode|epGunNo|cmdTime|ChargeCmdResp")
 				,new Object[]{LogConstants.FUNC_ONSTARTCHARGE,chargeCmdResp.getEpCode(),chargeCmdResp.getEpGunNo(),cmdTimes,chargeCmdResp});
@@ -522,7 +535,7 @@ public class EpChargeService {
 		
 		if(epGunCache!=null)
 		{
-			epGunCache.onEpStartCharge(chargeCmdResp,msg);
+			epGunCache.onEpStartCharge(chargeCmdResp);
 		}
 	}
 	/*
@@ -709,7 +722,7 @@ public class EpChargeService {
 			String chargeAccount,int pkUserCard,int userOrigin,int pkEpId,String epCode,
 			int epGunNo,int chargingmethod,String bespokeNo,String chOrCode, int frozenAmt,
 			BigDecimal presentAmt,int payMode,int userOrgNo,ChargeEvent chargeEvent
-			, RateInfo rateInfo,int status,String thirdUsrIdentity,String token,int accountId)
+			, RateInfo defRateInfo,RateInfo rateInfo,int status,String thirdUsrIdentity,String token,int accountId)
 	{
 		TblChargingrecord record = new TblChargingrecord();
 		
@@ -737,17 +750,21 @@ public class EpChargeService {
 		record.setChreCode(chOrCode);
 	
 		record.setStatus(status);
-		record.setJPrice(rateInfo.getJ_Rate());
-		record.setFPrice(rateInfo.getF_Rate());
-		record.setPPrice(rateInfo.getP_Rate());
-		record.setGPrice(rateInfo.getG_Rate());
-		record.setServicePrice(rateInfo.getServiceRate());
-		record.setQuantumDate(rateInfo.getQuantumDate());
-        if (rateInfo.getModelId() == 3) {
-            record.setJMoney(rateInfo.getJ_RateMoney());
-            record.setFMoney(rateInfo.getF_RateMoney());
-            record.setPMoney(rateInfo.getP_RateMoney());
-            record.setGMoney(rateInfo.getG_RateMoney());
+		record.setJPrice(defRateInfo.getJ_Rate());
+		record.setFPrice(defRateInfo.getF_Rate());
+		record.setPPrice(defRateInfo.getP_Rate());
+		record.setGPrice(defRateInfo.getG_Rate());
+		record.setServicePrice(defRateInfo.getServiceRate());
+		record.setQuantumDate(defRateInfo.getQuantumDate());
+		if (rateInfo.getModelId() == 3) {
+			record.setTipPrice(rateInfo.getJ_Rate());
+			record.setPeakPrice(rateInfo.getF_Rate());
+			record.setFlatPrice(rateInfo.getP_Rate());
+			record.setValleyPrice(rateInfo.getG_Rate());
+			record.setTipMoney(rateInfo.getJ_RateMoney());
+			record.setPeakMoney(rateInfo.getF_RateMoney());
+			record.setFlatMoney(rateInfo.getP_RateMoney());
+			record.setValleyMoney(rateInfo.getG_RateMoney());
         }
 		record.setPkUserCard(pkUserCard);
 		record.setUserOrigin(0);
@@ -992,7 +1009,7 @@ public class EpChargeService {
 			int pkEpId, String epCode, int epGunNo, int chargingmethod,
 			String bespokeNo, String chOrCode, int payMode,
 			BigDecimal couPonAmt, int pkCouPon, int thirdType,
-			ConsumeRecord consumeRecord, RateInfo rateInfo,
+			ConsumeRecord consumeRecord, RateInfo defRateInfo, RateInfo rateInfo,
 			BigDecimal servicePrice, boolean exceptionData) {
 		// 尖时段用电度数
 		BigDecimal tipPower = NumUtil.intToBigDecimal3(consumeRecord.getjDl());
@@ -1110,16 +1127,20 @@ public class EpChargeService {
 		record.setChreEnddate(dtEnd);
 		record.setChreResttime(0);
 		record.setStatus(1);
-		record.setJPrice(rateInfo.getJ_Rate());
-		record.setFPrice(rateInfo.getF_Rate());
-		record.setPPrice(rateInfo.getP_Rate());
-		record.setGPrice(rateInfo.getG_Rate());
-		record.setQuantumDate(rateInfo.getQuantumDate());
+		record.setJPrice(defRateInfo.getJ_Rate());
+		record.setFPrice(defRateInfo.getF_Rate());
+		record.setPPrice(defRateInfo.getP_Rate());
+		record.setGPrice(defRateInfo.getG_Rate());
+		record.setQuantumDate(defRateInfo.getQuantumDate());
         if (rateInfo.getModelId() == 3) {
-            record.setJMoney(rateInfo.getJ_RateMoney());
-            record.setFMoney(rateInfo.getF_RateMoney());
-            record.setPMoney(rateInfo.getP_RateMoney());
-            record.setGMoney(rateInfo.getG_RateMoney());
+			record.setTipPrice(rateInfo.getJ_Rate());
+			record.setPeakPrice(rateInfo.getF_Rate());
+			record.setFlatPrice(rateInfo.getP_Rate());
+			record.setValleyPrice(rateInfo.getG_Rate());
+			record.setTipMoney(rateInfo.getJ_RateMoney());
+			record.setPeakMoney(rateInfo.getF_RateMoney());
+			record.setFlatMoney(rateInfo.getP_RateMoney());
+			record.setValleyMoney(rateInfo.getG_RateMoney());
         }
 		record.setPkUserCard(pkUserCard);
 		record.setUserOrigin(userOrigin);
@@ -1282,10 +1303,14 @@ public class EpChargeService {
 		record.setGPrice(rateInfo.getG_Rate());
 		record.setQuantumDate(rateInfo.getQuantumDate());
         if (rateInfo.getModelId() != null && rateInfo.getModelId() == 3) {
-            record.setJMoney(rateInfo.getJ_RateMoney());
-            record.setFMoney(rateInfo.getF_RateMoney());
-            record.setPMoney(rateInfo.getP_RateMoney());
-            record.setGMoney(rateInfo.getG_RateMoney());
+			record.setTipPrice(rateInfo.getJ_Rate());
+			record.setPeakPrice(rateInfo.getF_Rate());
+			record.setFlatPrice(rateInfo.getP_Rate());
+			record.setValleyPrice(rateInfo.getG_Rate());
+			record.setTipMoney(rateInfo.getJ_RateMoney());
+			record.setPeakMoney(rateInfo.getF_RateMoney());
+			record.setFlatMoney(rateInfo.getP_RateMoney());
+			record.setValleyMoney(rateInfo.getG_RateMoney());
         }
 		record.setChreCode(order.getChorCode());
 		record.setServicePrice(servicePrice);
@@ -1459,7 +1484,7 @@ public class EpChargeService {
 		chargeCache.setStopCause(nStopRet);
 		
 		endChargeRecord(chargeCache.getChargeSerialNo(),et ,0,chargeCache.getRateInfo().getServiceRate());
-        
+
 		chargeCache.setStatus(ChargeRecordConstants.CS_CHARGE_END);
 		
 		return 0;
@@ -1482,7 +1507,7 @@ public class EpChargeService {
 		record.setChreEnddate(endDate);
 		
 		// 更新充电记录 记录结束时间和用电度数
-		DB.chargingrecordDao.insertEndRecord(record);
+		DB.chargingrecordDao.insertEndRecord(record); 
 	}
 	public static void insertFaultRecord(String stopCause,String epCode,int pkEpId,int epGunNo,String serialNo,Date faultDate)
 	{
@@ -3652,7 +3677,9 @@ public class EpChargeService {
 		value.setScale(2,BigDecimal.ROUND_HALF_UP);
 		float cusp_service_money = (float)(value.floatValue()*dec3);
 		float cusp_money = cusp_elect_money+cusp_service_money;
-		
+		float custom_CuspElectPrice = record.getTipPrice().floatValue();
+		float custom_CuspServicePrice = record.getTipMoney().floatValue();
+
 		float peak_elect = (float)(consumeRecord.getPeakPower()*dec3);
 		float peak_elect_price = record.getFPrice().floatValue();
 		float peak_service_price = record.getServicePrice().floatValue();		
@@ -3662,7 +3689,9 @@ public class EpChargeService {
 		value.setScale(2,BigDecimal.ROUND_HALF_UP);
 		float peak_service_money = (float)(value.floatValue()*dec3);
 		float peak_money = peak_elect_money+peak_service_money;
-		
+		float custom_PeakElectPrice = record.getPeakPrice().floatValue();
+		float custom_PeakServicePrice = record.getPeakMoney().floatValue();
+
 		float flat_elect = (float)(consumeRecord.getUsualPower()*dec3);
 		float flat_elect_price =  record.getPPrice().floatValue();
 		float flat_service_price = record.getServicePrice().floatValue();		
@@ -3672,7 +3701,9 @@ public class EpChargeService {
 		value.setScale(2,BigDecimal.ROUND_HALF_UP);
 		float flat_service_money = (float)(value.floatValue()*dec3);
 		float flat_money = flat_elect_money+flat_service_money;
-		
+		float custom_FlatElectPrice = record.getFlatPrice().floatValue();
+		float custom_FlatServicePrice = record.getFlatMoney().floatValue();
+
 		float valley_elect = (float)(consumeRecord.getValleyPower()*dec3);
 		float valley_elect_price = record.getGPrice().floatValue();
 		float valley_service_price = record.getServicePrice().floatValue();		
@@ -3682,6 +3713,8 @@ public class EpChargeService {
 		value.setScale(2,BigDecimal.ROUND_HALF_UP);
 		float valley_service_money = (float)(value.floatValue()*dec3);
 		float valley_money = valley_elect_money+valley_service_money;
+		float custom_ValleyElectPrice = record.getValleyPrice().floatValue();
+		float custom_ValleyServicePrice = record.getValleyMoney().floatValue();
 		long start_time = consumeRecord.getBeginChargeTime();
 		long end_time = consumeRecord.getEndChargeTime();
 		int stop_msodel=1;
@@ -3721,7 +3754,9 @@ public class EpChargeService {
 						, peak_elect, peak_elect_price, peak_service_price, peak_money, peak_elect_money, peak_service_money
 						, flat_elect, flat_elect_price, flat_service_price, flat_money, flat_elect_money, flat_service_money
 						, valley_elect, valley_elect_price, valley_service_price, valley_money, valley_elect_money,
-						valley_service_money,(int)start_time, (int)end_time, stop_msodel, stop_reason, soc, (int)time,extra);
+						valley_service_money,(int)start_time, (int)end_time, stop_msodel, stop_reason, soc, (int)time,extra
+						, custom_CuspElectPrice, custom_CuspServicePrice, custom_PeakElectPrice, custom_PeakServicePrice
+						, custom_FlatElectPrice, custom_FlatServicePrice, custom_ValleyElectPrice, custom_ValleyServicePrice);
 
 		logger.debug(LogUtil.getExtLog("rd.onChargeOrder"));
 	}

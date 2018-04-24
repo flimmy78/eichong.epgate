@@ -61,7 +61,7 @@ public class ImitateEpService {
 		
 		 byte[] cmdTimes = WmIce104Util.timeToByte();
 		 
-		EpChargeService.handEpStartChargeResp(null, chargeCmdResp,cmdTimes,null);
+		EpChargeService.handEpStartChargeResp(null, chargeCmdResp,cmdTimes);
 		
 		
 		ImitateChargeEvent(epCode,epGunNo,Account);
@@ -137,7 +137,7 @@ public class ImitateEpService {
 		ChargeCmdResp chargeCmdResp= new ChargeCmdResp(epCode, epGunNo, 1, (short)0);
 		
 		byte[] cmdTimes = WmIce104Util.timeToByte();
-		EpChargeService.handEpStartChargeResp(null, chargeCmdResp,cmdTimes,null);
+		EpChargeService.handEpStartChargeResp(null, chargeCmdResp,cmdTimes);
 		
 		ImitateChargeConsumeRecord(epCode,epGunNo,account,chargeCacheObj);
 	}

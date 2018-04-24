@@ -11,6 +11,7 @@ import com.ec.config.Global;
 import com.ec.constants.Symbol;
 import com.ec.utils.DateUtil;
 import com.ec.utils.LogUtil;
+import com.ec.utils.NumUtil;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,13 +123,12 @@ public class CommonPush {
         BigDecimal TotalPower = intToBigDecimalByBit(v, Global.Dec3);
         //当前已经充电的电量
         resMap.put("TotalPower", TotalPower);
-      /*  v = Strings.getIntValue(realData, "4_3");
-        BigDecimal ElecMoney = intToBigDecimal3(v);
+        v = Strings.getIntValue(realData, "4_3");
+        BigDecimal ElecMoney = NumUtil.intToBigDecimal3(v);
         resMap.put("ElecMoney", ElecMoney.multiply(TotalPower));//当前电费
         resMap.put("ServiceMoney", NumUtil.intToBigDecimal2(v).multiply(new BigDecimal(String.valueOf(servicePrice))));//当前服务费金额
-
         v = Strings.getIntValue(realData, "4_2");
-        resMap.put("TotalMoney", v);//当前充电总金额*/
+        resMap.put("TotalMoney", v);//当前充电总金额
 
         return resMap;
     }
@@ -176,6 +176,7 @@ public class CommonPush {
         try {
             data = AesCBC.getInstance().encrypt(jsonObject.toString(), "utf-8", dataSecret, dataSecretIv);
             //生成签名
+            data =data.replace("\n","").replace("\r","");
             LOGGER.debug("getToken answerStr is 2 data={}", data);
             HashMap<String, String> map = SigTool.makeSig(data, operatorID, sigSecret);
             //发送请求
@@ -205,6 +206,7 @@ public class CommonPush {
         String decryptToken;
         try {
             data = AesCBC.getInstance().encrypt(jsonObject.toString(), "utf-8", tokenModel.getDataSecret(), tokenModel.getDataSecretIv());
+            data =data.replace("\n","").replace("\r","");
             //生成签名
             LOGGER.debug("getToken answerStr is 2 data={}", data);
             HashMap<String, String> map = SigTool.makeSig(data, tokenModel.getOperatorId(), tokenModel.getSigSecret());

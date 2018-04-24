@@ -284,6 +284,25 @@ public class RateService {
 	public static void handleConsumeModelReq(EpCommClient CommClient,String epCode,byte [] time) 
 	{
 		RateInfoCache rateInfo = RateService.getRateInfo(epCode);
+		if (rateInfo == null) {
+			int rateInfoId = EpService.getEpByCode(epCode).getRateid();
+			RateInfo newRateInfo = DB.rateInfoDao.findRateInfofromId(rateInfoId);
+
+			if(newRateInfo ==null) {
+				logger.error("[Rate]handleConsumeModelReq fail,rateInfo is null,epCode:{},rateInfoId:{}",epCode,rateInfoId);
+				return;
+			}
+			rateInfo = RateService.convertFromDb(newRateInfo);
+			if(!rateInfo.parseStage())
+			{
+				rateInfo = RateService.getRateById(rateInfoId);
+			}
+			if(rateInfo == null) {
+				logger.error("[Rate]handleConsumeModelReq fail,rateInfo is null,epCode:{},rateInfoId:{}",epCode,rateInfoId);
+				return;
+			}
+			RateService.AddRate(rateInfoId, rateInfo);
+		}
 
 		if (null != rateInfo) 
 		{

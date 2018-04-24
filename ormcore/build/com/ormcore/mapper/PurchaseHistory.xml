@@ -40,16 +40,6 @@
 		and is_del=0
 	</select>
 
-	<select id="getCount" parameterType="TblPurchaseHistory" resultType="int">
-		SELECT count(1)
-		FROM
-		tbl_purchasehistory
-		where
-		puHi_TransactionNumber=#{puHi_SerialNo}
-		and puHi_UserId=#{puHi_UserId}
-		and puHi_Type=1
-	</select>
-
 	<insert id="insertPurchaseRecord" parameterType="TblPurchaseHistory">
 		insert into tbl_purchasehistory (
 		puHi_Type,

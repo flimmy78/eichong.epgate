@@ -212,9 +212,7 @@ public class EleasePush extends Push {
             , float peak_elect, float peak_elect_price, float peak_service_price, float peak_money, float peak_elect_money, float peak_service_money
             , float flat_elect, float flat_elect_price, float flat_service_price, float flat_money, float flat_elect_money, float flat_service_money
             , float valley_elect, float valley_elect_price, float valley_service_price, float valley_money, float valley_elect_money, float valley_service_money
-            , int start_time, int end_time, int stop_model, int stop_reason, int soc, int time, String extra,float custom_CuspElect, float custom_CuspServicePrice
-            , float custom_PeakElectPrice, float custom_PeakServicePrice,float custom_FlatElectPrice,float custom_FlatServicePrice,float custom_ValleyElectPrice
-            ,float custom_ValleyServicePrice) {
+            , int start_time, int end_time, int stop_model, int stop_reason, int soc, int time, String extra) {
         try {
             logger.info(LogUtil.addBaseExtLog("inter_type|money|elect|start_elect|end_elect"), new Object[]{LogConstants.FUNC_ONCHARGEORDER,
                     epCode, epGunNo, orgNo, userIdentity, token, inter_type, money, elect, start_elect, end_elect});

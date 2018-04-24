@@ -360,6 +360,13 @@ public class EpGunCache {
 				}
 				this.handleChargeRealData(UserConstants.ORG_EC);
 			}
+			if (checkOrgNo(UserConstants.ORG_AMAP) == 1) {
+				if(deviceStatusChange(carPlaceStatus,oldEpWorkStatus,oldGun2CarStatus)>0)
+				{
+					this.handleSignleOrgNo(UserConstants.ORG_AMAP, true);
+				}
+				this.handleChargeRealData(UserConstants.ORG_AMAP);
+			}
 			if (checkOrgNo(UserConstants.ORG_EVC) == 1) {
 				if(deviceStatusChange(carPlaceStatus,oldEpWorkStatus,oldGun2CarStatus)>0)
 				{
@@ -487,7 +494,7 @@ public class EpGunCache {
 
 	private int checkTCOrgNo(int orgNo)
 	{
-		if (orgNo == UserConstants.ORG_EC || orgNo == UserConstants.ORG_CCZC || orgNo == UserConstants.ORG_TJD ||
+		if (orgNo == UserConstants.ORG_EC || orgNo == UserConstants.ORG_CCZC || orgNo == UserConstants.ORG_AMAP || orgNo == UserConstants.ORG_TJD ||
 				orgNo == UserConstants.ORG_TCEC_ECHONG || orgNo == UserConstants.ORG_EVC || orgNo == UserConstants.ORG_TCEC_SHENZHEN ||
 				orgNo == UserConstants.ORG_TCEC_BEIQI || orgNo == UserConstants.ORG_TCEC_HESHUN || orgNo == UserConstants.ORG_TCEC_BAIDU ||
 				orgNo == UserConstants.ORG_TCEC_GUOWANG || orgNo == UserConstants.ORG_TCEC_BEIQI || orgNo == UserConstants.ORG_TCEC_NANRUI ||
@@ -498,7 +505,7 @@ public class EpGunCache {
 
 	private int checkPushOrgNo(int orgNo)
 	{
-		if (orgNo == UserConstants.ORG_EC || orgNo == UserConstants.ORG_SHSTOP || orgNo == UserConstants.ORG_TJD ||
+		if (orgNo == UserConstants.ORG_EC || orgNo == UserConstants.ORG_SHSTOP || orgNo == UserConstants.ORG_AMAP || orgNo == UserConstants.ORG_TJD ||
 				orgNo == UserConstants.ORG_TCEC_ECHONG || orgNo == UserConstants.ORG_EVC || orgNo == UserConstants.ORG_TCEC_SHENZHEN ||
 				orgNo == UserConstants.ORG_TCEC_BEIQI || orgNo == UserConstants.ORG_TCEC_HESHUN || orgNo == UserConstants.ORG_TCEC_BAIDU ||
 				orgNo == UserConstants.ORG_TCEC_GUOWANG || orgNo == UserConstants.ORG_TCEC_BEIQI || orgNo == UserConstants.ORG_TCEC_NANRUI ||
@@ -900,6 +907,7 @@ public class EpGunCache {
 						epGunNo,token, userIdentity,chargeFlag,success,errorCode);
 				break;
 			case UserConstants.ORG_EVC:
+			case UserConstants.ORG_AMAP:
 			case UserConstants.ORG_TCEC_SHENZHEN:
 			case UserConstants.ORG_TCEC_HESHUN:
 			case UserConstants.ORG_TCEC_BAIDU:
@@ -978,7 +986,7 @@ public class EpGunCache {
 		
 	}
 	
-	public void onStartChargeFail(int method,int errorCode,byte[] msg)
+	public void onStartChargeFail(int method,int errorCode)
 	{
 		logger.debug("onStartChargeFail,epCharge,epCode:{},epGunNo:{},method:{},errorCode:{}",
 				new Object[]{epCode,epGunNo,method,errorCode});
@@ -986,7 +994,6 @@ public class EpGunCache {
 		//电桩接受充电失败.
 		if(chargeCache!=null && chargeCache.getStatus()== ChargeRecordConstants.CS_ACCEPT_CONSUMEER_CMD) // 没有在充电状态
 		{
-			if (msg != null) logger.info(LogUtil.addExtLog("onStartChargeFail"), WmIce104Util.ConvertHex(msg, 1));
 			int usrId= chargeCache.getUserId();
 			
 			String messagekey = String.format("%03d%s", Iec104Constant.C_START_ELECTRICIZE,chargeCache.getChargeSerialNo());
@@ -1268,7 +1275,7 @@ public class EpGunCache {
 			long diff = now - this.chargeCache.getLastCmdTime();//超时判断为充电后10分钟
 			if(diff > GameConfig.chargeCmdTime)
 			{
-				this.onStartChargeFail(method, 6001, null);
+				this.onStartChargeFail(method, 6001);
 				
 			}
 		}
@@ -1638,7 +1645,7 @@ public class EpGunCache {
 	 * @param chargeCmdResp
 	 * @return
 	 */
-	public int onEpStartCharge(ChargeCmdResp chargeCmdResp,byte[] msg)
+	public int onEpStartCharge(ChargeCmdResp chargeCmdResp)
 	{
 		logger.debug(LogUtil.addExtLog("chargeCmdResp"),chargeCmdResp);
 		
@@ -1649,7 +1656,7 @@ public class EpGunCache {
 		else
 		{
 			//电桩接受充电失败
-			onStartChargeFail(1, chargeCmdResp.getErrorCause(), msg);
+			onStartChargeFail(1, chargeCmdResp.getErrorCause());
 		}
 		
 		return 0;
@@ -1810,7 +1817,7 @@ public class EpGunCache {
 	}
 
 	public int startChargeAction(UserCache chargeUser, String thirdUsrIdentity,
-			ChargeCardCache card, RateInfoCache rateInfo, String bespNo,
+			ChargeCardCache card, RateInfoCache defRateInfo, RateInfoCache rateInfo, String bespNo,
 			short chargeStyle, int frozenAmt, int payMode, int orgNo,
 			int fromSource, String actionIdentity, String token, byte[] cmdTimes) {
 
@@ -1852,7 +1859,7 @@ public class EpGunCache {
 
 		if (this.chargeCache != null) {
 			if (chargeCache.getStatus()== ChargeRecordConstants.CS_ACCEPT_CONSUMEER_CMD) {
-				onStartChargeFail(3, ErrorCodeConstants.EPE_STOP_CHARGE, null);
+				onStartChargeFail(3, ErrorCodeConstants.EPE_STOP_CHARGE);
 			} else if (chargeCache.getStatus() == ChargeRecordConstants.CS_WAIT_INSERT_GUN ||
 					chargeCache.getStatus() == ChargeRecordConstants.CS_WAIT_CHARGE) {
 				onStartChargeEventFail(3, ErrorCodeConstants.EPE_STOP_CHARGE);
@@ -1991,7 +1998,7 @@ public class EpGunCache {
 				curUserAccount, chargeCache.getPkUserCard(), orgNo, pkEpId,
 				epCode, epGunNo, chargeCache.getChargingMethod(), bespokeNo,
 				chOrCode, chargeCache.getFronzeAmt(), chargeCache.getPresent(), payMode, orgNo,
-				chargeEvent, this.chargeCache.getRateInfo(), 4,
+				chargeEvent,defRateInfo.getRateInfo(), this.chargeCache.getRateInfo(), 4,
 				chargeCache.getThirdUsrIdentity(), chargeCache.getToken(),
 				chargeUser.getAccountId());
 		RateService.addPurchaseHistoryToDB(NumUtil.intToBigDecimal2(chargeCache.getFronzeAmt()),1
@@ -2337,9 +2344,9 @@ public class EpGunCache {
 				consumeRecord.setEndTime(timeEnd);
 				logger.warn(LogUtil.addExtLog("2 serialNo|startTime|endTime"),
 						new Object[]{consumeRecord.getSerialNo(),consumeRecord.getStartTime(),consumeRecord.getEndTime()});
-			} else if (timeStart > 0) {
+			} else {
 				chargeTime = (int) ((consumeRecord.getStartTime() - timeStart) / 60);
-				if (chargeTime > 240 || chargeTime < -240) {
+				if (chargeTime > 10 || chargeTime < -10) {
 					consumeRecord.setStartTime(timeStart);
 					logger.warn(LogUtil.addExtLog("3 serialNo|startTime|endTime"),
 							new Object[]{consumeRecord.getSerialNo(),consumeRecord.getStartTime(),consumeRecord.getEndTime()});
@@ -3475,7 +3482,7 @@ public class EpGunCache {
 		if (checkChargeAmt(consumeRecord.getEpUserAccount(),consumeRecord.getUserOrgin(),consumeRecord) < 0) exceptionData = true;
 		EpChargeService.insertChargeWithConsumeRecord(cardUser.getId(),chorType,cardUser.getAccount(),pkCardId,consumeRecord.getUserOrgin(),getPkEpGunId(),
 				getEpCode(),getEpGunNo(),EpConstants.CHARGE_TYPE_CARD,"",chOrCode,2,new BigDecimal(0.0),0,0,consumeRecord,
-				rateInfo,rateInfo.getServiceRate(),exceptionData);
+				rateInfo,rateInfo,rateInfo.getServiceRate(),exceptionData);
 		
 		cardUser.removeCharge(consumeRecord.getSerialNo());
 		return 1;
@@ -3534,7 +3541,7 @@ public class EpGunCache {
 		}
 		else
 		{
-			servicePrice = rateInfo.getServiceRate();
+			servicePrice = RateService.getRateInfo(getEpCode()).getRateInfo().getServiceRate();
 		}
 		int pkVinCode= consumeRecord.getDiscountIdentity();
 		
@@ -3553,7 +3560,7 @@ public class EpGunCache {
 		if (consumeRecord.getType() == 1) discountAmt = NumUtil.intToBigDecimal4(consumeRecord.getRealCouponAmt());
 		
 		BigDecimal chargeAmt,serviceAmt;
-		if (cardCache.getCardType() != 12 && consumeRecord.getTransType() == 2 && !exceptionData) {
+		if (consumeRecord.getTransType() == 2 && !exceptionData) {
 			if (consumeRecord.getType() == 0) {
 				chargeAmt = NumUtil.intToBigDecimal2(consumeRecord.getTotalChargeAmt());
 				serviceAmt = NumUtil.intToBigDecimal2(consumeRecord.getServiceAmt());
@@ -3566,19 +3573,19 @@ public class EpGunCache {
 			BigDecimal presentAmt = cardUser.getPresent();
 			BigDecimal consumeAmt = chargeAmt.add(serviceAmt);
 			BigDecimal kyAmt = frozenAmt.subtract(presentAmt);
-			if (consumeAmt.compareTo(kyAmt) <= 0) {
+			if (consumeAmt.compareTo(kyAmt) <= 0 || presentAmt.compareTo(BigDecimal.ZERO) <= 0) {
 				UserService.subAmt(cardUser.getId(), consumeAmt, new BigDecimal(0), consumeRecord.getSerialNo());
 			} else {
 				if (consumeAmt.compareTo(frozenAmt) <= 0) {
 					UserService.subAmt(cardUser.getId(), consumeAmt, consumeAmt.subtract(kyAmt), consumeRecord.getSerialNo());
 				} else {
-					UserService.subAmt(cardUser.getId(), frozenAmt, presentAmt, consumeRecord.getSerialNo());
+					UserService.subAmt(cardUser.getId(), consumeAmt, presentAmt, consumeRecord.getSerialNo());
 				}
 			}
 		}
 		EpChargeService.insertChargeWithConsumeRecord(cardUser.getId(),chorType,cardUser.getAccount(),cardCache.getId(),cardCache.getCompanyNumber(),getPkEpGunId(),
 				getEpCode(),getEpGunNo(),EpConstants.CHARGE_TYPE_CARD,"",chOrCode,payMode,discountAmt ,pkVinCode,discountType,consumeRecord,
-				rateInfo,servicePrice,exceptionData);
+				RateService.getRateInfo(getEpCode()).getRateInfo(),rateInfo,servicePrice,exceptionData);
 
 		if (checkOrgNo(UserConstants.ORG_SHSTOP) == 1) {
 			this.handleChargeOrder(UserConstants.ORG_SHSTOP,consumeRecord,rateInfo);
@@ -3641,7 +3648,7 @@ public class EpGunCache {
 		if (checkChargeAmt(consumeRecord.getEpUserAccount(),consumeRecord.getUserOrgin(),consumeRecord) < 0) exceptionData = true;
 		EpChargeService.insertChargeWithConsumeRecord(cardUser.getId(),chorType,cardUser.getAccount(),0,consumeRecord.getUserOrgin(),getPkEpGunId(),
 				getEpCode(),getEpGunNo(),EpConstants.CHARGE_TYPE_ACCOUNT,"",chOrCode,2,
-				new BigDecimal(0.0),0,0,consumeRecord,rateInfo,rateInfo.getServiceRate(),exceptionData);
+				new BigDecimal(0.0),0,0,consumeRecord,rateInfo,rateInfo,rateInfo.getServiceRate(),exceptionData);
 		
 		return 1;
 	}
@@ -4026,7 +4033,7 @@ public class EpGunCache {
 		long diff = now - sendInfo3rd.getLastTime();
 		if(diff<rd.getPeriod() && checkPushOrgNo(orgNo) == 0)
 		{
-			logger.debug(LogUtil.addExtLog("fail now|sendInfo3rd.getLastTime()|diff:|osc.getPeriod()"),
+			logger.info(LogUtil.addExtLog("fail now|sendInfo3rd.getLastTime()|diff:|osc.getPeriod()"),
 					new Object[]{now,sendInfo3rd.getLastTime(),diff,rd.getPeriod()});
 			return;
 		}
@@ -4074,6 +4081,7 @@ public class EpGunCache {
 			token = chargeCache.getToken();	
 		}
 		int inter_type=epCache.getCurrentType();
+		RateInfo defRateInfo = RateService.getRateInfo(getEpCode()).getRateInfo();
 		
 		double dec2=0.01;
 		if (consumeRecord.getType() == 1) dec2 = 0.0001;
@@ -4087,44 +4095,63 @@ public class EpGunCache {
 		
 		
 		float cusp_elect = (float)(consumeRecord.getjDl()*dec3);
-		float cusp_elect_price = rateInfo.getJ_Rate().floatValue();
-		float cusp_service_price = rateInfo.getServiceRate().floatValue();		
+		float cusp_elect_price = defRateInfo.getJ_Rate().floatValue();
+		float cusp_service_price = defRateInfo.getServiceRate().floatValue();
 		float cusp_elect_money = (float)(consumeRecord.getjAmt()*dec2);
 		
-		BigDecimal value = new BigDecimal(consumeRecord.getjDl()).multiply(rateInfo.getServiceRate());
+		BigDecimal value = new BigDecimal(consumeRecord.getjDl()).multiply(defRateInfo.getServiceRate());
 		value.setScale(2,BigDecimal.ROUND_HALF_UP);
 		float cusp_service_money = (float)(value.floatValue()*dec3);
 		float cusp_money = cusp_elect_money+cusp_service_money;
-		
+
 		float peak_elect = (float)(consumeRecord.getfDl()*dec3);
-		float peak_elect_price = rateInfo.getF_Rate().floatValue();
-		float peak_service_price = rateInfo.getServiceRate().floatValue();		
+		float peak_elect_price = defRateInfo.getF_Rate().floatValue();
+		float peak_service_price = defRateInfo.getServiceRate().floatValue();
 		float peak_elect_money = (float)(consumeRecord.getfAmt()*dec2);
 		
-		 value = new BigDecimal(consumeRecord.getfDl()).multiply(rateInfo.getServiceRate());
+		 value = new BigDecimal(consumeRecord.getfDl()).multiply(defRateInfo.getServiceRate());
 		value.setScale(2,BigDecimal.ROUND_HALF_UP);
 		float peak_service_money = (float)(value.floatValue()*dec3);
 		float peak_money = peak_elect_money+peak_service_money;
-		
+
 		float flat_elect = (float)(consumeRecord.getpDl()*dec3);
-		float flat_elect_price =  rateInfo.getP_Rate().floatValue();
-		float flat_service_price = rateInfo.getServiceRate().floatValue();		
+		float flat_elect_price =  defRateInfo.getP_Rate().floatValue();
+		float flat_service_price = defRateInfo.getServiceRate().floatValue();
 		float flat_elect_money = (float)(consumeRecord.getpAmt()*dec2);
 		
-		 value = new BigDecimal(consumeRecord.getpDl()).multiply(rateInfo.getServiceRate());
+		 value = new BigDecimal(consumeRecord.getpDl()).multiply(defRateInfo.getServiceRate());
 		value.setScale(2,BigDecimal.ROUND_HALF_UP);
 		float flat_service_money = (float)(value.floatValue()*dec3);
 		float flat_money = flat_elect_money+flat_service_money;
-		
+
 		float valley_elect = (float)(consumeRecord.getgDl()*dec3);
-		float valley_elect_price = rateInfo.getG_Rate().floatValue();
-		float valley_service_price = rateInfo.getServiceRate().floatValue();		
+		float valley_elect_price = defRateInfo.getG_Rate().floatValue();
+		float valley_service_price = defRateInfo.getServiceRate().floatValue();
 		float valley_elect_money = (float)(consumeRecord.getgAmt()*dec2);
 		
-		 value = new BigDecimal(consumeRecord.getgDl()).multiply(rateInfo.getServiceRate());
+		 value = new BigDecimal(consumeRecord.getgDl()).multiply(defRateInfo.getServiceRate());
 		value.setScale(2,BigDecimal.ROUND_HALF_UP);
 		float valley_service_money = (float)(value.floatValue()*dec3);
 		float valley_money = valley_elect_money+valley_service_money;
+
+		float custom_CuspElectPrice = -1;
+		float custom_CuspServicePrice = -1;
+		float custom_PeakElectPrice = -1;
+		float custom_PeakServicePrice = -1;
+		float custom_FlatElectPrice = -1;
+		float custom_FlatServicePrice = -1;
+		float custom_ValleyElectPrice = -1;
+		float custom_ValleyServicePrice = -1;
+		if (rateInfo.getModelId() == 3) {
+			custom_CuspElectPrice = rateInfo.getJ_Rate().floatValue();
+			custom_CuspServicePrice = (rateInfo.getJ_RateMoney() == null?0:rateInfo.getJ_RateMoney().floatValue());
+			custom_PeakElectPrice = rateInfo.getF_Rate().floatValue();
+			custom_PeakServicePrice = (rateInfo.getF_RateMoney() == null?0:rateInfo.getF_RateMoney().floatValue());
+			custom_FlatElectPrice = rateInfo.getP_Rate().floatValue();
+			custom_FlatServicePrice = (rateInfo.getP_RateMoney() == null?0:rateInfo.getP_RateMoney().floatValue());
+			custom_ValleyElectPrice = rateInfo.getG_Rate().floatValue();
+			custom_ValleyServicePrice = (rateInfo.getG_RateMoney() == null?0:rateInfo.getG_RateMoney().floatValue());
+		}
 		long start_time = consumeRecord.getStartTime();
 		long end_time = consumeRecord.getEndTime();
 		int stop_msodel=1;
@@ -4176,7 +4203,9 @@ public class EpGunCache {
 						, peak_elect, peak_elect_price, peak_service_price, peak_money, peak_elect_money, peak_service_money
 						, flat_elect, flat_elect_price, flat_service_price, flat_money, flat_elect_money, flat_service_money
 						, valley_elect, valley_elect_price, valley_service_price, valley_money, valley_elect_money,
-						valley_service_money,(int)start_time, (int)end_time, stop_msodel, stop_reason, soc, (int)time,extra);
+						valley_service_money,(int)start_time, (int)end_time, stop_msodel, stop_reason, soc, (int)time,extra
+						, custom_CuspElectPrice, custom_CuspServicePrice, custom_PeakElectPrice, custom_PeakServicePrice
+						, custom_FlatElectPrice, custom_FlatServicePrice, custom_ValleyElectPrice, custom_ValleyServicePrice);
 
 		logger.debug(LogUtil.getExtLog("rd.onChargeOrder"));
 	}

@@ -421,7 +421,7 @@ public class ShEpMessageHandler {
                 }
                 break;
                 case Iec104Constant.M_START_ELECTRICIZE_RET: {
-                    EpDecoder.decodeEpStartChargeResp(epCommClient, byteBuffer, msg);
+                    EpDecoder.decodeEpStartChargeResp(epCommClient, byteBuffer);
                 }
                 break;
                 case Iec104Constant.M_STOP_ELECTRICIZE_RET: {
