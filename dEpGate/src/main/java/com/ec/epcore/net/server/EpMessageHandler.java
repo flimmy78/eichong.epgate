@@ -1,13 +1,5 @@
 package com.ec.epcore.net.server;
 
-import io.netty.channel.Channel;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.constants.YXCConstants;
 import com.ec.epcore.cache.EpConcentratorCache;
 import com.ec.epcore.cache.MsgWhiteList;
@@ -17,11 +9,7 @@ import com.ec.epcore.net.codec.EpEncoder;
 import com.ec.epcore.net.proto.ApciHeader;
 import com.ec.epcore.net.proto.AsduHeader;
 import com.ec.epcore.sender.EpMessageSender;
-import com.ec.epcore.service.EpCommClientService;
-import com.ec.epcore.service.EpConcentratorService;
-import com.ec.epcore.service.EpService;
-import com.ec.epcore.service.EqVersionService;
-import com.ec.epcore.service.StatService;
+import com.ec.epcore.service.*;
 import com.ec.net.proto.ByteBufferUtil;
 import com.ec.net.proto.Iec104Constant;
 import com.ec.net.proto.WmIce104Util;
@@ -29,6 +17,13 @@ import com.ec.utils.DateUtil;
 import com.ec.utils.FileUtils;
 import com.ec.utils.LogUtil;
 import com.ec.utils.StringUtil;
+import io.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.concurrent.*;
 
 /**
  * 接受电桩客户端数据并处理
@@ -39,7 +34,39 @@ public class EpMessageHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(LogUtil
 			.getLogName(EpMessageHandler.class.getName()));
-
+	/**
+	 * 调度线程池服务
+	 * <p>
+	 * Param:
+	 * corePoolSize - 池中所保存的线程数，包括空闲线程。
+	 * maximumPoolSize - 池中允许的最大线程数(采用LinkedBlockingQueue时没有作用)。
+	 * keepAliveTime -当线程数大于核心时，此为终止前多余的空闲线程等待新任务的最长时间，线程池维护线程所允许的空闲时间,即非核心线程的等待时间。
+	 * unit - keepAliveTime参数的时间单位，线程池维护线程所允许的空闲时间的单位:秒 。
+	 * workQueue - 执行前用于保持任务的队列（缓冲队列）。此队列仅保持由execute 方法提交的 Runnable 任务。
+	 * RejectedExecutionHandler -线程池对拒绝任务的处理策略(重试添加当前的任务，自动重复调用execute()方法)
+	 * <p>
+	 * <p>
+	 * 向线程池添加一个任务时会触发execute方法
+	 * 1. 如果正在运行的线程数量小于 corePoolSize，那么马上创建线程运行这个任务；
+	 * 2. 如果正在运行的线程数量大于或等于 corePoolSize，那么将这个任务放入队列。
+	 * 3. 如果这时候队列满了，而且正在运行的线程数量小于 maximumPoolSize，那么还是要创建线程运行这个任务；
+	 * 4. 如果队列满了，而且正在运行的线程数量大于或等于 maximumPoolSize，那么线程池会抛出异常，告诉调用者“我不能再接受任务了”。
+	 * <p>
+	 * <p>
+	 * 使用无界队列（例如，不具有预定义容量的 LinkedBlockingQueue，DelayQueue，PriorityBlockingQueue）将导致在所有 corePoolSize
+	 * 线程都忙的情况下将新任务加入队列。这样，创建的线程就不会超过 corePoolSize。（因此，maximumPoolSize,keepAliveTime,unit参数无意义。）
+	 * 当每个任务完全独立于其他任务，即任务执行互不影响时，适合于使用无界队列
+	 * LinkedBlockingQueue会默认一个类似无限大小的容量（Integer.MAX_VALUE）
+	 * <p>
+	 * <p>
+	 * 线程池的拒绝策略 之 CallerRunsPolicy
+	 * 只要线程池未关闭，该策略直接在调用者线程中运行当前被丢弃的任务。显然这样不会真的丢弃任务，但是，调用者线程性能可能急剧下降
+	 * 由调用者线程去执行，在任务提交速度过快的情况，可减少任务提交的速度，同时可以保证任务的执行 《队列满的时候 并行转串行》
+	 */
+   // 第一次给的数据是 400 500（7月4号上线）用的guava 第二次给的是800  1000  (7月24号上线 )用的原生  第三次 500 ,600 (8月14号)用的原生
+   // 第四次 500 ,600 (9月6号上线)用的原生   第五次 350 ,450(9月18 上线)用的原生
+	public static BlockingQueue<Runnable> workQueue4BizExecutor = new LinkedBlockingQueue<>(20000);
+	public static  ThreadPoolExecutor bizExecutorService = new ThreadPoolExecutor(350, 450, 30L, TimeUnit.SECONDS, workQueue4BizExecutor, new ThreadPoolExecutor.CallerRunsPolicy());
 	/**
 	 * 接受电桩发送的消息进行处理
 	 * 
@@ -139,6 +166,7 @@ public class EpMessageHandler {
 				if (EpService.initDiscreteEpConnect(commVersion, epCode, epCommClient, boot)) {
 					StatService.addCommDiscreteEp();
 					initSuccess = true;
+
 				} else {
 					return -4;
 				}
@@ -160,12 +188,11 @@ public class EpMessageHandler {
 				FileUtils.CreateCommMsgLogFile(commClientIdentity + ".log");
 				logger.debug(LogUtil.addFuncExtLog("FileUtils.CreateCommMsgLogFile"), commClientIdentity);
 			}
-
+			//toto 重发了一个数据包,  5.0 版本考虑去掉
 			InnerApiMessageSender.sendMessage(epCommClient.getChannel(), retMsg);
 			// 启动侦
 			byte startData[] = EpEncoder.do_startup();
 			InnerApiMessageSender.sendMessage(epCommClient.getChannel(), startData);
-
 			return 0;
 		} else {
 			return -5;
@@ -208,6 +235,7 @@ public class EpMessageHandler {
 			} else if ((UCommand & Iec104Constant.WM_104_CD_TESTFR) == Iec104Constant.WM_104_CD_TESTFR) {// add
 				byte[] testdata = EpEncoder.do_test_confirm();
 				EpMessageSender.sendMessage(commClient, testdata);
+				logger.debug("receive :{} heart beat! ", commClient.getIdentity());
 			}
 		} catch (Exception e) {
 			logger.error(LogUtil.addFuncExtLog("Channel|exception"), e.getStackTrace());
@@ -260,20 +288,41 @@ public class EpMessageHandler {
 			{
 				byte[] sdata = EpEncoder.do_sframe(revInum);// add by
 				EpMessageSender.sendMessage(epCommClient, sdata);// add by hly
-				logger.debug(LogUtil.addFuncExtLog("1 Identity|channel"),
-						epCommClient.getIdentity(), epCommClient.getChannel());
+//				logger.debug(LogUtil.addFuncExtLog("1 Identity|channel"),
+//						epCommClient.getIdentity(), epCommClient.getChannel());
 				// 信息体地址
-				EpDecoder.decodeOneBitYx(epCommClient.getChannel(), byteBuffer);
+//				EpDecoder.decodeOneBitYx(epCommClient.getChannel(), byteBuffer);
+				bizExecutorService.execute(()->{
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeOneBitYx");
+						EpDecoder.decodeOneBitYx(epCommClient.getChannel(), byteBuffer);
+						Thread.currentThread().setName(currentThreadName);
+					} catch (IOException e) {
+						logger.error("decodeOneBitYx:{}",e);
+					}
+				});
+
 			}
 				break;
 			case Iec104Constant.M_DP_NA:// 3
 			{
 				byte[] sdata = EpEncoder.do_sframe(revInum);// add by
 				EpMessageSender.sendMessage(epCommClient, sdata);// add by hly
-				logger.debug(LogUtil.addFuncExtLog("3 Identity|channel"),
-						epCommClient.getIdentity(), epCommClient.getChannel());
+//				logger.debug(LogUtil.addFuncExtLog("3 Identity|channel"),
+//						epCommClient.getIdentity(), epCommClient.getChannel());
 				// 信息体地址
-				EpDecoder.decodeTwoBitYx(epCommClient.getChannel(), byteBuffer);
+//				EpDecoder.decodeTwoBitYx(epCommClient.getChannel(), byteBuffer);
+				bizExecutorService.execute(() ->{
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeTwoBitYx");
+						EpDecoder.decodeTwoBitYx(epCommClient.getChannel(), byteBuffer);
+						Thread.currentThread().setName(currentThreadName);
+					} catch (IOException e) {
+						logger.error("EpDecoder.decodeTwoBitYx exception",e);
+					}
+				});
 			}
 				break;
 			case Iec104Constant.M_ME_NB:// 11
@@ -281,43 +330,85 @@ public class EpMessageHandler {
 				byte[] sdata = EpEncoder.do_sframe(revInum);// add by
 				EpMessageSender.sendMessage(epCommClient, sdata);// add by hly
 
-				logger.debug(LogUtil.addFuncExtLog("11 Identity|channel"),
-						epCommClient.getIdentity(), epCommClient.getChannel());
-				EpDecoder.decodeYc(epCommClient.getChannel(), byteBuffer);
+//				logger.debug(LogUtil.addFuncExtLog("11 Identity|channel"),
+//						epCommClient.getIdentity(), epCommClient.getChannel());
+//				EpDecoder.decodeYc(epCommClient.getChannel(), byteBuffer);
+				bizExecutorService.execute(() -> {
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeYc");
+						EpDecoder.decodeYc(epCommClient.getChannel(), byteBuffer);
+						Thread.currentThread().setName(currentThreadName);
+					} catch (IOException e) {
+						logger.error("EpDecoder.decodeYc,exception :{}",e);
+					}
+				});
 			}
 				break;
-			case Iec104Constant.M_MD_NA: {
+			case Iec104Constant.M_MD_NA: { //132 测量值
 				byte[] sdata = EpEncoder.do_sframe(revInum);// add by
 				EpMessageSender.sendMessage(epCommClient, sdata);// add by hly
-				logger.debug(LogUtil.addFuncExtLog("132 Identity|channel"),
-						epCommClient.getIdentity(), epCommClient.getChannel());
-
+//				logger.debug(LogUtil.addFuncExtLog("132 Identity|channel"),
+//						epCommClient.getIdentity(), epCommClient.getChannel());
 				// 信息体地址
-				EpDecoder.decodeVarYc(epCommClient.getChannel(), byteBuffer);
+//				EpDecoder.decodeVarYc(epCommClient.getChannel(), byteBuffer);
+				bizExecutorService.execute(() -> {
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeVarYc");
+						EpDecoder.decodeVarYc(epCommClient.getChannel(), byteBuffer);
+						Thread.currentThread().setName(currentThreadName);
+					}catch (Exception e){
+						logger.error("decodeVarYc exception :{}",e);
+					}
+				});
 			}
 				break;
 			case Iec104Constant.M_IT_NA:// 15
 				break;
-			case Iec104Constant.M_JC_NA:// 实时数据
+			case Iec104Constant.M_JC_NA:// 实时数据   134 充电桩实时监测数据项
 			{
 				byte[] sdata = EpEncoder.do_sframe(revInum);// add by
 				EpMessageSender.sendMessage(epCommClient, sdata);// add by hly
 
 				int record_type = msg[ApciHeader.NUM_CTRL + AsduHeader.H_LEN];
 
-				logger.debug(LogUtil.addFuncExtLog("134 record_type|Identity|channel"),
-						new Object[] { record_type, epCommClient.getIdentity(), epCommClient.getChannel() });
+//				logger.debug(LogUtil.addFuncExtLog("134 record_type|Identity|channel"),
+//						new Object[] { record_type, epCommClient.getIdentity(), epCommClient.getChannel() });
 
 				if (record_type == 1 || record_type == 3) {
-					EpDecoder.decodeAcRealInfo(epCommClient.getVersion(),
-							record_type, byteBuffer);
+//					EpDecoder.decodeAcRealInfo(epCommClient.getVersion(),
+//							record_type, byteBuffer);
+					bizExecutorService.execute(() -> {
+						try {
+							String currentThreadName = Thread.currentThread().getName();
+							Thread.currentThread().setName("decodeAcRealInfo");
+							EpDecoder.decodeAcRealInfo(epCommClient.getVersion(), record_type, byteBuffer);
+							Thread.currentThread().setName(currentThreadName);
+						} catch (IOException e) {
+							e.printStackTrace();
+							logger.error("EpDecoder.decodeAcRealInfo exception");
+						}
+					});
 				} else {
-					EpDecoder.decodeWholeDcRealInfo(epCommClient.getVersion(),
-							record_type, byteBuffer);
+//					EpDecoder.decodeWholeDcRealInfo(epCommClient.getVersion(),
+//							record_type, byteBuffer);
+					bizExecutorService.execute(() -> {
+						try {
+							String currentThreadName = Thread.currentThread().getName();
+							Thread.currentThread().setName("decodeWholeDcRealInfo");
+							EpDecoder.decodeWholeDcRealInfo(epCommClient.getVersion(),
+                                    record_type, byteBuffer);
+							Thread.currentThread().setName(currentThreadName);
+						} catch (IOException e) {
+							logger.error("EpDecoder.decodeWholeDcRealInfo exception,{}",e);
+						}
+					});
+
 				}
 			}
 				break;
-			case Iec104Constant.M_RE_NA:// 130
+			case Iec104Constant.M_RE_NA:// 130  充电桩业务数据
 			{
 				int record_type = (short) msg[ApciHeader.NUM_CTRL
 						+ AsduHeader.H_LEN] & 0xff;
@@ -327,7 +418,7 @@ public class EpMessageHandler {
 			default:
 				break;
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error(LogUtil.addFuncExtLog("exception ch|msg"),
 					epCommClient.getChannel(), WmIce104Util.ConvertHex(msg, 0));
 		}
@@ -366,8 +457,8 @@ public class EpMessageHandler {
 
 	public static void Process130Record(EpCommClient epCommClient,
 			int record_type, byte[] msg) {
-		logger.info(LogUtil.addFuncExtLog("record_type|Identity|channel"),
-				new Object[] { record_type, epCommClient.getIdentity(), epCommClient.getChannel() });
+//		logger.info(LogUtil.addFuncExtLog("record_type|Identity|channel"),
+//				new Object[] { record_type, epCommClient.getIdentity(), epCommClient.getChannel() });
 
 		ByteBuffer byteBuffer = ByteBuffer.wrap(msg);
 		try {
@@ -384,7 +475,7 @@ public class EpMessageHandler {
 			}
 				break;
 			case Iec104Constant.M_CONSUME_MODEL6_REQ: {
-				EpDecoder.decodeConsumeModelReq(epCommClient, byteBuffer);
+     			EpDecoder.decodeConsumeModelReq(epCommClient, byteBuffer);
 			}
 				break;
 			case Iec104Constant.M_CONSUME_MODE_RET:// 计费模型结果上行数据
@@ -413,11 +504,21 @@ public class EpMessageHandler {
 			}
 				break;
 			case Iec104Constant.M_START_CHARGE_EVENT: {
-				EpDecoder.decodeStartElectricizeEventV3(epCommClient, byteBuffer);
+    			EpDecoder.decodeStartElectricizeEventV3(epCommClient, byteBuffer);
 			}
 				break;
 			case Iec104Constant.M_STOP_ELECTRICIZE_EVENT: {
-				EpDecoder.decodeStopElectricizeEvent(epCommClient, byteBuffer);
+//				EpDecoder.decodeStopElectricizeEvent(epCommClient, byteBuffer);
+				bizExecutorService.execute(() -> {
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeStopElectricizeEvent");
+						EpDecoder.decodeStopElectricizeEvent(epCommClient, byteBuffer);
+						Thread.currentThread().setName(currentThreadName);
+					} catch (IOException e) {
+						logger.error("decodeStopElectricizeEvent exception:{}",e);
+					}
+				});
 			}
 				break;
 			case Iec104Constant.M_START_ELECTRICIZE_RET: {
@@ -429,27 +530,94 @@ public class EpMessageHandler {
 				break;
 			}
 			case Iec104Constant.M_CONSUME_RECORD: {
-				EpDecoder.decodeConsumeRecord(epCommClient, byteBuffer, msg);
+//				EpDecoder.decodeConsumeRecord(epCommClient, byteBuffer, msg);
+				bizExecutorService.execute(() -> {
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeConsumeRecord");
+						EpDecoder.decodeConsumeRecord(epCommClient, byteBuffer, msg);
+						Thread.currentThread().setName(currentThreadName);
+
+					} catch (IOException e) {
+						e.printStackTrace();
+						logger.error("EpDecoder.decodeConsumeRecord exception");
+					}
+				});
 			}
 				break;
 			case Iec104Constant.M_CONSUME_RECORD_WITH_VINCODE: {
-				EpDecoder.decodeConsumeRecordWithVinCode(epCommClient, byteBuffer, msg);
+//				EpDecoder.decodeConsumeRecordWithVinCode(epCommClient, byteBuffer, msg);
+				bizExecutorService.execute(() -> {
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeConsumeRecordWithVinCode");
+						EpDecoder.decodeConsumeRecordWithVinCode(epCommClient, byteBuffer, msg);
+						Thread.currentThread().setName(currentThreadName);
+					} catch (IOException e) {
+						logger.error("EpDecoder.decodeConsumeRecordWithVinCode exception:{}",e);
+					}
+				});
 			}
 				break;
 			case Iec104Constant.M_CONSUME_RECORD_WITH_SOC: {
-				EpDecoder.decodeConsumeRecordWithSOC(epCommClient, byteBuffer, msg);
+//				EpDecoder.decodeConsumeRecordWithSOC(epCommClient, byteBuffer, msg);
+				bizExecutorService.execute(() -> {
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeConsumeRecordWithSOC");
+						EpDecoder.decodeConsumeRecordWithSOC(epCommClient, byteBuffer, msg);
+						Thread.currentThread().setName(currentThreadName);
+					} catch (IOException e) {
+						logger.error("EpDecoder.decodeConsumeRecordWithSOC exception:{}",e);
+					}
+				});
 			}
 				break;
 			case Iec104Constant.M_CONSUME_RECORD_WITH_RATE: {
-				EpDecoder.decodeConsumeRecordWithRate(epCommClient, byteBuffer, msg);
+//				EpDecoder.decodeConsumeRecordWithRate(epCommClient, byteBuffer, msg);
+				bizExecutorService.execute(() -> {
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeConsumeRecordWithRate");
+						EpDecoder.decodeConsumeRecordWithRate(epCommClient, byteBuffer, msg);
+						Thread.currentThread().setName(currentThreadName);
+
+					} catch (IOException e) {
+						logger.error("EpDecoder.decodeConsumeRecordWithRate:{}",e);
+					}
+				});
 			}
 				break;
 			case Iec104Constant.M_CONSUME_RECORD_WITH_REASEON: {
-				EpDecoder.decodeConsumeRecordWithReaseon(epCommClient, byteBuffer, msg);
+//				EpDecoder.decodeConsumeRecordWithReaseon(epCommClient, byteBuffer, msg);
+				bizExecutorService.execute(() -> {
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeConsumeRecordWithReaseon");
+						EpDecoder.decodeConsumeRecordWithReaseon(epCommClient, byteBuffer, msg);
+						Thread.currentThread().setName(currentThreadName);
+					} catch (IOException e) {
+						logger.error("EpDecoder.decodeConsumeRecordWithReaseon:{}",e);
+					}
+				});
+			}
+				break;
+			case Iec104Constant.M_CONSUME_RECORD_WITH_BAT: {
+				EpDecoder.decodeConsumeRecordWithBat(epCommClient, byteBuffer, msg);
 			}
 				break;
 			case Iec104Constant.M_QUERY_CONSUME_RECORD_RET: {
-				EpDecoder.decodeQueryConsumeRecord(epCommClient, byteBuffer, msg);
+//				EpDecoder.decodeQueryConsumeRecord(epCommClient, byteBuffer, msg);
+				bizExecutorService.execute(() -> {
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeQueryConsumeRecord");
+						EpDecoder.decodeQueryConsumeRecord(epCommClient, byteBuffer, msg);
+						Thread.currentThread().setName(currentThreadName);
+					} catch (IOException e) {
+						logger.error("EpDecoder.decodeQueryConsumeRecord exception:{}",e);
+					}
+				});
 			}
 				break;
 			case Iec104Constant.M_BALANCE_WARNING: {
@@ -475,7 +643,17 @@ public class EpMessageHandler {
 			case Iec104Constant.M_DC_SELF_CHECK_FINISHED:
 				break;
 			case Iec104Constant.M_EP_IDENTYCODE: {
-				EpDecoder.decodeEpIdentyCodeQuery(epCommClient, byteBuffer);
+				bizExecutorService.execute(()->{
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeEpIdentyCodeQuery");
+						EpDecoder.decodeEpIdentyCodeQuery(epCommClient, byteBuffer);
+						Thread.currentThread().setName(currentThreadName);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				});
+
 			}
 				break;
 			case Iec104Constant.M_LOCK_GUN_FAIL_WARNING: {
@@ -486,8 +664,13 @@ public class EpMessageHandler {
 				EpDecoder.decodeEpDevices(epCommClient, byteBuffer);
 			}
 				break;
+			//不圈存卡充电冻结金额上行数据
 			case Iec104Constant.C_CARD_FRONZE_AMT: {
 				EpDecoder.decodeCardFronzeAmt(epCommClient, byteBuffer, msg);
+			}
+				break;
+			case Iec104Constant.C_VIN_FRONZE_AMT: {
+				EpDecoder.decodeVinFronzeAmt(epCommClient, byteBuffer, msg);
 			}
 				break;
 			case Iec104Constant.M_CARD_AUTH: {
@@ -498,12 +681,34 @@ public class EpMessageHandler {
 				EpDecoder.decodeVINAuth(epCommClient, byteBuffer, msg);
 			}
 				break;
+			case Iec104Constant.M_CARVIN_AUTH: {
+				EpDecoder.decodeCARVINAuth(epCommClient, byteBuffer, msg);
+			}
+				break;
 			case Iec104Constant.M_DEVICE_VERSION_RET: {
-				EpDecoder.decodeVersionAck(epCommClient, byteBuffer, msg);
+				bizExecutorService.execute(() -> {
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeVersionAck");
+						EpDecoder.decodeVersionAck(epCommClient, byteBuffer, msg);
+						Thread.currentThread().setName(currentThreadName);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
 			}
 				break;
 			case Iec104Constant.M_HEX_FILE_UPDATE_RET: {
-				EpDecoder.decodeUpdateAck(epCommClient, byteBuffer, msg);
+				bizExecutorService.execute(() -> {
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeUpdateAck");
+						EpDecoder.decodeUpdateAck(epCommClient, byteBuffer, msg);
+						Thread.currentThread().setName(currentThreadName);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
 			}
 				break;
 			case Iec104Constant.M_CONCENTROTER_SET_EP_RET: {
@@ -531,7 +736,17 @@ public class EpMessageHandler {
 			}
 				break;
 			case Iec104Constant.M_GET_EP_TIMINGCHARGE_RET: {//电桩设置定时充电结果上行数据
-                EpDecoder.decodeSetTimingChargeRet(epCommClient, byteBuffer);
+
+				bizExecutorService.execute(() -> {
+					try {
+						String currentThreadName = Thread.currentThread().getName();
+						Thread.currentThread().setName("decodeSetTimingChargeRet");
+						EpDecoder.decodeSetTimingChargeRet(epCommClient, byteBuffer);
+						Thread.currentThread().setName(currentThreadName);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
             }
             	break;
 			case Iec104Constant.M_SET_EP_WORK_ARG_RET: {
@@ -545,6 +760,20 @@ public class EpMessageHandler {
                     EpDecoder.decodeGetEpOffLineRet(byteBuffer);
             }
             break;
+            case Iec104Constant.FAULT_CODE_FROM_PILE: {
+	            bizExecutorService.execute(() -> {
+		            try {
+			            String currentThreadName = Thread.currentThread().getName();
+			            Thread.currentThread().setName("decodeFaultCodeFromPile");
+			            EpDecoder.decodeFaultCodeFromPile(byteBuffer);
+			            Thread.currentThread().setName(currentThreadName);
+		            } catch (Exception e) {
+			            e.printStackTrace();
+		            }
+	            });
+
+				}
+				break;
 			default:
 				break;
 			}

@@ -1,14 +1,13 @@
 package com.ec.epcore.cache;
 
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.constants.YXCConstants;
 import com.ec.epcore.service.EpGunService;
 import com.ec.net.proto.SingleInfo;
 import com.ec.utils.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 
 public class RealChargeInfo extends Object{
@@ -18,7 +17,7 @@ public class RealChargeInfo extends Object{
 	
 	protected int pkChargeInfo;
 	
-	private int currentType=0;
+	private int currentType=0; //EP_AC_TYPE = 14;EP_DC_TYPE = 5;
 	
 	protected int stationId;
 	
@@ -936,7 +935,7 @@ public class RealChargeInfo extends Object{
 				ret =1;
 				logger.info("[realData],epCode:{},epGunNo:{},RealChargeInfo.workingStatus:{}",new Object[]{epCode,epGunNo,workingStatus});
 			}
-			
+			//做了个时间更新的标记， 之后用到
 			this.workStatusUpdateTime =DateUtil.getCurrentSeconds();
 		}
 		return ret;

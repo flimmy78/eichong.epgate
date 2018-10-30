@@ -1,20 +1,19 @@
 package com.ec.epcore.net.server;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.handler.codec.MessageToByteEncoder;
-
-import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.epcore.service.UsrGateService;
 import com.ec.netcore.model.conf.ServerConfig;
 import com.ec.netcore.netty.server.AbstractNettyServer;
 import com.ec.netcore.util.IPUtil;
 import com.ec.utils.DateUtil;
+import com.ec.utils.NetUtils;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.MessageToByteEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class UsrGateServer extends AbstractNettyServer{
 
@@ -42,7 +41,8 @@ public class UsrGateServer extends AbstractNettyServer{
 		client.setChannel(ctx.channel());
 		client.setLastUseTime(DateUtil.getCurrentSeconds());
 		client.setStatus(1);
-	    
+		String ip = NetUtils.getClientIp(ctx.channel());
+		String ip2 = client.getIp();
 		UsrGateService.addConnect(client);
 	}
 

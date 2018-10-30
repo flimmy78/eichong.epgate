@@ -3,8 +3,8 @@ package com.ec.epcore.cache;
 public class UserOrigin {
 	
 	private int orgNo;//1000:万马;
-	private int cmdFromSource;//1:API,2:手机;3电桩
-	private String consumeGateIdentity;//"",空，来自于其他消费服务器的IP.
+	private int cmdFromSource;//1:API,2:手机;3电桩   --->1.api,2.手机，3.第三方  @hm
+	private String consumeGateIdentity;//"",空，来自于其他消费服务器的IP.   --> 服务器的ip 通过ip拿到连接 @hm
 
 	
 	public UserOrigin(int userOrgNo,int cmdFromSource,String cmdChIdentity)

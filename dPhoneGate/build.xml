@@ -1,6 +1,6 @@
 ﻿<project name="phoneGate" default="jar" basedir=".">
 	<property name="product" value="dPhoneGate" />
-	<property name="version" value="5.0.1" />
+	<property name="version" value="5.0.2" />
 	<property name="src.dir" value="${basedir}/src" />
 	<property name="build.dir" value="${basedir}/build" />
 	<property name="classes.dir" value="${basedir}/bin" />

@@ -74,7 +74,7 @@ public class RepeatMessage {
 		//调用通讯链路，发送报文
 		lastSendTime = System.currentTimeMillis();
 		times+=1;
-		
+		System.out.println("sendMessage key"+key+" maxTimes: " +maxTimes+" times: "+ times+" ch: "+ch);
 		if(ch==null)
 		{
 			System.out.print("sendMessage  is not Writable  channe"+ch);

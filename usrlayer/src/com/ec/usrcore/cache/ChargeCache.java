@@ -255,7 +255,7 @@ public class ChargeCache {
 	public  String getStopCauseDesc(int stopCause)
 	{
 		String desc="";
-		switch(startChargeStyle)
+		switch(stopCause)
 		{
 		case 1:
 			desc="正常结束";

@@ -1,17 +1,60 @@
 package com.ec.epcore.service;
 
 public class ChargingInfo {
-	private int workStatus;
-	private int totalTime;
-	private int outVol;
-	private int outCurrent;
-	private int chargeMeterNum;
-	private int rateInfo;
-	private int fronzeAmt;
-	private int chargeAmt;
-	private int soc;
-	private int deviceStatus;
-	private int warns;
+	private int workStatus;  //充电机状态
+	private int totalTime;  //累计充电时间
+	private int outVol;   //充电机输出电压
+	private int outCurrent;//充电机输出电流
+	private int chargeMeterNum; //已充度数
+	private int rateInfo;  //费率
+	private int fronzeAmt;  //冻结金额
+	private int chargeAmt;   //已充金额
+	private int soc;        // soc
+	private int deviceStatus;  // 设备状态  0
+	private int warns;       //警告   0
+
+
+	private long chargeStartTime;//精确到秒
+	private float ServiceRate;  //服务费
+
+	private float elecAmt;//单价
+	private float totalPower;//有功总电度
+
+	public float getTotalPower() {
+		return totalPower;
+	}
+
+	public void setTotalPower(final float totalPower) {
+		this.totalPower = totalPower;
+	}
+
+
+	public float getElecAmt() {
+		return elecAmt;
+	}
+
+	public void setElecAmt(final float elecAmt) {
+		this.elecAmt = elecAmt;
+	}
+
+	public float getServiceRate() {
+		return ServiceRate;
+	}
+
+	public void setServiceRate(final float serviceRate) {
+		ServiceRate = serviceRate;
+	}
+
+	public long getChargeStartTime() {
+		return chargeStartTime;
+	}
+
+	public void setChargeStartTime(final long chargeStartTime) {
+		this.chargeStartTime = chargeStartTime;
+	}
+
+
+
 	public int getWorkStatus() {
 		return workStatus;
 	}

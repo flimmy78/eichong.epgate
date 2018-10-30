@@ -112,6 +112,7 @@ public class RepeatConQueue {
     
     	count=0;
     	Iterator iter = quesend.entrySet().iterator();
+		System.out.println("quesend size: "+quesend.size());
 		
 		while (iter.hasNext()) {
 			Map.Entry entry = (Map.Entry) iter.next();
@@ -122,7 +123,8 @@ public class RepeatConQueue {
     		}
     		//if (mes.getTimes() >= 0) {
     		ret = mes.check();
-    		if (ret == 1) mes.send();
+			System.out.println("ret: "+ret);
+			if (ret == 1) mes.send();
 			if (ret == 2) iter.remove();
 			count++;
 			if (count >= cnt && cnt>0) break;

@@ -1,19 +1,17 @@
 package com.ec.epcore.cache;
 
+import com.ec.constants.ErrorCodeConstants;
+import com.ec.constants.UserConstants;
+import com.ec.epcore.service.EpChargeService;
+import com.ec.epcore.service.EpGunService;
+import com.ec.netcore.client.ITcpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.ec.constants.ErrorCodeConstants;
-import com.ec.constants.UserConstants;
-import com.ec.epcore.service.EpBespokeService;
-import com.ec.epcore.service.EpChargeService;
-import com.ec.epcore.service.EpGunService;
-import com.ec.netcore.client.ITcpClient;
 
 public class UserCache {
 
@@ -72,8 +70,28 @@ public class UserCache {
 		
 		invitePhone="";
 	}
-	
-	
+
+	public UserCache(int usrId, String userAccount, String userName, int acctId, int userLevel, String userInvitePhone,boolean remainAmtWarnFalse) {
+		id = usrId; //
+		account = userAccount; //
+		accountId = acctId;
+		level = userLevel;
+		cpyNumber = UserConstants.ORG_I_CHARGE;
+
+		newcouponAcStatus = -1;//-1，未判断
+		newcouponDcStatus = -1;//-1，未判断
+		invitePhone = userInvitePhone;
+
+		name = userName;
+
+		remainAmtWarnValue = 0;
+		remainAmtWarnPhone = "";
+		remainAmtWarnCPhone = "";
+		remainAmtWarn = remainAmtWarnFalse;
+		present = new BigDecimal(0);
+
+		invitePhone = "";
+	}
 	
 
 	public int getOnline() {
@@ -91,9 +109,13 @@ public class UserCache {
 	 */
 	private void init()
 	{
-		EpBespokeService.getUnStopBespokeByUserIdFromDb(this);
+		//预约业务现在不做了，取消初始化
+//		EpBespokeService.getUnStopBespokeByUserIdFromDb(this);
 		EpChargeService.getUnFinishChargeByUserIdFromDb(this);
 		
+	}
+	public Map<String, ChargeCache> getChargeMap(){
+		return chargeList;
 	}
 	public void removeBesp(String bespokeNo)
 	{

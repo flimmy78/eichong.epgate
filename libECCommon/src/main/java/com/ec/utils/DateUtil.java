@@ -10,14 +10,14 @@
 package com.ec.utils;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 
@@ -45,10 +45,27 @@ public class DateUtil {
 	public static final String DATE_FORMAT_CN = "yyyy年MM月dd日HH时mm分ss秒";
 	public static final String DATE_FORMAT_CN_SHORT = "yyyy年MM月dd日";
 
-	
-	
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HH");
+	private static SimpleDateFormat sdfymd = new SimpleDateFormat("yyyyMMdd");
+	private static SimpleDateFormat sdfymdhms = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static SimpleDateFormat sdfymdLine = new SimpleDateFormat(DATE_FORMAT_SHORT01);
 
-	
+	//天
+	public static String getymd(long key) {
+		return sdfymd.format(key);
+	}
+
+	//天
+	public static String getTymdLine(long key) {
+		try {
+			return sdfymdLine.format(key);
+
+		}catch (Exception e){
+			logger.error("getTymdhms exception:{}",e);
+		}
+		return null;
+	}
+
 	/**
 	 * 年计算年的加法
 	 * 

@@ -72,9 +72,30 @@ public interface IEventCallBack {
 	 * @param epGunNo
 	 * @param realData
 	 */
-	public void onRealData(int orgNo,String userIdentity,String epCode,int epGunNo,String extra,Map<String ,Object> realData); 
+	public void onRealData(int orgNo,String userIdentity,String epCode,int epGunNo,String extra,Map<String ,Object> realData);
 
-	
+	/**
+	 * 为Html提供其他渠道的充电实时数据
+	 *
+	 * @param token
+	 * @param orgNo
+	 * @param userIdentity
+	 * @param epCode
+	 * @param epGunNo
+	 * @param realData
+	 */
+	public void onChargeReal4Html(int orgNo, String userIdentity, String epCode, int epGunNo, String extra, Map<String, Object> realData);
+
+	/**
+	 * 4Common实时数据查询
+	 * @param orgNo
+	 * @param userIdentity
+	 * @param epCode
+	 * @param epGunNo
+	 * @param extra
+	 * @param ranRuiQueryData
+	 */
+	public void onQueryCommonRealData(String epCode, int epGunNo, String extra, String ranRuiQueryData);
 	/**
 	 * 消费记录
 	 * @param orgNo
@@ -108,4 +129,6 @@ public interface IEventCallBack {
 	 */
 	public void onGunWorkStatusChange(int orgNo,String userIdentity,String epCode,int epGunNo,String extra,int status);
 
+	//给html推送全国idle 变化状态的数据
+	public void onGunWorkStatusChange4Html(String epCode, int epGunNo,int currentType,String realData);
 }

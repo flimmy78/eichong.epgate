@@ -1,14 +1,6 @@
 package com.ec.epcore.service;
 
 
-import io.netty.channel.Channel;
-
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.constants.EventConstant;
 import com.ec.epcore.cache.UserOrigin;
 import com.ec.epcore.config.GameConfig;
@@ -20,6 +12,12 @@ import com.ec.net.proto.SingleInfo;
 import com.ec.netcore.constants.CommStatusConstant;
 import com.ec.netcore.core.pool.TaskPoolFactory;
 import com.ec.utils.DateUtil;
+import io.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 
@@ -58,20 +56,20 @@ public class MonitorService{
 	
 	public static int onEvent(int type,UserOrigin userOrigin,int ret,int cause, Object srcParams,Object extraData)
 	{
-		logger.debug("onEvent,realData,type:{},UserOrigin:{}",type,userOrigin);
+		logger.debug("MonitorService onEvent,realData,type:{},UserOrigin:{}",type,userOrigin);
 		if(commClient==null)
 		{
-			logger.error("onEvent,realData fail,commClient==null");
+			logger.error("MonitorService onEvent,realData fail,commClient==null");
 			return 0;
 		}
 		if(commClient.getChannel()==null)
 		{
-			logger.error("onEvent,realData fail,commClient.getChannel()==null");
+			logger.error("MonitorService onEvent,realData fail,commClient.getChannel()==null");
 			return 0;
 		}
 		if(commClient.getStatus()<CommStatusConstant.INIT_SUCCESS)
 		{
-			logger.error("onEvent,realData fail,commClient status:{}",commClient.getStatus());
+			logger.error("MonitorService onEvent,realData fail,commClient status:{}",commClient.getStatus());
 			return 0;
 		}
 		try

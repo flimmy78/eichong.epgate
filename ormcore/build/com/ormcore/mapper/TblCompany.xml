@@ -6,8 +6,6 @@
 
     <resultMap id="CompanyResultMap" type="TblCompany">
         <id property="pkCompanyId" column="pk_CompanyId"/>
-
-
         <result property="cpyCompanyNumber" column="cpy_CompanyNumber"/>
         <result property="cpynum" column="cpy_num"/>
         <result property="isValid" column="is_valid"/>
@@ -27,4 +25,11 @@
 	    cpy_number=#{cpyCompanyNumber}
 	</select>
 
+	<select id="findAllCompany" resultMap="CompanyResultMap">
+		select
+		cpy_id AS pk_CompanyId,
+		cpy_number AS  cpy_CompanyNumber,
+		cpy_num AS cpy_num
+		from tbl_company
+	</select>
 </mapper> 

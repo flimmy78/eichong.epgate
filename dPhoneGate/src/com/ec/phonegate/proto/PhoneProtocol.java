@@ -126,7 +126,7 @@ public class PhoneProtocol{
 	}
 	
     public static  byte[] do_consume_record(short version,String chargeOrder,int st,int et,int totalMeterNum,int totalAmt,int serviceAmt,
-    		int pkEpId,int userFirst,int CouPonAmt,int realCouPonAmt) {
+    		int pkEpId,int userFirst,int CouPonAmt,int realCouPonAmt,int personalAmt,int chargeStyle) {
 		
 		try
 		{
@@ -154,6 +154,12 @@ public class PhoneProtocol{
 			bout.write(WmIce104Util.int2Bytes(CouPonAmt));
 			//优惠券抵扣金额
 			bout.write(WmIce104Util.int2Bytes(realCouPonAmt));
+			if (chargeStyle >= 0)  {
+				bout.write((byte)chargeStyle);
+			} else {
+				//个性化优惠金额
+				bout.write(WmIce104Util.int2Bytes(personalAmt));
+			}
 		}
 		
 	

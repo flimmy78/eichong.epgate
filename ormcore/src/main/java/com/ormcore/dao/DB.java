@@ -1,17 +1,28 @@
 package com.ormcore.dao;
 
 import com.ormcore.cache.GameContext;
+import com.ormcore.model.FinAccountConfigRela;
 
 public class DB {
 	public static RateInfoDao rateInfoDao = (RateInfoDao) GameContext.getBean("rateInfoDao");
 		
 	public static TblUserInfoDao userInfoDao = (TblUserInfoDao) GameContext.getBean("tblUserInfoDao");
-	
+
+    public static FinAccountDao finAccountDao = (FinAccountDao) GameContext.getBean("finAccountDao");
+
+    public static TblUserDao tblUserDao = (TblUserDao) GameContext.getBean("tblUserDao");
+
+    public static TblUserCompanyDao tblUserCompanyDao = (TblUserCompanyDao) GameContext.getBean("tblUserCompanyDao");
+
+    public static FinAccountConfigRelaDao finAccountConfigRelaDao = (FinAccountConfigRelaDao) GameContext.getBean("finAccountConfigRelaDao");
+
+    public static TblCompanyDataDao tblCompanyDataDao = (TblCompanyDataDao) GameContext.getBean("tblCompanyDataDao");
+
 	public static TblUserNormalDao userNormalDao = (TblUserNormalDao) GameContext.getBean("tblUserNormalDao");
 	
 	public static TblUserBusinessDao userBusinessDao = (TblUserBusinessDao) GameContext.getBean("tblUserBusinessDao");
-	
-	
+
+
 	public static TblElectricPileDao epClientDao = (TblElectricPileDao) GameContext.getBean("tblElectricPileDao");
 
 	public static BespokeDao bespDao = (BespokeDao) GameContext.getBean("bespokeDao");

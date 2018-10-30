@@ -38,6 +38,8 @@
 		<result property="thirdUsrIdentity" column="chor_parter_user_logo" />
 		<result property="thirdExtraData" column="chor_parter_extradata" />
 		<result property="vinCode" column="cv_vin_code" />
+		<result property="batteryRatedCapacity" column="battery_rated_capacity" />
+		<result property="batteryTotalEnergy" column="battery_total_energy" />
 	</resultMap>
 	
 	<resultMap id="findResultMap"  type="java.util.HashMap" extends="tblChargingorderResultMap"></resultMap>
@@ -185,9 +187,47 @@
 	      #{userOrgNo},
 	      #{thirdUsrIdentity},
 	     #{thirdExtraData}
-	     
+
 	   )
 	</insert>
+
+	<insert id="insertFullChargeOrderExt" parameterType="TblChargingorder" useGeneratedKeys="true" keyProperty="pkChargingorder">
+	   insert into tbl_ChargingOrder_ext (
+	     pk_ChargingOrder,
+	     chOr_TransactionNumber,
+	     battery_rated_capacity,
+	     battery_total_energy
+	   )values (
+	     #{pkChargingorder},
+	     #{chorTransactionnumber},
+	     #{batteryRatedCapacity},
+	     #{batteryTotalEnergy}
+	   )
+	</insert>
+
+	<!-- 新增充电消费订单 -->
+	<insert id="insertChargeOrderExt" parameterType="TblChargingorder" useGeneratedKeys="true" keyProperty="pkChargingorder">
+	   insert into tbl_ChargingOrder_ext (
+	     pk_ChargingOrder,
+	     chOr_TransactionNumber,
+	     battery_rated_capacity,
+	     battery_total_energy
+	   )values (
+	     #{pkChargingorder},
+	     #{chorTransactionnumber},
+	     #{batteryRatedCapacity},
+	     #{batteryTotalEnergy}
+	   )
+	</insert>
+
+	<update id="updateOrderExt" parameterType="TblChargingorder">
+		update tbl_ChargingOrder_ext set
+			battery_rated_capacity = #{batteryRatedCapacity},
+			battery_total_energy = #{batteryTotalEnergy}
+		where
+			chOr_TransactionNumber=#{chorTransactionnumber}
+	</update>
+
 	<!-- 获取充电电度，金额，服务费，总费用，开始时间，结束时间 -->
 	<select id="selectChargeData" parameterType="string" resultMap="tblChargingorderResultMap">
 		select 
@@ -443,7 +483,12 @@
 		select  max(chOr_ChargingStatus)  from tbl_chargingorder 
 		where chOr_TransactionNumber =#{chorTransactionnumber}
 	</select>
-	
+
+	<select id="getMaxOrCode" parameterType="String" resultType="String">
+		select  max(chOr_Code)  from tbl_chargingorder
+		where chOr_Code LIKE concat(#{chorCode},'%')
+	</select>
+
 	<select id="getOrderStatusBytime" parameterType="TblChargingorder" resultType="String">
 		select  chOr_ChargingStatus  from tbl_chargingorder 
 		where chOr_PileNumber =#{chorPilenumber} and 

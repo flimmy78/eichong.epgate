@@ -196,4 +196,17 @@ public class EpGateEncoder extends MessageToByteEncoder{
 		
 		return Package(U2ECmdConstants.CCZC_QUERY_ORDER,byteBuffer.getBytes());
 	}
+
+	public static byte[] query4CommonData(byte[] hmsTime, String epCode, int epGunNo,  String extra) {
+		DynamicByteBuffer byteBuffer = DynamicByteBuffer.allocate();
+
+		byteBuffer.put(hmsTime);
+
+		byteBuffer.putString(epCode);
+		byteBuffer.put((byte) epGunNo);
+
+		byteBuffer.putString(extra);
+
+		return Package(U2ECmdConstants.EP_4COMMON_REALDATA, byteBuffer.getBytes());
+	}
 }

@@ -10,8 +10,8 @@ public class TblUserInfo implements Serializable {
     private java.lang.String name;
     private java.lang.String iccard;
     private java.lang.String vehicleNumber;
-    private java.math.BigDecimal balance;
-    private java.math.BigDecimal present;
+    private java.math.BigDecimal balance;  //普通用户充值余额
+    private java.math.BigDecimal present; //赠送余额
     private java.lang.Integer status; //
     private Integer level;
     private java.lang.String invitePhone;//邀请者号码

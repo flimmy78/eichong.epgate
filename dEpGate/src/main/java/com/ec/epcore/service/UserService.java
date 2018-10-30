@@ -10,11 +10,14 @@ import com.ec.epcore.net.codec.EpEncoder;
 import com.ec.epcore.net.proto.CardAuthResp;
 import com.ec.epcore.sender.EpMessageSender;
 import com.ec.logs.LogConstants;
+import com.ec.net.message.AliSMS;
 import com.ec.net.proto.Iec104Constant;
 import com.ec.utils.DateUtil;
 import com.ec.utils.LogUtil;
+import com.ec.utils.NumUtil;
 import com.ormcore.dao.DB;
 import com.ormcore.model.*;
+import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.ec.constants.UserConstants.BIG_ACCOUNT_ADDAMT;
+import static com.ec.constants.UserConstants.BIG_ACCOUNT_SUBAMT;
+
 
 public class UserService {
 
@@ -62,7 +69,7 @@ public class UserService {
 
         String usrAccount = userRealInfo.getAccount();
         int usrId = userRealInfo.getId();
-
+        //取的也是最该用户最近的一条未完成充电记录
         UserCache u = new UserCache(usrId, usrAccount, userRealInfo.getName(), userRealInfo.getAccountId(), userRealInfo.getLevelId(), userRealInfo.getInvitePhone());
         u.setCpyId(userRealInfo.getCpyId());
         u.setCpyNumber(userRealInfo.getCpyNumber());
@@ -72,14 +79,15 @@ public class UserService {
         u.setRemainAmtWarnPhone("");
         u.setRemainAmtWarnCPhone("");
         u.setRemainAmtWarnValue(999999);
-        if (usrAccount != null && usrAccount.length() == 12) {
-            TblUserThreshod usrThreshod = DB.userThreshodDao.findUserThreshodInfo(usrId);
-            if (null != usrThreshod) {
-                u.setRemainAmtWarnPhone(usrThreshod.getPhone());
-                u.setRemainAmtWarnCPhone(usrThreshod.getCustomerPhone());
-                u.setRemainAmtWarnValue(usrThreshod.getWarnMoney());
-            }
-        }
+        //这段代码没有用，表里没有数据，预警信息设置在用户表里
+//        if (usrAccount != null && usrAccount.length() == 12) {
+//            TblUserThreshod usrThreshod = DB.userThreshodDao.findUserThreshodInfo(usrId);
+//            if (null != usrThreshod) {
+//                u.setRemainAmtWarnPhone(usrThreshod.getPhone());
+//                u.setRemainAmtWarnCPhone(usrThreshod.getCustomerPhone());
+//                u.setRemainAmtWarnValue(usrThreshod.getWarnMoney());
+//            }
+//        }
 
         if (epUserMap.get(usrAccount) == null) {
             epUserMap.put(usrAccount, u);
@@ -107,6 +115,9 @@ public class UserService {
 
         return userInfo;
     }
+
+
+
 
     public static UserCache getUserCache(int accountId) {
         /*UserCache userInfo = epUserIdMap.get(accountId);
@@ -196,7 +207,148 @@ public class UserService {
             logger.error("subAmt exception,getStackTrace:{}", e.getStackTrace());
         }
 
+    }
+    //加锁防止并发问题，如果集群部署还要再改 todo
+    public static synchronized void subAndAddAmtSync(int type,int accountId, BigDecimal amt, BigDecimal present, String serialNo){
 
+        UserCache uc = getUserCache(accountId);
+        if (uc == null) {
+            logger.info("subAndAddAmtSync fail,accountId:{},amt:{},getUserCache()==null", accountId, amt);
+            return;
+        }
+        TblUserInfo u = new TblUserInfo();
+        u.setId(accountId);
+        u.setAccountId(uc.getAccountId());
+        u.setBalance(amt);
+        u.setPresent(present);
+
+        if (type== BIG_ACCOUNT_ADDAMT){
+            try {
+                logger.info("addAmtSync start,accountId:{},amt:{},serialNo:{}", new Object[]{accountId, amt, serialNo});
+                int count = DB.userInfoDao.addCost(u);
+                if (count<1){
+                    logger.error("addAmtSync error !accountId:{},amt:{},present:{},serialNo:{}", new Object[]{accountId, amt, present, serialNo});
+                }
+                logger.info("addAmtSync finish!accountId:{},amt:{},serialNo:{}", new Object[]{accountId, amt, serialNo});
+            } catch (Exception e) {
+                logger.error("addAmtSync exception,getStackTrace:{}", e.getStackTrace());
+            }
+        }
+        if (type== BIG_ACCOUNT_SUBAMT){
+            try {
+                logger.info("subAmtSync start. accountId:{},amt:{},present:{},serialNo:{}", new Object[]{accountId, amt, present, serialNo});
+                int i = DB.userInfoDao.subCost(u);
+                if (i < 1) {
+                    logger.error("subAmtSync error !accountId:{},amt:{},present:{},serialNo:{}", new Object[]{accountId, amt, present, serialNo});
+                }
+                logger.info("subAmtSync finish!accountId:{},amt:{},present:{},serialNo:{}", new Object[]{accountId, amt, present, serialNo});
+            } catch (Exception e) {
+                logger.error("subAmtSync exception,getStackTrace:{}", e.getStackTrace());
+            }
+        }
+    }
+
+    /*
+     * 大账户余额预警短信通知
+     * */
+    public static void amountWarn(int accountId,String companyName){
+
+        List<FinAccount> finAccounts = DB.finAccountDao.amountWarn(accountId);
+        FinAccount finAccount = finAccounts.get(0);
+        Short warnFlag = finAccount.getWarnFlag();
+        if(warnFlag == 1 ){
+            return;
+        }
+        FinAccount finAccount1 = new FinAccount();
+        BigDecimal accountBalance = finAccount.getAccountBalance();
+        String warnPhone = finAccount.getWarnPhone();
+        BigDecimal accountWarn = finAccount.getAccountWarn();
+        int i = accountBalance.compareTo(accountWarn);
+        //判断是否设置短信预警提醒
+        if (!warnPhone.isEmpty()){
+            //判断是否满足条件
+
+            if (warnFlag == 0 && i <= 0){
+                HashMap<String,Object>  params=new HashMap<String,Object>();
+                params.put("name", companyName);
+                params.put("cost", accountWarn);
+
+                JSONObject jsonObject = JSONObject.fromObject(params);
+                boolean flag = AliSMS.sendAliSMS(warnPhone, "SMS_138078042", jsonObject.toString());
+                //如果发送成功则修改状态
+                if (flag){
+                    finAccount1.setWarnFlag((short) 1);
+                    finAccount1.setAccountId(accountId);
+                    DB.finAccountDao.updataFlagById(finAccount1);
+                }
+            }
+        }
+    }
+
+    public static void addElectric(int accountId, int id, int frozen) {
+        try {
+            logger.info("addElectric start,accountId:{},id:{},frozen:{}", new Object[]{accountId, id, frozen});
+
+            UserCache uc = getUserCache(accountId);
+            if (uc == null) {
+                logger.info("addElectric fail,accountId:{},frozen:{},getUserCache()==null", accountId, frozen);
+                return;
+            }
+
+            Map<String,Object> map =  new HashMap<String,Object> ();
+            map.put("id", id);
+            map.put("frozen", frozen);
+
+            DB.userInfoDao.addElectric(map);
+
+            logger.info("addElectric finish!accountId:{},id:{},frozen:{}", new Object[]{accountId, id, frozen});
+        } catch (Exception e) {
+            logger.error("addElectric exception,getStackTrace:{}", e.getStackTrace());
+        }
+    }
+
+    public static void subElectric(int accountId, int id, int frozen) {
+        try {
+            logger.info("subElectric start. accountId:{},id:{},frozen:{}", new Object[]{accountId, id, frozen});
+            UserCache uc = getUserCache(accountId);
+            if (uc == null) {
+                logger.info("subElectric fail,accountId:{},frozen:{},getUserCache()==null", accountId, frozen);
+                return;
+            }
+
+            Map<String,Object> map =  new HashMap<String,Object> ();
+            map.put("id", id);
+            map.put("frozen", frozen);
+
+            DB.userInfoDao.subElectric(map);
+
+            logger.info("subElectric finish!accountId:{},id:{},frozen:{}", new Object[]{accountId, id, frozen});
+        } catch (Exception e) {
+            logger.error("subElectric exception,getStackTrace:{}", e.getStackTrace());
+        }
+    }
+
+    public static void updElectric(int orderId, int userid, int id,int consume,int money)
+    {
+        try
+        {
+            int remain = DB.userInfoDao.queryElectricRemain(id);
+            Map<String,Object> map =  new HashMap<String,Object> ();
+            map.put("id", id);
+            map.put("orderId", orderId);
+            map.put("remain", remain);
+            map.put("consume", consume);
+            map.put("money", money);
+            map.put("userId", userid);
+
+            DB.userInfoDao.insertElectricDetail(map);
+
+            logger.debug("updElectric finish!orderId:{},id:{},remain:{},consume:{},money:{}", new Object[]{orderId, id, remain, consume, money});
+        }
+        catch(Exception e)
+        {
+            logger.error("updElectric execption,getStackTrace:{}",e.getStackTrace());
+        }
     }
 
     public static CardAuthResp checkUserCard(String epCode, ChargeCardCache cardCache, String userPasswordMd5) {
@@ -285,8 +437,8 @@ public class UserService {
         if (ret.getErrorCode() == 0 && cardCache.getValid() == 1) {
             cardStatus = EpService.getValidFromDB(cardCache.getCompanyNumber());
         }
-        ret.setCardStatus(cardStatus);
-        /*if (cardType == EpConstants.CARD_CO_CREDIT) {
+        /*ret.setCardStatus(cardStatus);
+        if (cardType == EpConstants.CARD_CO_CREDIT) {
             ret.setIsFrozenAmt(2);
         } else {*/
             ret.setIsFrozenAmt(1);
@@ -418,6 +570,65 @@ public class UserService {
         EpMessageSender.sendMessage(epCommClient, 0, 0, Iec104Constant.C_VIN_AUTH_RESP, data, cmdTimes, epCommClient.getVersion());
     }
 
+    public static void handleCarVin(EpCommClient epCommClient, String epCode, int epGunNo, String carVinCode, byte[] cmdTimes) {
+        CardAuthResp ret = new CardAuthResp();
+        int success = 0;
+        int errorCode = 0;
+        int isFrozenAmt = 2;
+        BigDecimal remainAmt = new BigDecimal(0);
+        List<TblCarVin> carVinList = DB.carVinDao.selectByVinCode(carVinCode);
+        if(carVinList==null || carVinList.size()==0)
+        {
+            logger.error("not find carVin rela in db,carVinCode:{}",carVinCode);
+            ret.setErrorCode(6);
+        } else if (carVinList.size()>1) {
+            logger.error("find carVin rela in db > 1,carVinCode:{}",carVinCode);
+            ret.setErrorCode(6);
+        } else {
+            int userId = carVinList.get(0).getPkCarVin();
+            remainAmt = carVinList.get(0).getVinServicemoney();
+            UserCache userCache = UserService.getUserCache(userId);
+
+            ElectricPileCache epCache = EpService.getEpByCode(epCode);
+            if (epCache == null) {
+                ret.setErrorCode(3);
+            } else if (userCache != null) {
+                EpService.getEpRealStatus(epCache);
+                if (!epCache.canOrgOperate(userCache.getCpyNumber())) {
+                    logger.error(LogUtil.addBaseExtLog("carVinCode"),
+                            new Object[]{LogConstants.FUNC_CARD_AUTH, epCode, 0, userCache.getCpyNumber(), userId, carVinCode});
+                    ret.setErrorCode(5);
+                } else {
+                    EpGunCache epGunCache = EpGunService.getEpGunCache(epCode, epGunNo);
+                    AuthUserCache authUser = new AuthUserCache(userCache.getId(), userCache.getAccount(), DateUtil.getCurrentSeconds(), (short) 3);
+                    epGunCache.setAuthCache(authUser);
+                    int payMode = DB.phDao.getPayRule(userCache.getCpyId());
+                    logger.debug(LogUtil.addBaseExtLog("carVinCode"),
+                            new Object[]{LogConstants.FUNC_CARD_AUTH, epCode, 0, userCache.getCpyNumber(), userId, carVinCode});
+
+                    isFrozenAmt = (payMode == 1) ? 1 : 2;
+                    if (isFrozenAmt == 2) {
+                        ret.setErrorCode(4);
+                    } else if (remainAmt.compareTo(userCache.getMoney().add(userCache.getPresent())) > 0
+                            || remainAmt.compareTo(new BigDecimal(0)) <= 0) {
+                        ret.setErrorCode(7);
+                    }
+                }
+            } else {
+                logger.error(LogUtil.addBaseExtLog("carVinCode"),
+                        new Object[]{LogConstants.FUNC_CARD_AUTH, epCode, 0, 0, userId, carVinCode});
+                ret.setErrorCode(5);
+            }
+        }
+        errorCode = ret.getErrorCode();
+        success = (ret.getErrorCode() != 0) ? 0 : 1;
+
+        byte[] data = EpEncoder.do_carvin_auth_resq(epCode, epGunNo,
+                carVinCode, isFrozenAmt, NumUtil.BigDecimal2ToInt(remainAmt.multiply(Global.DecTime2)), success, errorCode);
+
+        EpMessageSender.sendMessage(epCommClient, 0, 0, Iec104Constant.C_CARVIN_AUTH_RESP, data, cmdTimes, epCommClient.getVersion());
+    }
+
     public static int insertBigCard(String innerCardNo, int orgNo, int userId) {
         TblChargeCard card = new TblChargeCard();
 
@@ -485,7 +696,7 @@ public class UserService {
     }
 
     /**
-     * @param Account
+     * @param account
      * @param passwordMd5
      * @return 0:成功,1:没找到用户;2:账户被冻结;3:密码错误;4:桩没绑定费率;5:有未支付的订单;6:余额不够
      */
@@ -598,9 +809,10 @@ public class UserService {
 
     public static UserRealInfo findUserRealInfo(int userId) {
         UserRealInfo userInfo = null;
-
+        //先查的渠道
         List<TblUserInfo> userInfoList = DB.userInfoDao.findOrgUserById(userId);
         if (null == userInfoList || userInfoList.size() != 1) {
+            //如果渠道没有，查普通用户表
             userInfoList = DB.userInfoDao.findUserInfoById(userId);
         }
         if (null != userInfoList && userInfoList.size() < 1) {
@@ -630,14 +842,16 @@ public class UserService {
 
         List<TblUserInfo> userInfoList = DB.userInfoDao.findUserInfoByPhone(userAccount);
         if (null != userInfoList && userInfoList.size() < 1) {
-            return userInfo;
+            userInfoList = DB.userInfoDao.findUserInfoByCard(userAccount);
+            if (null != userInfoList && userInfoList.size() < 1) {
+                return userInfo;
+            }
         }
 
         TblUserInfo dbUser = userInfoList.get(0);
 
         return convertUsrRealInfo(dbUser);
     }
-
     /**
      * 设置内存中用户新手券状态
      *
@@ -659,9 +873,7 @@ public class UserService {
         TblUserNewcoupon newcoupon = userNewcouponList.get(0);
         userCache.setNewcouponAcStatus(newcoupon.getAcStatus());
         userCache.setNewcouponDcStatus(newcoupon.getDcStatus());
-
     }
-
     /**
      * 从充电订单中获取用户是否已经充过电
      *
@@ -817,7 +1029,10 @@ public class UserService {
                 || orgNo == UserConstants.ORG_TCEC_ECHONG || orgNo == UserConstants.ORG_EVC || orgNo == UserConstants.ORG_TCEC_SHENZHEN
                 || orgNo == UserConstants.ORG_CHAT || orgNo == UserConstants.ORG_AMAP|| orgNo == UserConstants.ORG_TCEC_BEIQI || orgNo == UserConstants.ORG_TCEC_HESHUN
                 || orgNo == UserConstants.ORG_TCEC_BAIDU || orgNo == UserConstants.ORG_TCEC_GUOWANG || orgNo == UserConstants.ORG_TCEC_BEIQI || orgNo == UserConstants.ORG_TCEC_NANRUI
-                || orgNo == UserConstants.ORG_TCEC_NANCHONG || orgNo == UserConstants.ORG_TCEC_ALIPAY || orgNo == UserConstants.ORG_TCEC_HAINAN || orgNo == UserConstants.ORG_TCEC_XIAOJU)
+                || orgNo == UserConstants.ORG_TCEC_NANCHONG || orgNo == UserConstants.ORG_TCEC_ALIPAY || orgNo == UserConstants.ORG_TCEC_HAINAN
+                || orgNo == UserConstants.ORG_TCEC_XIAOJU || orgNo == UserConstants.ORG_TCEC_ChangAn || orgNo == UserConstants.ORG_TCEC_DongFeng
+                || orgNo == UserConstants.ORG_TCEC_ShenZhenTraffic || orgNo == UserConstants.ORG_TCEC_QiDian || orgNo == UserConstants.ORG_TCEC_PonyCar
+                || orgNo == UserConstants.ORG_TCEC_ShouQi || orgNo == UserConstants.ORG_TCEC_PuTian || orgNo == UserConstants.ORG_TCEC_YuEXing || orgNo == UserConstants.ORG_TCEC_Guangzhou)
             return true;
         return false;
     }

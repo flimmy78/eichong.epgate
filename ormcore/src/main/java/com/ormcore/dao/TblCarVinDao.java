@@ -17,6 +17,7 @@ public interface TblCarVinDao {
 	public List<TblCarVin> selectById(int vinId);
 	public List<TblCarVin> selectByUserId(int userId);
 	public int isValidVin(Map<String, Object> map);
+	public List<TblCarVin> selectByVinCode(String vinCode);
 
 	
 }

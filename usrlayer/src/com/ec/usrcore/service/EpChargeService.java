@@ -1,28 +1,23 @@
 package com.ec.usrcore.service;
 
-import java.math.BigDecimal;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.config.Global;
 import com.ec.constants.EpConstants;
 import com.ec.constants.ErrorCodeConstants;
 import com.ec.constants.UserConstants;
 import com.ec.logs.LogConstants;
 import com.ec.net.proto.WmIce104Util;
-import com.ec.usrcore.cache.ChargeCache;
-import com.ec.usrcore.cache.ElectricPileCache;
-import com.ec.usrcore.cache.EpGunCache;
-import com.ec.usrcore.cache.UserOrigin;
-import com.ec.usrcore.cache.UserRealInfo;
+import com.ec.usrcore.cache.*;
 import com.ec.usrcore.net.client.EpGateNetConnect;
 import com.ec.utils.DateUtil;
 import com.ec.utils.LogUtil;
 import com.ormcore.dao.DB;
 import com.ormcore.model.RateInfo;
 import com.ormcore.model.TblChargingrecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 public class EpChargeService {
 	
@@ -140,15 +135,23 @@ public class EpChargeService {
 
 		//检查电桩
 		ElectricPileCache epCache = EpService.getEpCacheFromDB(epCode);
-		if (epCache == null) return ErrorCodeConstants.EP_UNCONNECTED;
+
+		if (epCache == null){
+			logger.info("checkElectricDb epCache is null,epCode:{}", epCode);
+			return ErrorCodeConstants.EP_UNCONNECTED;
+		}
 		
 		//检查桩和枪
 		int error = epCache.canCharge(epGunNo);
 		if (error > 0) return error;
+
 		EpGateNetConnect commClient = CacheService.getEpGate(epCache.getGateid());
 		error = EpService.checkEpGate(commClient);
-		if (error > 0) return error;
-
+		if (error > 0){
+			logger.info("checkElectricDb checkEpGate error:{},orgNo:{},epCode:{},account:{}", new Object[]{error, orgNo, epCode, account});
+			//暂时注释掉,待后续观察
+			return error;
+		}
 		EpGunCache epGunCache = EpGunService.getEpGunCache(epCache.getPkEpId(),epCode, epGunNo);
 		if(epGunCache==null)
 		{
@@ -156,7 +159,10 @@ public class EpChargeService {
 			return ErrorCodeConstants.INVALID_EP_GUN_NO;
 		}
 		error = epGunCache.canCharge(startChargeStyle);
-		if (error > 0) return error;
+		if (error > 0) {
+			logger.info("checkElectricDb canCharge error:{}",error);
+			return error;
+		}
 
 		//用户能否充电
         if (orgNo == UserConstants.ORG_I_CHARGE) {
@@ -214,7 +220,6 @@ public class EpChargeService {
 		{
 			return ErrorCodeConstants.INVALID_EP_CODE;
 		}
-		
 		//检查电桩
 		ElectricPileCache epCache = CacheService.getEpCache(epCode);
 		if(epCache == null)
@@ -222,10 +227,12 @@ public class EpChargeService {
 			epCache = EpService.getEpCacheFromDB(epCode);
 			if (epCache == null) return ErrorCodeConstants.EP_UNCONNECTED;
 		}
-
 		EpGateNetConnect commClient = CacheService.getEpGate(epCache.getGateid());
 		int error = EpService.checkEpGate(commClient);
-		if (error > 0) return error;
+		if (error > 0){
+			logger.info("apiStopElectric checkEpGate error:{},orgNo:{},epCode:{},userIdentity:{}", new Object[]{error, orgNo, epCode, userIdentity, token});
+			return error;
+		}
 		
 		if(epGunNo<1|| epGunNo> epCache.getGunNum())
 		{
@@ -255,7 +262,10 @@ public class EpChargeService {
 		
 		EpGateNetConnect commClient = CacheService.getEpGate(epCache.getGateid());
 		error = EpService.checkEpGate(commClient);
-		if (error > 0) return error;
+		if (error > 0){
+			logger.info("initClientConnect checkEpGate error:{},orgNo:{},token:{},epCode:{},userIdentity:{}",new Object[]{error, orgNo, token,epCode, userIdentity});
+			return error;
+		}
         UserRealInfo userRealInfo = UserService.findUserRealInfo(Integer.valueOf(userIdentity), Integer.valueOf(token));
 		if (null == userRealInfo) {
 			return ErrorCodeConstants.INVALID_ACCOUNT;
@@ -313,13 +323,41 @@ public class EpChargeService {
 
 		EpGateNetConnect commClient = CacheService.getEpGate(epCache.getGateid());
 		int error = EpService.checkEpGate(commClient);
-		if (error > 0) return error;
+		if (error > 0) {
+			logger.info("queryOrderInfo checkEpGate error:{},orgNo:{},token:{},epCode:{},userIdentity:{}", new Object[]{error, orgNo, token, epCode, userIdentity});
+			return error;
+		}
 		
  		commClient.setLastSendTime(DateUtil.getCurrentSeconds());
  		EpGateService.sendOrderInfo(commClient.getChannel(), epCode, epGunNo, orgNo, userIdentity, token);
 		return 0;
 	}
-	
+
+	public static int queryData4Common( String epCode, int epGunNo,String extra) {
+
+		if (epCode.length() != 16) {
+			return ErrorCodeConstants.INVALID_EP_CODE;
+		}
+
+		//检查电桩
+		ElectricPileCache epCache = EpService.getEpCache(epCode);
+		if (epCache == null) {
+			return ErrorCodeConstants.EP_UNCONNECTED;
+		}
+
+		EpGateNetConnect commClient = CacheService.getEpGate(epCache.getGateid());
+		int error = EpService.checkEpGate(commClient);
+		if (error > 0){
+			logger.info("queryData4Common checkEpGate error:{},epCode:{},extra:{}", new Object[]{error, epCode, extra});
+
+			return error;
+		}
+
+		commClient.setLastSendTime(DateUtil.getCurrentSeconds());
+		EpGateService.queryData4Common(commClient.getChannel(), epCode, epGunNo, extra);
+		return 0;
+	}
+
 	public static int phoneDisconnect(int orgNo,String userIdentity,String epCode,int epGunNo)
 	{
 		//检查电桩
@@ -334,7 +372,7 @@ public class EpChargeService {
 		EpGateNetConnect commClient = CacheService.getEpGate(epCache.getGateid());
 		int error = EpService.checkEpGate(commClient);
 		if (error > 0) {
-			logger.debug("phoneDisconnect errorCode:{}", error);
+			logger.info("phoneDisconnect checkEpGate error:{},orgNo:{},epCode:{},userIdentity:{}", new Object[]{error, orgNo, epCode, userIdentity});
 			return error;
 		}
 		

@@ -106,6 +106,9 @@ public class ConsumeRecord {
 	private int startSoc;
 
 	private int endSoc;
+	private int batteryRatedCapacity;
+
+	private int batteryTotalEnergy;
 
 	private int startMeterNum;
 	private int totalChargeAmt;
@@ -127,8 +130,17 @@ public class ConsumeRecord {
 	private int couponAmt ; //优惠券金额
 	private int realCouponAmt;
 	private int undiscountTotalAmt;
-	
+	private int personalAmt ; //个性化优惠金额
+
 	private int type;
+	private int customCuspElect;
+	private int customCuspServicePrice;
+	private int customPeakElectPrice;
+	private int customPeakServicePrice;
+	private int customFlatElectPrice;
+	private int customFlatServicePrice;
+	private int customValleyElectPrice;
+	private int customValleyServicePrice;
 
 	
 	public ConsumeRecord()
@@ -149,6 +161,7 @@ public class ConsumeRecord {
 		fMoney = 0;
 		pMoney = 0;
 		gMoney = 0;
+		personalAmt = 0;
 	}
 	
 	public int getAccountType() {
@@ -250,6 +263,22 @@ public class ConsumeRecord {
 
 	public void setEndSoc(int endSoc) {
 		this.endSoc = endSoc;
+	}
+
+	public int getBatteryRatedCapacity() {
+		return batteryRatedCapacity;
+	}
+
+	public void setBatteryRatedCapacity(int batteryRatedCapacity) {
+		this.batteryRatedCapacity = batteryRatedCapacity;
+	}
+
+	public int getBatteryTotalEnergy() {
+		return batteryTotalEnergy;
+	}
+
+	public void setBatteryTotalEnergy(int batteryTotalEnergy) {
+		this.batteryTotalEnergy = batteryTotalEnergy;
 	}
 
 	public String getSerialNo() {
@@ -685,12 +714,84 @@ public class ConsumeRecord {
 		this.discountServiceAmt = discountServiceAmt;
 	}
 
+	public int getPersonalAmt() {
+		return personalAmt;
+	}
+
+	public void setPersonalAmt(int personalAmt) {
+		this.personalAmt = personalAmt;
+	}
+
 	public int getType() {
 		return type;
 	}
 
 	public void setType(int type) {
 		this.type = type;
+	}
+
+	public int getCustomCuspElect() {
+		return customCuspElect;
+	}
+
+	public void setCustomCuspElect(int customCuspElect) {
+		this.customCuspElect = customCuspElect;
+	}
+
+	public int getCustomCuspServicePrice() {
+		return customCuspServicePrice;
+	}
+
+	public void setCustomCuspServicePrice(int customCuspServicePrice) {
+		this.customCuspServicePrice = customCuspServicePrice;
+	}
+
+	public int getCustomPeakElectPrice() {
+		return customPeakElectPrice;
+	}
+
+	public void setCustomPeakElectPrice(int customPeakElectPrice) {
+		this.customPeakElectPrice = customPeakElectPrice;
+	}
+
+	public int getCustomPeakServicePrice() {
+		return customPeakServicePrice;
+	}
+
+	public void setCustomPeakServicePrice(int customPeakServicePrice) {
+		this.customPeakServicePrice = customPeakServicePrice;
+	}
+
+	public int getCustomFlatElectPrice() {
+		return customFlatElectPrice;
+	}
+
+	public void setCustomFlatElectPrice(int customFlatElectPrice) {
+		this.customFlatElectPrice = customFlatElectPrice;
+	}
+
+	public int getCustomFlatServicePrice() {
+		return customFlatServicePrice;
+	}
+
+	public void setCustomFlatServicePrice(int customFlatServicePrice) {
+		this.customFlatServicePrice = customFlatServicePrice;
+	}
+
+	public int getCustomValleyElectPrice() {
+		return customValleyElectPrice;
+	}
+
+	public void setCustomValleyElectPrice(int customValleyElectPrice) {
+		this.customValleyElectPrice = customValleyElectPrice;
+	}
+
+	public int getCustomValleyServicePrice() {
+		return customValleyServicePrice;
+	}
+
+	public void setCustomValleyServicePrice(int customValleyServicePrice) {
+		this.customValleyServicePrice = customValleyServicePrice;
 	}
 
 	@Override

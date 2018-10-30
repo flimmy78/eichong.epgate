@@ -240,6 +240,7 @@ public class LogUtil {
 		//int userOrgin = (int)ByteBufferUtil.readUB2(byteBuffer);
 		String asc = "3000003370";
 		//System.out.print(JSON.toJSONString(WmIce104Util.str2Bcd(asc)));
-		System.out.print(String.valueOf(NumUtil.BigDecimal4ToInt(NumUtil.intToBigDecimal3(20).multiply(new BigDecimal("1.0000")))));
+		//System.out.print(String.valueOf(NumUtil.BigDecimal4ToInt(NumUtil.intToBigDecimal3(20).multiply(new BigDecimal("1.0000")))));
+		System.out.print(NumUtil.BigDecimal2ToInt(NumUtil.intToBigDecimal42(2178).multiply(new BigDecimal("100"))));
 	}
 }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.FinAccountDao">
+    <resultMap id="resultMap" type="FinAccount">
+        <id property="accountId" column="account_id" />
+        <result property="accountNo" column="account_no" />
+        <result property="accountPwd" column="account_pwd" />
+        <result property="accountBalance" column="account_balance" />
+
+        <result property="accountPresent" column="account_present" />
+        <result property="tradeType" column="trade_type" />
+        <result property="accountWarn" column="account_warn" />
+        <result property="warnPhone" column="warn_phone" />
+        <result property="warnFlag" column="warn_flag" />
+        <result property="accountStatus" column="account_status" />
+        <result property="isDel" column="is_del" />
+        <result property="creator" column="creator" />
+        <result property="modifier" column="modifier" />
+        <result property="gmtCreate" column="gmt_create" />
+        <result property="gmtModified" column="gmt_modified" />
+    </resultMap>
+	<select id="amountWarn" parameterType="int" resultMap="resultMap">
+        select e.account_balance,e.warn_flag,e.warn_phone,e.account_warn
+        from fin_account e
+        where account_id=#{accountId}
+    </select>
+
+    <update id="updataFlagById" parameterType="FinAccount" >
+        update fin_account set
+        warn_flag = #{warnFlag}
+        where
+        account_id=#{accountId}
+    </update>
+	
+</mapper>

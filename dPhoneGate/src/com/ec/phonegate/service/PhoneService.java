@@ -1,19 +1,5 @@
 package com.ec.phonegate.service;
 
-import com.ec.usrcore.cache.UserRealInfo;
-import com.ec.usrcore.service.UserService;
-import com.ormcore.model.TblUserInfo;
-import io.netty.channel.Channel;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.constants.CommStatusConstant;
 import com.ec.constants.EpConstants;
 import com.ec.constants.ErrorCodeConstants;
@@ -26,12 +12,23 @@ import com.ec.phonegate.proto.PhoneConstant;
 import com.ec.phonegate.proto.PhoneProtocol;
 import com.ec.phonegate.sender.PhoneMessageSender;
 import com.ec.phonegate.task.CheckUsrNetTimeOutTask;
+import com.ec.usrcore.cache.UserRealInfo;
 import com.ec.usrcore.server.CommonServer;
+import com.ec.usrcore.service.UserService;
 import com.ec.utils.DateUtil;
 import com.ec.utils.LogUtil;
 import com.ormcore.dao.DB;
 import com.ormcore.model.CompanyRela;
 import com.ormcore.model.TblElectricPile;
+import io.netty.channel.Channel;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class PhoneService {
 
@@ -127,14 +124,28 @@ public class PhoneService {
 	 * 充电（phone->usrGate）
 	 */
 	public static void handleStartCharge(PhoneClient phoneClient,
-			int fronzeAmt, short chargeType) {
-		logger.info(LogUtil.addBaseExtLog("fronzeAmt|chargeType"),
-				new Object[]{LogConstants.FUNC_START_CHARGE,phoneClient.getEpCode(), phoneClient.getEpGunNo(),phoneClient.getAccountId(),fronzeAmt,chargeType});
+			int fronzeAmt, short chargeType, short chargeStyle) {
+		logger.info(LogUtil.addBaseExtLog("fronzeAmt|chargeType|chargeStyle"),
+				new Object[]{LogConstants.FUNC_START_CHARGE,phoneClient.getEpCode(), phoneClient.getEpGunNo(),phoneClient.getAccountId(),fronzeAmt,chargeType,chargeStyle});
+		String token = StringUtils.EMPTY;
+		//chargeStyle:1  --> 代表包月卡
+		//chargeStyle:0 --> 没有意义
+		//chargeStyle:-1 --> 没有意义
+		if (chargeStyle >= 0 && chargeStyle < 2) {
+			token = "chargeStyle:" + String.valueOf(chargeStyle);
+		} else if (chargeStyle > 2) {
+			token = "chargeStyle:0";
+		}
+		// 交易类型
+		short startChargeStyle = EpConstants.CHARGE_TYPE_NORMAL_APP;
+		if (Integer.valueOf(GameConfig.serverType) == 1) {
+			startChargeStyle = EpConstants.CHARGE_TYPE_GOVERN_APP;
+		}
 
 		int errorCode = CommonServer.getInstance().startChange(phoneClient.getOrgNo(),
 				String.valueOf(phoneClient.getAccountId()), phoneClient.getEpCode(), phoneClient.getEpGunNo(),
-				(short) EpConstants.CHARGE_TYPE_QRCODE,
-				fronzeAmt, 1, StringUtils.EMPTY, StringUtils.EMPTY, 1, StringUtils.EMPTY);
+				startChargeStyle,
+				fronzeAmt, 1, StringUtils.EMPTY, StringUtils.EMPTY, 1, token);
 		if (errorCode > 0) {
 			logger.info(LogUtil.addBaseExtLog("errorCode"),
 					new Object[]{LogConstants.FUNC_START_CHARGE,phoneClient.getEpCode(), phoneClient.getEpGunNo(),phoneClient.getAccountId(),errorCode});

@@ -362,6 +362,8 @@ public class RateService {
 				serialNo,bespokeNo,accountId);
 		try
 		{
+			int count = DB.phDao.getCount(phInfo);
+			if (count > 0) return 0;
 			int account_id = DB.phDao.getAccountId(phInfo);
 			if (account_id != 0) {
 				accountId = account_id;

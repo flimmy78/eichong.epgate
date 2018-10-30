@@ -150,7 +150,7 @@ public class RateInfo  implements Serializable{
         sb.append("{费率ID=").append(id).append("}\n");
        
         sb.append(",{预冻结金额=").append(freezingMoney).append("}\n");
-        sb.append(",{最小冻结金额=").append(minFreezingMoney).append("}\n");
+        sb.append(",{最小冻结金额=").append(modelId).append("}\n");
         sb.append(",{ Quantumdate=").append(quantumDate).append("}\n");
         sb.append(",{尖时段电价=").append(j_Rate).append("}\n");
         sb.append(",{峰时段电价=").append(f_Rate).append("}\n");

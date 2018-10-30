@@ -5,8 +5,8 @@
 <mapper namespace="com.ormcore.dao.TblElectricPileDao">
 	<resultMap id="electricPileResultMap" type="TblElectricPile">
 		<id property="pkEpId" column="pk_ElectricPile" />
-		<id property="epCode" column="elPi_ElectricPileCode" />
-		<id property="epName" column="elPi_ElectricPileName" />
+		<result property="epCode" column="elPi_ElectricPileCode" />
+		<result property="epName" column="elPi_ElectricPileName" />
 		<result property="currentType" column="elPi_ChargingMode" />
 		<result property="rateid" column="elPi_RateInformationId" />
 		<result property="epGunNum" column="elPi_PowerNumber" />
@@ -28,6 +28,50 @@
 	
 	<resultMap id="findMap" type="java.util.HashMap"></resultMap>
 	
+	<resultMap id="electricPileCacheMap" type="com.ormcore.model.ElectricPileCachePo">
+		<id property="pkEpId" column="pk_electricpile"/>
+
+		<collection property="companyRelaList" ofType="com.ormcore.model.CompanyRela">
+			<!-- 主键-->
+			<id property="pkId" column="pk_id"/>
+			<!-- 合作公司ID-->
+			<result property="pkCpyOperateId" column="pk_cpy_operate_id"/>
+			<!-- 电站ID-->
+			<result property="pkPowerstation" column="pk_powerstation"/>
+
+		</collection>
+	</resultMap>
+
+	<select id="initAllEpInfo" resultMap="electricPileCacheMap">
+		select
+		r.pk_electricpile,
+		r.pk_id,
+		r.pk_cpy_operate_id,
+		r.pk_powerstation
+		from tbl_company_rela r WHERE r.is_del=0
+	</select>
+	<select id="initAllEpBaseInfo" resultMap="electricPileResultMap">
+		select
+		e.pk_ElectricPile,
+		e.elPi_ElectricPileCode ,
+		e.elPi_ElectricPileName,
+		e.elPi_ChargingMode,
+		e.elPi_RateInformationId,
+		e.elPi_PowerNumber,
+		e.pk_concentratorID,
+		e.concentrator_num ,
+		e.elPi_GateId,
+		e.elPi_ElectricPileAddress,
+		e.elpi_TypeSpanId,
+		e.company_number,
+		e.elPi_State,
+		e.delete_flag,
+		e.elPi_OwnProvinceCode,
+		e.elPi_OwnCityCode
+		from tbl_electricpile e
+		WHERE e.delete_flag =0 AND e.pk_concentratorID = 0 AND e.company_number is NOT NULL
+	</select>
+	
     <select id="findResultObject" parameterType="String"  resultMap="electricPileResultMap">
      select
      	pk_ElectricPile,
@@ -45,12 +89,16 @@
 	   elPi_Type,
 	   company_number,
 	   elPi_State,
-	   delete_flag,elPi_OwnProvinceCode,elPi_OwnCityCode 
+	   delete_flag,
+	    elPi_OwnProvinceCode,
+	    elPi_OwnCityCode
 	   from tbl_electricpile 
      <where>
-     	elPi_ElectricPileCode=#{code}
+     	elPi_ElectricPileCode=#{code} AND delete_flag=0
      	 </where>
 	</select>
+
+
 	
 	 <select id="findResultObjectByCompany" parameterType="int"  resultMap="electricPileResultMap">
      select

@@ -3,6 +3,7 @@ package com.ec.constants;
 public class GunConstants {
 	
 	/** 枪状态(目前) */
+	//这些值和点表是一致的，桩上传的值
 
 	public static final int EP_GUN_W_STATUS_OFF_LINE = 0;// 离线
 	public static final int EP_GUN_W_STATUS_FAULT = 1;// 故障
@@ -28,8 +29,8 @@ public class GunConstants {
 	public static final int EP_GUN_W_STATUS_INSULATION_FAULT=37;//绝缘检查故障
 	public static final int EP_GUN_W_STATUS_URGENT_STOP=38;//急停
 
-	
 	/** 枪状态(目前) */
+	//保存到db 枪头表的值  和点表的值定义不一致
 	public static final int EP_GUN_STATUS_IDLE = 0;// 空闲;
 	public static final int EP_GUN_STATUS_BESPOKE_LOCKED = 3;// 预约中
 	public static final int EP_GUN_STATUS_CHARGE = 6;// 充电中

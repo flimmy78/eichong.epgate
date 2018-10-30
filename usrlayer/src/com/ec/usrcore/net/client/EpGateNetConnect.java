@@ -1,16 +1,5 @@
 package com.ec.usrcore.net.client;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.handler.codec.MessageToByteEncoder;
-
-import java.util.Iterator;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.netcore.model.conf.ClientConfig;
 import com.ec.netcore.netty.client.AbstractNettyClient;
 import com.ec.netcore.util.IPUtil;
@@ -21,6 +10,15 @@ import com.ec.usrcore.service.CacheService;
 import com.ec.usrcore.service.EpGateService;
 import com.ec.utils.DateUtil;
 import com.ec.utils.LogUtil;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.MessageToByteEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.Map;
 
 
 
@@ -130,7 +128,7 @@ public class EpGateNetConnect extends AbstractNettyClient{
 	{
 		ByteToMessageDecoder decoder = new EpGateDecoder();
 		MessageToByteEncoder encoder = new EpGateEncoder();
-		
+
 		return new EpGateNetConnect(clrCfg,decoder,encoder);
 	}
 	
@@ -183,7 +181,7 @@ public class EpGateNetConnect extends AbstractNettyClient{
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void channelClosed(ChannelHandlerContext ctx) {
-		//logger.info("server close...");
+		logger.info("server close...");
 		try {
 			Channel channel = ctx.channel();
 
@@ -194,6 +192,7 @@ public class EpGateNetConnect extends AbstractNettyClient{
 				if (null == epGateClient) continue;
 				if (epGateClient.getChannel().equals(channel)) {
 					CacheService.removeEpGate((int)entry.getKey());
+					logger.info("channelClosed removeEpGate");
 				}
 			}
 			CacheService.removeEpGateByCh(channel);
@@ -221,8 +220,8 @@ public class EpGateNetConnect extends AbstractNettyClient{
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 		
-		logger.info(LogUtil.addExtLog("server exception..."));
-		close();
+		logger.info(LogUtil.addExtLog("server exception...cause:{}"), cause);
+		//close();
 	}
 
 	@Override
@@ -241,11 +240,6 @@ public class EpGateNetConnect extends AbstractNettyClient{
 		logger.info(LogUtil.addExtLog("server stop..."));
 		
 	}
-
-
-
-
-
 
 	@Override
 	public void regiest(Channel arg0) {

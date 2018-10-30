@@ -1,13 +1,5 @@
 package com.ec.phonegate.server;
 
-import io.netty.channel.Channel;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.net.proto.WmIce104Util;
 import com.ec.phonegate.client.PhoneClient;
 import com.ec.phonegate.proto.PhoneConstant;
@@ -18,6 +10,12 @@ import com.ec.phonegate.service.PhoneService;
 import com.ec.utils.DateUtil;
 import com.ec.utils.LogUtil;
 import com.ec.utils.NetUtils;
+import io.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 
 /**
@@ -86,7 +84,7 @@ public class PhoneMessageHandler{
 		
              case PhoneConstant.D_START_CHARGE://10 充电
 			 {
-				if (msgLen != 5) {
+				if (msgLen != 5 && msgLen != 6) {
 					 byte[] data = PhoneProtocol.do_confirm(PhoneConstant.D_START_CHARGE, (byte)0, (short)0);
 			         PhoneMessageSender.sendMessage(channel, data);
 					 break;
@@ -98,8 +96,13 @@ public class PhoneMessageHandler{
 				int fronzeAmt = WmIce104Util.bytes2int(bcode);
 				//2 充电方式
 				short chargeType = byteBuffer.get();
+				short chargeStyle = -1;
+				//chargeStyle =
+				if (msgLen == 6) {
+					chargeStyle = byteBuffer.get();
+				}
 				
-				PhoneService.handleStartCharge(phoneClient,fronzeAmt,chargeType);
+				PhoneService.handleStartCharge(phoneClient,fronzeAmt,chargeType,chargeStyle);
 			 }
 			 break;
 			 
@@ -126,7 +129,7 @@ public class PhoneMessageHandler{
 			 break;
              case PhoneConstant.D_CONSUME_RECORD://消费记录确认
 			 {
-				 if (msgLen != 22) {
+				 if (msgLen != 22 && msgLen != 23) {
 					 logger.error(LogUtil.addExtLog("type|msgLen"),PhoneConstant.D_CONSUME_RECORD,msgLen);
 					 break;
 				 }

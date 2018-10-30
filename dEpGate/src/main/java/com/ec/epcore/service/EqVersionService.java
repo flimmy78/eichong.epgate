@@ -1,16 +1,6 @@
 package com.ec.epcore.service;
 
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.constants.ErrorCodeConstants;
 import com.ec.epcore.cache.BomListInfo;
 import com.ec.epcore.cache.ElectricPileCache;
@@ -28,11 +18,12 @@ import com.ec.utils.DateUtil;
 import com.ec.utils.FileUtils;
 import com.ec.utils.LogUtil;
 import com.ormcore.dao.DB;
-import com.ormcore.model.TblBomList;
-import com.ormcore.model.TblConcentrator;
-import com.ormcore.model.TblElectricPile;
-import com.ormcore.model.TblEquipmentVersion;
-import com.ormcore.model.TblTypeSpan;
+import com.ormcore.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class EqVersionService {
 
@@ -198,6 +189,9 @@ public class EqVersionService {
 		}
 		// 设置bomList到设备
 		// setBomListToEp(epCache,epCache.getTypeSpanId());
+
+		List<TblEquipmentVersion> epVerList = DB.equipmentVersionDao.findEpVersion(epCache.getPkEpId());
+		epCache.getVersionCache().setMapEpVerList(epVerList);
 	}
 	
 	/**
@@ -313,6 +307,58 @@ public class EqVersionService {
 		eqVerCache.addEpVersion(key, verinfo);
 	}
 
+	//保存电桩版本信息
+	public static void saveEpVersiontoDB(Vector<EqVersionInfo> verinfos, int pkId, EqVersionCache eqVerCache) {
+		if (verinfos.size() < 1) return;
+		int updateFlag = -1;
+		List<TblEquipmentVersion> epVerList = eqVerCache.getMapEpVerList();
+		if (epVerList == null || epVerList.size() == 0) {
+			updateFlag = 1;
+		} else if (verinfos.size() != epVerList.size()) {
+			updateFlag = 2;
+		}
+
+		//比较电桩版本信息
+		if (updateFlag == -1) {
+			for (int i = 0; i < verinfos.size(); i++) {
+				EqVersionInfo verinfo = verinfos.get(i);
+				TblEquipmentVersion epVer = epVerList.get(i);
+				if (epVer.getFirmwareNumber().compareTo(verinfo.getSoftNumber()) != 0
+						|| epVer.getFirmwareVersion().compareTo(verinfo.getSoftVersion()) != 0
+						|| epVer.getHardwareNumber().compareTo(verinfo.getHardwareNumber()) != 0
+						|| epVer.getHardwareVersion().compareTo(verinfo.getHardwareVersion()) != 0) {
+					updateFlag = 0;
+					break;
+				}
+			}
+		}
+		if (updateFlag == -1) return;
+
+		if (updateFlag == 2) DB.equipmentVersionDao.deleteEpVersion(pkId);
+		for(int i=0;i<verinfos.size();i++) {
+			EqVersionInfo verinfo = verinfos.get(i);
+			TblEquipmentVersion equipment = new TblEquipmentVersion();
+			if (updateFlag == 0) equipment = epVerList.get(i);
+			equipment.setProductID(pkId);
+			equipment.setFirmwareNumber(verinfo.getSoftNumber());
+			equipment.setFirmwareVersion(verinfo.getSoftVersion());
+			equipment.setHardwareNumber(verinfo.getHardwareNumber());
+			equipment.setHardwareVersion(verinfo.getHardwareVersion());
+			equipment.setCreatedate(DateUtil.currentDate());
+			equipment.setUpdatedate(DateUtil.currentDate());
+			if (updateFlag == 0) {
+				DB.equipmentVersionDao.updateEpVersion(equipment);
+			} else if (updateFlag > 0) {
+				DB.equipmentVersionDao.insertEpVersion(equipment);
+			}
+		}
+		logger.debug(LogUtil.addFuncExtLog(LogConstants.FUNC_UPGRADE, "updateEpVersionToDB pkId|updateFlag"),
+				new Object[]{pkId,updateFlag});
+
+		if (updateFlag > 0) epVerList = DB.equipmentVersionDao.findEpVersion(pkId);
+		eqVerCache.setMapEpVerList(epVerList);
+	}
+
 	// 处理桩回复版本信息
 	public static void handleVersionAck(EpCommClient epCommClient, String epCode,int stationAddr,Vector<EqVersionInfo> verInfos) 
 	{
@@ -378,6 +424,8 @@ public class EqVersionService {
 				saveEqVersiontoDB(info,pkId,1,eqVerCache);
 			}
 		}
+		//保存电桩版本信息
+		saveEpVersiontoDB(verInfos,pkId,eqVerCache);
 
 		if (type < 3) forceUpdateHexFile(epCommClient,epCode,stationAddr, eqVerCache);
 	}	

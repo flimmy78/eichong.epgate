@@ -104,4 +104,18 @@
 		#{gmtModified}
 		)
 	</insert>
+
+	<select id="queryElectricCard" parameterType="map" resultType="int">
+		SELECT
+			IFNULL(MIN(uc.id),0)
+			FROM
+			user_electric_card uc,tbl_electricpile ec
+			WHERE uc.province_code = ec.elPi_OwnProvinceCode
+		AND uc.city_code = ec.elPi_OwnCityCode
+		AND uc.is_del = 0
+		AND uc.remaining_battery > 0
+			AND (current_date BETWEEN valid_time AND invalid_time)
+		AND uc.user_id = #{userId}
+			AND ec.elPi_ElectricPileCode = #{epCode}
+  	</select>
 </mapper>

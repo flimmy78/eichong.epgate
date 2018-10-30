@@ -1,16 +1,14 @@
 package com.ec.cooperate;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.ec.netcore.conf.CoreConfig;
+import com.ec.utils.LogUtil;
 import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.cooperate.CooperateFactory;
-import com.ec.netcore.conf.CoreConfig;
-import com.ec.utils.LogUtil;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 //import com.cooperate.CooperateFactory;
 
 public class real3rdFactory {
@@ -27,7 +25,7 @@ public class real3rdFactory {
 		initPointConfig();
 		
 		//2.初始化第三方合作公共库
-		CooperateFactory.init();
+		//CooperateFactory.init();
 	}
 	
 	
@@ -48,7 +46,7 @@ public class real3rdFactory {
 				String type = e.getAttribute("type").getValue();
 				pInfo.setAddr(Integer.parseInt(addr));
 				pInfo.setType(Integer.parseInt(type));
-
+				//(1_1,measurePoint)
 				measurePoints.put(type + "_" + addr, pInfo);
 			}
 			logger.info(LogUtil.addExtLog("MapThirdRealData.size"), measurePoints.size());

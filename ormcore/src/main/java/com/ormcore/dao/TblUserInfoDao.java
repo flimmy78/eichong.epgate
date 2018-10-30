@@ -1,14 +1,17 @@
 package com.ormcore.dao;
 
+import com.ormcore.model.TblUserInfo;
+
 import java.util.List;
 import java.util.Map;
-
-import com.ormcore.model.TblUserInfo;
 
 public interface TblUserInfoDao {
 	
     public List<TblUserInfo> findUserInfoByPhone(String account);
-    
+
+
+    public List<TblUserInfo> findUserInfoByCard(String account);
+
     public List<TblUserInfo> findUserInfoById(int accountId);
 
     public List<TblUserInfo> findCardUserById(int accountId);
@@ -30,5 +33,12 @@ public interface TblUserInfoDao {
     public int insertUser(Map<String, Object> map);
     
     public int insertNormalUser(Map<String, Object> map);
-	
+
+    public int subElectric(Map<String, Object> map);
+
+    public int addElectric(Map<String, Object> map);
+
+    public int queryElectricRemain(int id);
+
+    public int insertElectricDetail(Map<String, Object> map);
 }

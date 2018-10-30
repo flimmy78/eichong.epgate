@@ -1,19 +1,18 @@
 package com.ec.epcore.service;
 
-import io.netty.channel.Channel;
-
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.epcore.config.GameConfig;
 import com.ec.epcore.net.client.EpCommClient;
 import com.ec.epcore.task.CheckEpCommClientTask;
+import com.ec.epcore.task.CheckThreadPoolTask;
 import com.ec.netcore.client.ChannelManage;
 import com.ec.netcore.core.pool.TaskPoolFactory;
 import com.ec.netcore.queue.RepeatConQueue;
 import com.ec.netcore.queue.RepeatMessage;
+import io.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 
 public class EpCommClientService {
@@ -43,7 +42,6 @@ public class EpCommClientService {
 		logger.debug("removeRepeatMsg,key:{}",key);
 		repeatMsgQue.remove(key);
 	}
-	
 	public static void checkRepeatMsg()
 	{
 		if(GameConfig.resendEpMsgFlag==1)
@@ -186,6 +184,14 @@ public class EpCommClientService {
 				
 		TaskPoolFactory.scheduleAtFixedRate("CHECK_COMMCLIENT_TIMEOUT_TASK", checkTask, initDelay, 5, TimeUnit.SECONDS);
 	}
+
+	public static void startCheckThreadPool(long initDelay) {
+
+		CheckThreadPoolTask checkTask = new CheckThreadPoolTask();
+
+		TaskPoolFactory.scheduleAtFixedRate("CHECK_THREADPOOL_TASK", checkTask, initDelay, 10, TimeUnit.MINUTES);
+	}
+
 	
 	
 	public static void checkTimeOut()

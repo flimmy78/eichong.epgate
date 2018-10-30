@@ -3,6 +3,7 @@ package com.ec.epcore.cache;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -168,6 +169,28 @@ public class RateInfoCache {
 		}
 		
 	}
-	
-	
+
+	public BigDecimal getCurrentPrice() {
+		BigDecimal currPrice = rateInfo.getJ_Rate();
+		Calendar cal = Calendar.getInstance();
+		int hour = cal.get(Calendar.HOUR_OF_DAY);
+		int minute = cal.get(Calendar.MINUTE);
+		int currTime = hour*60 + minute;
+
+		for (int i = 0; i < timeStageList.size(); i++) {
+			TimeStage ts = timeStageList.get(i);
+			if (ts.getStartTime() <= currTime && currTime <= ts.getEndTime()) {
+				if (ts.getFlag() == 2) {
+					currPrice = rateInfo.getF_Rate();
+				} else if (ts.getFlag() == 3) {
+					currPrice = rateInfo.getP_Rate();
+				} else if (ts.getFlag() == 4) {
+					currPrice = rateInfo.getG_Rate();
+				}
+				break;
+			}
+		}
+
+		return currPrice;
+	}
 }

@@ -20,6 +20,7 @@ public class CompanyRela {
 	/** 桩ID**/
 	private Integer pkElectricpile;
 
+	//组织编码   -->@hm 9/14
 	private Integer cpyCompanyNumber;
 	
 	public void setPkId(Integer pkId){
@@ -60,5 +61,16 @@ public class CompanyRela {
 
 	public void setCpyCompanyNumber(Integer cpyCompanyNumber) {
 		this.cpyCompanyNumber = cpyCompanyNumber;
-	} 
+	}
+
+	@Override
+	public String toString() {
+		return "CompanyRela{" +
+				"pkId=" + pkId +
+				", pkCpyOperateId=" + pkCpyOperateId +
+				", pkPowerstation=" + pkPowerstation +
+				", pkElectricpile=" + pkElectricpile +
+				", cpyCompanyNumber=" + cpyCompanyNumber +
+				'}';
+	}
 }

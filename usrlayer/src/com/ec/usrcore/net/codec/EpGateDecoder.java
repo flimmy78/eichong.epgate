@@ -1,18 +1,5 @@
 package com.ec.usrcore.net.codec;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
-
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.common.net.U2ECmdConstants;
 import com.ec.constants.UserConstants;
 import com.ec.net.proto.WmIce104Util;
@@ -20,6 +7,19 @@ import com.ec.netcore.util.ByteUtil;
 import com.ec.usrcore.net.client.EpGateMessage;
 import com.ec.usrcore.service.EpGateService;
 import com.ec.utils.LogUtil;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.ByteToMessageDecoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.ec.usrcore.net.client.EpGateMessageHandler.bizExecutor4Html;
 
 /**
  * 收消息，解码   
@@ -195,8 +195,17 @@ public class EpGateDecoder extends ByteToMessageDecoder {
 		int ret = (int)byteBuffer.get();
 		short errorCode = byteBuffer.getShort();
 		int status = (int)byteBuffer.get();
+		bizExecutor4Html.execute(() -> {
+			try {
+				String currentThreadName = Thread.currentThread().getName();
+				Thread.currentThread().setName("usrlayer-decodeClientConnect");
+				EpGateService.handleClientConnect(channel, h, m, s, epCode, epGunNo, usrId, ret, errorCode, status);
+				Thread.currentThread().setName(currentThreadName);
+			} catch (Exception e) {
+				logger.error("decodeClientConnect e:{},epCode:{},usrId:{}", new Object[]{e,epCode, usrId});
 
-		EpGateService.handleClientConnect(channel, h,m,s,epCode,epGunNo,usrId,ret,errorCode,status);
+			}
+		});
 	}
 
 	/**
@@ -216,8 +225,17 @@ public class EpGateDecoder extends ByteToMessageDecoder {
 
 		int ret = (int)byteBuffer.get();
 		short errorCode = byteBuffer.getShort();
-		
-		EpGateService.handleCharge(channel, h,m,s,epCode,epGunNo,orgNo,userIdentity,token,ret,errorCode);
+
+		bizExecutor4Html.execute(() -> {
+			try {
+				String currentThreadName = Thread.currentThread().getName();
+				Thread.currentThread().setName("usrlayer-decodeCharge");
+				EpGateService.handleCharge(channel, h, m, s, epCode, epGunNo, orgNo, userIdentity, token, ret, errorCode);
+				Thread.currentThread().setName(currentThreadName);
+			} catch (Exception e) {
+				logger.error("decodeCharge e:{},epCode:{},orgNo:{},token:{},userIdentity:{}", new Object[]{e, epCode, orgNo, token, userIdentity});
+			}
+		});
 	}
 	
 	/**
@@ -236,8 +254,18 @@ public class EpGateDecoder extends ByteToMessageDecoder {
 		String token = ByteUtil.getString(byteBuffer);
 		
 		int status = (int)byteBuffer.get();
-		
-		EpGateService.handleChargeEvent(channel, h,m,s,epCode,epGunNo,orgNo,userIdentity,token,status);
+
+		bizExecutor4Html.execute(() -> {
+			try {
+				String currentThreadName = Thread.currentThread().getName();
+				Thread.currentThread().setName("usrlayer-decodeChargeEvent");
+				EpGateService.handleChargeEvent(channel, h, m, s, epCode, epGunNo, orgNo, userIdentity, token, status);
+				Thread.currentThread().setName(currentThreadName);
+			} catch (Exception e) {
+				logger.error("decodeChargeEvent e:{},epCode:{},orgNo:{},token:{},userIdentity:{}", new Object[]{e, epCode, orgNo,token, userIdentity});
+			}
+		});
+
 	}
 
 	/**
@@ -257,8 +285,17 @@ public class EpGateDecoder extends ByteToMessageDecoder {
 
 		int ret = (int)byteBuffer.get();
 		short errorCode = byteBuffer.getShort();
+		bizExecutor4Html.execute(() -> {
+			try {
+				String currentThreadName = Thread.currentThread().getName();
+				Thread.currentThread().setName("usrlayer-decodeStopCharge");
+				EpGateService.handleStopCharge(channel, h, m, s, epCode, epGunNo, orgNo, userIdentity, token, ret, errorCode);
+				Thread.currentThread().setName(currentThreadName);
+			} catch (Exception e) {
+				logger.error("decodeStopCharge e:{},epCode:{},orgNo:{},token:{},userIdentity:{}", new Object[]{e, epCode, orgNo, token, userIdentity});
+			}
+		});
 
-		EpGateService.handleStopCharge(channel, h,m,s,epCode,epGunNo,orgNo,userIdentity,token,ret,errorCode);
 	}
 
 	/**
@@ -290,14 +327,32 @@ public class EpGateDecoder extends ByteToMessageDecoder {
 		int h = (int)byteBuffer.get();
 		int m = (int)byteBuffer.get();
 		int s = (int)byteBuffer.get();
-		
 		String epCode = ByteUtil.getString(byteBuffer);
-		int epGunNo = (int)byteBuffer.get();
+		int epGunNo = (int) byteBuffer.get();
 		int orgNo = byteBuffer.getInt();
 		String userIdentity = ByteUtil.getString(byteBuffer);
 		String token = ByteUtil.getString(byteBuffer);
-		
+		Map chargingInfo = getDecodeChargingInfo(byteBuffer);
+		EpGateService.handleChargeReal(channel, h,m,s,epCode,epGunNo,orgNo,userIdentity,token,chargingInfo);
+	}
+	public static void decodeChargeReal4Html(Channel channel, ByteBuffer byteBuffer){
+		int h = (int) byteBuffer.get();
+		int m = (int) byteBuffer.get();
+		int s = (int) byteBuffer.get();
+		String epCode = ByteUtil.getString(byteBuffer);
+		int epGunNo = (int) byteBuffer.get();
+		int orgNo = byteBuffer.getInt();
+		String userIdentity = ByteUtil.getString(byteBuffer);
+		String token = ByteUtil.getString(byteBuffer);
+		//获取chargingInfo对象数据
+		Map chargingInfo = getDecodeChargingInfo(byteBuffer);
+
+		EpGateService.handleChargeReal4Html(channel, h, m, s, epCode, epGunNo, orgNo, userIdentity, token, chargingInfo);
+	}
+	public static Map getDecodeChargingInfo(ByteBuffer byteBuffer){
+
 		Map<String, Object> chargingInfo = new HashMap<String, Object>();
+
 		chargingInfo.put("workStatus", byteBuffer.get());
 		chargingInfo.put("totalTime", byteBuffer.getShort());
 		chargingInfo.put("outVol", byteBuffer.getShort());
@@ -309,14 +364,18 @@ public class EpGateDecoder extends ByteToMessageDecoder {
 		chargingInfo.put("soc", byteBuffer.get());
 		chargingInfo.put("deviceStatus", byteBuffer.getInt());
 		chargingInfo.put("warns", byteBuffer.getInt());
-		
-		EpGateService.handleChargeReal(channel, h,m,s,epCode,epGunNo,orgNo,userIdentity,token,chargingInfo);
+		chargingInfo.put("elecAmt",byteBuffer.getFloat());
+		//新增开始充电时间，服务费
+		chargingInfo.put("startTime",byteBuffer.getLong());
+		chargingInfo.put("servicePrice",byteBuffer.getFloat());
+		chargingInfo.put("totalPower", byteBuffer.getFloat());
+		return chargingInfo;
 	}
 
 	/**
 	 * 消费记录
 	 */
-	public static void decodeConsumeRecord(Channel channel,ByteBuffer byteBuffer)
+	public static void decodeConsumeRecord(Channel channel,ByteBuffer byteBuffer,boolean chargeFlag)
 	{
 		int h = (int)byteBuffer.get();
 		int m = (int)byteBuffer.get();
@@ -339,6 +398,8 @@ public class EpGateDecoder extends ByteToMessageDecoder {
 		consumeRecordMap.put("New_conpon",(int)byteBuffer.get());
 		consumeRecordMap.put("Conpon_face_value",byteBuffer.getInt());
 		consumeRecordMap.put("Conpon_discount_value",byteBuffer.getInt());
+		consumeRecordMap.put("personalAmt",byteBuffer.getInt());//个性化优惠金额
+		if (chargeFlag) consumeRecordMap.put("chargeStyle",(int)byteBuffer.get());
 		if (orgNo != UserConstants.ORG_I_CHARGE) {
 			consumeRecordMap.put("start_elect",byteBuffer.getInt());
 			consumeRecordMap.put("end_elect",byteBuffer.getInt());
@@ -366,6 +427,15 @@ public class EpGateDecoder extends ByteToMessageDecoder {
 			consumeRecordMap.put("valley_money",byteBuffer.getInt());
 			consumeRecordMap.put("valley_elect_money",byteBuffer.getInt());
 			consumeRecordMap.put("valley_service_money",byteBuffer.getInt());
+			consumeRecordMap.put("custom_cusp_elect_price",byteBuffer.getInt());
+			consumeRecordMap.put("custom_cusp_service_price",byteBuffer.getInt());
+			consumeRecordMap.put("custom_flat_elect_price",byteBuffer.getInt());
+			consumeRecordMap.put("custom_flat_service_price",byteBuffer.getInt());
+			consumeRecordMap.put("custom_peak_elect_price",byteBuffer.getInt());
+			consumeRecordMap.put("custom_peak_service_price",byteBuffer.getInt());
+			consumeRecordMap.put("custom_valley_elect_price",byteBuffer.getInt());
+			consumeRecordMap.put("custom_valley_service_price",byteBuffer.getInt());
+			consumeRecordMap.put("stop_reason",ByteUtil.getString(byteBuffer));
 		}
 
 		EpGateService.handleConsumeRecord(channel, h,m,s,epCode,epGunNo,orgNo,userIdentity,token,consumeRecordMap);
@@ -387,7 +457,7 @@ public class EpGateDecoder extends ByteToMessageDecoder {
 		String token = ByteUtil.getString(byteBuffer);
 		
 		int status = (int)byteBuffer.get();
-		
+
 		EpGateService.handleStatusChangeEvent(channel, h,m,s,epCode,epGunNo,orgNo,userIdentity,token,status);
 	}
 
@@ -410,4 +480,43 @@ public class EpGateDecoder extends ByteToMessageDecoder {
 		
 		EpGateService.handleWorkStatusEvent(channel, h,m,s,epCode,epGunNo,orgNo,userIdentity,token,status);
 	}
+
+	/**
+	 * 1204 通用实时数据查询
+	 */
+	public static void decode4CommonRealDataEvent(Channel channel, ByteBuffer byteBuffer) {
+		int h = (int) byteBuffer.get();
+		int m = (int) byteBuffer.get();
+		int s = (int) byteBuffer.get();
+
+		String epCode = ByteUtil.getString(byteBuffer);
+		int epGunNo = (int) byteBuffer.get();
+
+		String extra = ByteUtil.getString(byteBuffer);
+		String extraData = ByteUtil.getString(byteBuffer);
+
+		int ret = (int) byteBuffer.get();
+		short errorCode = byteBuffer.getShort();
+
+		EpGateService.handle4CommonRealDataEvent(channel, h, m, s, epCode, epGunNo, extra, extraData, ret,errorCode);
+	}
+
+	/**
+	 * 1206 枪状态变化推送 全国
+	 */
+	public static void decodeGunStatusChangeData4Html(Channel channel, ByteBuffer byteBuffer) {
+		int h = (int) byteBuffer.get();
+		int m = (int) byteBuffer.get();
+		int s = (int) byteBuffer.get();
+
+		String epCode = ByteUtil.getString(byteBuffer);
+		int epGunNo = (int) byteBuffer.get();
+		int currentType = (int) byteBuffer.get();
+		String realDataMap = ByteUtil.getString(byteBuffer);
+
+		EpGateService.handleGunStatusChangeData4Html(channel, h, m, s, epCode, epGunNo, currentType, realDataMap);
+	}
+
+
+
 }

@@ -29,6 +29,8 @@
 		<!-- 修改时间-->
 		<result property="cpUpdatedate" column="cp_updatedate" />
 		<result property="cpRate" column="cp_rate" />
+		<!-- 可用时段-->
+		<result property="usingTimeRange" column="using_time_range" />
 	</resultMap>
 	<sql id="Coupon_Base_Column_List">
 		<!-- 主键-->
@@ -57,6 +59,8 @@
 		cp_createdate,
 		<!-- 修改时间-->
 		cp_updatedate
+		<!-- 可用时段-->
+		,using_time_range
 	</sql>
 
     <select id="queryCoupon" parameterType="map" resultMap="get-Coupon-result">
@@ -66,11 +70,11 @@
         	if(#{actActivityrule}=2 OR #{consemeAmt}>=cp_couponvalue,cp_couponvalue,0),
         	if(#{consemeAmt}>=cp_couponcondition,cp_couponvalue/cp_couponcondition,0)) cp_rate
         FROM
-		tbl_coupon INNER JOIN (SELECT pk_CouponVariety pkCouponVariety,pk_Powerstation FROM tbl_couponvariety
+		tbl_coupon INNER JOIN (SELECT pk_CouponVariety pkCouponVariety,cova_Scope,pk_Powerstation,using_time_range FROM tbl_couponvariety
 			WHERE cova_Scope = 0
 			OR (cova_Scope = 1 AND city_code IN (SELECT te.elPi_OwnCityCode FROM tbl_electricpile te WHERE te.elPi_ElectricPileCode = #{epCode}))
 			OR (cova_Scope = 2 AND pk_Powerstation IN (SELECT te.elPi_RelevancePowerStation FROM tbl_electricpile te WHERE te.elPi_ElectricPileCode = #{epCode}))) a ON pk_CouponVariety = pkCouponVariety
-        WHERE cp_status = 0
+        WHERE is_del = 0 AND cp_status = 0
             AND (cp_limitation = #{cpLimitation} OR cp_limitation = 3 OR cp_limitation = 0)
 		    AND cp_userid = #{cpUserid}
 		    AND (current_date BETWEEN cp_begindate AND cp_enddate)
@@ -90,7 +94,7 @@
 		    	AND (current_date BETWEEN act_BeginDate AND act_EndDate)
                 AND act_ActivityRule = #{actActivityrule})
             </if>
-        ORDER BY if (cp_rate = 0,0,cp_couponvalue) DESC,cp_rate DESC,cp_enddate ASC limit 1
+        ORDER BY if (using_time_range is null, 0, 1) DESC, if (cp_rate = 0,0,cp_couponvalue) DESC,cp_rate DESC,cp_enddate ASC,cova_Scope DESC
 	</select>
 
 	<insert id="insertCoupon" parameterType="TblCoupon" useGeneratedKeys="true" keyProperty="pk_coupon">

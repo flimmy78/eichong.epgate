@@ -101,7 +101,9 @@ public class ErrorCodeConstants {
 	public static int EPE_HAVE_NOT_PAY_ORDER= 6701;//有未支付的订单
 	
 	public static int EPE_NO_ENOUGH_MONEY = 1002;//用户金额不足,不能充电
-	
+
+	public static int EPE_OVER_LIMIT_MONEY = 1003;//充电金额超过上限,不能充电
+
 	public static int EPE_GUN_NOT_LINKED = 6702;//充电枪没插好,不能充电
 	
 	public static int EPE_GUN_LID_NOT_COVER = 6703;//充电枪盖没盖好,不能充电

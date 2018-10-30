@@ -1,6 +1,13 @@
 package com.ec.epcore.config;
 
 
+import com.ec.constants.Symbol;
+import com.ec.epcore.test.ImitateConsumeService;
+import com.ec.netcore.model.GameObject;
+import com.ec.utils.LogUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,14 +15,6 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.ec.constants.Symbol;
-import com.ec.epcore.test.ImitateConsumeService;
-import com.ec.netcore.model.GameObject;
-import com.ec.utils.LogUtil;
 
 public class GameConfig extends GameObject{
 	
@@ -124,10 +123,10 @@ public class GameConfig extends GameObject{
 	
 	public static int usrGateNoInitTimeout; //用户gate网关未注册超时时间
 	public static int usrGateTimeout;//用户gate网关超时时间
-	
-	
 
-	
+    public static String pushChargeOrderHtml;//推送订单到html
+
+	public static String initAllEpCache;//启动时是否初始化加载数据;
 	static {
 		
 		GameConfig.loadGameConfig();
@@ -194,7 +193,7 @@ public class GameConfig extends GameObject{
 	
 		
 		
-		epNoInitConnectTimeout=Long.valueOf(p.getProperty("epNoInitConnectTimeout","10").trim());//
+		epNoInitConnectTimeout=Long.valueOf(p.getProperty("epNoInitConnectTimeout","15").trim());//
 		epConnectTimeout=Long.valueOf(p.getProperty("epConnectTimeout","30").trim());//
 		epWaitGun=Long.valueOf(p.getProperty("epWaitGun","660").trim());//
 
@@ -229,14 +228,12 @@ public class GameConfig extends GameObject{
 		printEpMsg = Integer.valueOf(p.getProperty("PrintEpMsg","0").trim());
         printPhoneMsg = Integer.valueOf(p.getProperty("PrintPhoneMsg","0").trim());
 		
-		epExePath = System.getProperty("user.dir") + File.separator + "ep" + File.separator;	
+		epExePath = System.getProperty("user.dir") + File.separator + "ep" + File.separator;
+		pushChargeOrderHtml = p.getProperty("pushChargeOrderHtml", "").trim();
+
+		initAllEpCache = p.getProperty("initAllEpCache", "true").trim();
+
 	}
-	
-	public static void main(String[] args) {
-		System.out.println(crossDomainPolicy);
-		System.out.println(cpuCoreNum);
-	}
-	
 	/**
 	 * 读取propertity文件的方法
 	 * 2014-11-26
@@ -244,6 +241,7 @@ public class GameConfig extends GameObject{
 	 * @return
 	 */
 	public static Properties getProperties(String fileName) {
+		logger.info("GameConfig.getProperties:" + fileName); 
 		InputStream is = null;
 		try {
 			is = new FileInputStream(fileName);

@@ -73,6 +73,8 @@ public class TblChargingOrder{
 	private int startSoc;
 	private int endSoc;
     private String vinCode;
+	private int batteryRatedCapacity;
+	private int batteryTotalEnergy;
 
 	public java.lang.String getThirdExtraData() {
 		return thirdExtraData;
@@ -337,4 +339,20 @@ public class TblChargingOrder{
     public void setVinCode(String vinCode) {
         this.vinCode = vinCode;
     }
+
+	public int getBatteryRatedCapacity() {
+		return batteryRatedCapacity;
+	}
+
+	public void setBatteryRatedCapacity(int batteryRatedCapacity) {
+		this.batteryRatedCapacity = batteryRatedCapacity;
+	}
+
+	public int getBatteryTotalEnergy() {
+		return batteryTotalEnergy;
+	}
+
+	public void setBatteryTotalEnergy(int batteryTotalEnergy) {
+		this.batteryTotalEnergy = batteryTotalEnergy;
+	}
 }

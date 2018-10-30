@@ -1,8 +1,8 @@
 package com.ormcore.dao;
 
-import java.util.List;
-
 import com.ormcore.model.CompanyRela;
+
+import java.util.List;
 
 public interface CompanyRelaDao {
 	 

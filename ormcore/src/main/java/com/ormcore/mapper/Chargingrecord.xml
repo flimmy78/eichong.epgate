@@ -236,9 +236,10 @@
 	<update id="insertEndRecord" parameterType="TblChargingrecord">
 		update tbl_ChargingRecord set
 		chRe_EndDate=#{chreEnddate},
+		chRe_BeginShowsNumber=#{chreBeginshowsnumber},
 		chRe_EndShowsNumber=#{chreEndshowsnumber},
 		chRe_Status = #{status},
-		<if test="ServicePrice != null">
+		<if test="ServicePrice != null and ServicePrice != ''">
 		chRe_ServiceCharge = #{ServicePrice},
 		</if>
 		<if test="tipPrice != null">
@@ -401,12 +402,21 @@
 		chRe_ThirdType,
 		chre_parter_user_logo,
 	     chre_parter_extradata,
-	     chre_usrgateip  
+	     chre_usrgateip,
+	     account_id,
+	     chRe_TipPrice,
+	     chRe_PeakPrice,
+	     chRe_FlatPrice,
+	     chRe_valleyPrice,
+	     chRe_TipMoney,
+	     chRe_PeakMoney,
+	     chRe_FlatMoney,
+	     chRe_valleyMoney
 		from tbl_ChargingRecord
 		where
      	 chRe_UsingMachineCode=#{chreUsingmachinecode} and chRe_ChargingNumber=#{chreChargingnumber} and (chRe_Status=2  or chRe_Status=0 or chRe_Status=4 or chRe_Status=8)  order by chRe_StartDate desc limit 1 
 	</select>
-	
+
 	<select id="getUnFinishedChargeByUsrId" parameterType="TblChargingrecord" resultMap="tblChargingrecordResultMap">
 		select
 		pk_ChargingRecord,

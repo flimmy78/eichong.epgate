@@ -40,6 +40,34 @@
 		and is_del=0
 	</select>
 
+	<select id="getPayRule" parameterType="int" resultType="int">
+		SELECT IFNULL(MIN(payment_rule),0) FROM
+		fin_account_config_rela
+		where
+		cpy_id=#{cpy_id} and bill_account_id=1
+		and is_del=0
+	</select>
+	
+	<select id="getCount" parameterType="TblPurchaseHistory" resultType="int">
+		SELECT count(puHi_TransactionNumber)
+		FROM
+		tbl_purchasehistory
+		where
+		puHi_TransactionNumber=#{puHi_SerialNo}
+		and puHi_UserId=#{puHi_UserId}
+		and puHi_Type=#{puHi_Type}
+	</select>
+
+	<select id="getFrozen" parameterType="TblPurchaseHistory" resultType="decimal">
+		SELECT IFNULL(MIN(puHi_Monetary),0) frozen
+		FROM
+		tbl_purchasehistory
+		where
+		puHi_TransactionNumber=#{puHi_SerialNo}
+		and puHi_UserId=#{puHi_UserId}
+		and puHi_Type=#{puHi_Type}
+	</select>
+
 	<insert id="insertPurchaseRecord" parameterType="TblPurchaseHistory">
 		insert into tbl_purchasehistory (
 		puHi_Type,

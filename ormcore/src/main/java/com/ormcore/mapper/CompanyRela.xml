@@ -21,6 +21,7 @@
         pk_powerstation,
         <!-- 桩ID-->
         pk_electricpile,
+        <!-- 公司标识-->
         cpy_number cpy_CompanyNumber
     </sql>
 

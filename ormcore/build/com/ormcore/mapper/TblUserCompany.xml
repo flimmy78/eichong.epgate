@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.TblUserCompanyDao">
+    <resultMap id="resultMap" type="TblUserCompany">
+        <id property="userId" column="user_id" />
+        <result property="cpyId" column="cpy_id" />
+        <result property="userName" column="user_name" />
+        <result property="userCpyName" column="user_cpy_name" />
+
+        <result property="userCpyPhone" column="user_cpy_phone" />
+        <result property="userCpySex" column="user_cpy_sex" />
+        <result property="userDeviceId" column="user_device_id" />
+        <result property="userPlateNum" column="user_plate_num" />
+        <result property="accountId" column="account_id" />
+        <result property="userCarCompanyId" column="user_car_company_id" />
+        <result property="isDel" column="is_del" />
+        <result property="creator" column="creator" />
+        <result property="modifier" column="modifier" />
+        <result property="gmtCreate" column="gmt_create" />
+        <result property="gmtModified" column="gmt_modified" />
+        <result property="userCarTypeId" column="user_car_type_id" />
+        <result property="userDiploma" column="user_diploma" />
+        <result property="userProfession" column="user_profession" />
+        <result property="userEarning" column="user_earning" />
+    </resultMap>
+	<select id="findDataById" parameterType="int" resultMap="resultMap">
+        select e.account_id,e.cpy_id,e.user_name
+        from tbl_user_company e
+        where user_id=#{userId}
+    </select>
+	
+</mapper>

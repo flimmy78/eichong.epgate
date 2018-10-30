@@ -434,6 +434,7 @@ public class ChargeCache {
 		this.chargingMethod = chargingMethod;
 	}
 	public String getToken() {
+		if (token == null) return "";
 		return token;
 	}
 	public void setToken(String token) {

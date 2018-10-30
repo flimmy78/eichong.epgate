@@ -1,12 +1,26 @@
 package com.ec.epcore.net.codec;
 
 import com.ec.config.Global;
+import com.ec.constants.YXCConstants;
+import com.ec.epcore.cache.RateInfoCache;
+import com.ec.epcore.net.proto.ApciHeader;
+import com.ec.epcore.net.proto.AsduHeader;
+import com.ec.epcore.net.proto.BlankUser;
+import com.ec.net.proto.Iec104Constant;
 import com.ec.net.proto.TimeStage;
-import com.ec.utils.StringUtil;
+import com.ec.net.proto.WmIce104Util;
+import com.ec.netcore.netty.buffer.DynamicByteBuffer;
+import com.ec.utils.DateUtil;
+import com.ec.utils.LogUtil;
+import com.ormcore.model.ElectricpileWorkarg;
 import com.ormcore.model.TblCarVin;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
@@ -14,24 +28,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.ec.constants.YXCConstants;
-import com.ec.epcore.cache.RateInfoCache;
-import com.ec.epcore.net.proto.ApciHeader;
-import com.ec.epcore.net.proto.AsduHeader;
-import com.ec.epcore.net.proto.BlankUser;
-import com.ec.net.proto.Iec104Constant;
-import com.ec.net.proto.WmIce104Util;
-import com.ec.netcore.netty.buffer.DynamicByteBuffer;
-import com.ec.utils.DateUtil;
-import com.ec.utils.LogUtil;
-import com.ormcore.model.ElectricpileWorkarg;
 
 /**
  * 发消息，编码
@@ -572,7 +568,7 @@ public class EpEncoder extends MessageToByteEncoder{
 
 			int nTimeState = timeStageList.size();
 			byte bTimeStage = (byte) timeStageList.size();
-			bout.write(bTimeStage);
+				bout.write(bTimeStage);
 			for (int i = 0; i < nTimeState; i++) {
 				TimeStage ts = timeStageList.get(i);
 				try {
@@ -584,7 +580,7 @@ public class EpEncoder extends MessageToByteEncoder{
 			}
 			comm_data = bout.toByteArray();
 
-            byteBuffer.put((byte)1);
+            //byteBuffer.put((byte)1);
 			byteBuffer.put(comm_data);
             BigDecimal dec = Global.DecTime4;
             byte[] b_j_rate = WmIce104Util.int2Bytes((int) (
@@ -955,6 +951,33 @@ public class EpEncoder extends MessageToByteEncoder{
 				byteBuffer.put(WmIce104Util.appendZero(carVin.getVinCode(), 17));
 			}
 		}
+
+		return byteBuffer.getBytes();
+	}
+
+	public static byte[] do_carvin_auth_resq(String epCode, int epGunNo, String carVinCode,int isFrozenAmt,
+										  int remainAmt,int ret,int errorCode) {
+
+		DynamicByteBuffer byteBuffer = DynamicByteBuffer.allocate();
+
+		// 1 ZDJQBM 终端机器编码 BCD码 8Byte 16位编码
+		byteBuffer.put(WmIce104Util.str2Bcd(epCode));
+
+		byteBuffer.put((byte)epGunNo);
+
+		byteBuffer.put(WmIce104Util.appendZero(carVinCode,17));
+
+		if (errorCode > 0) {
+			byteBuffer.put((byte)0);
+		} else {
+			byteBuffer.put((byte) ret);
+		}
+
+		byteBuffer.put(WmIce104Util.short2Bytes((short)errorCode));
+
+		byteBuffer.put((byte)isFrozenAmt);
+
+		byteBuffer.put(WmIce104Util.int2Bytes(remainAmt));
 
 		return byteBuffer.getBytes();
 	}

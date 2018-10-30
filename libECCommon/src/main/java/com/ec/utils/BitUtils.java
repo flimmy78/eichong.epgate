@@ -13,6 +13,7 @@ public class BitUtils {
 		
 		return values;
 	}
+
 	short [] getBits(byte b)
 	{
 		short[] values = new short[8];

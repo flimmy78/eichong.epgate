@@ -1,8 +1,8 @@
 package com.ec.utils;
 
-import java.math.BigDecimal;
-
 import com.ec.config.Global;
+
+import java.math.BigDecimal;
 
 public class NumUtil {
 	
@@ -34,7 +34,6 @@ public class NumUtil {
 		value = value.setScale(2,BigDecimal.ROUND_HALF_UP);
 		return value.intValue();
 	}
-
 	/**
 	 * 整数转换成0.001精度小数
 	 * @param i
@@ -46,7 +45,6 @@ public class NumUtil {
 		value = value.setScale(3,BigDecimal.ROUND_HALF_UP);
 		return value;
 	}
-
 	/**
 	 * 整数转换成0.0001精度小数
 	 * @param i

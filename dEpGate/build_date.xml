@@ -1,0 +1,57 @@
+<project name="epgate" default="release" basedir=".">
+	<property name="prjName" value="epGate" />
+	<property name="version" value="5.1.1"/>
+	<property name="lib.dir" value="../ecnLibs3.0/lib/" /> 	
+	<property name="epgate_deploy" value="../epgate_deploy" />
+	<property name="cooperate_deploy" value="../cooperate_deploy" />
+	<property name="lib_deploy" value="../lib_deploy" />
+	<tstamp>
+	       <format property="time_logo" pattern="yyyyMMdd-HHmm" />
+	 </tstamp>
+	<echo message="start JAR ${time_logo}" />
+	<path id="classpath">
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${lib_deploy}">
+		     <include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${cooperate_deploy}">
+		      <include name="**/*.jar" />
+		</fileset>		
+	</path>
+
+	<target name="init" depends="clean">
+		<echo>clean build dir</echo>
+		<mkdir dir="build" />
+		<mkdir dir="build/classes" />
+	</target>
+
+	<target name="compile" depends="init">
+		<echo>compile the source</echo>
+		<javac srcdir="src" destdir="build/classes" debug="true" encoding="UTF-8" fork="false" includeantruntime="on">
+			<include name="**/*.java" />
+			<classpath refid="classpath" />
+		</javac>			
+	</target>
+
+	<target name="jar" depends="compile">		
+		<jar destfile="build/${prjName}.jar">
+			<fileset dir="build/classes">
+			</fileset>			
+		</jar>
+	</target>
+	
+	<target name="release" depends="jar">
+		<copy file="build/${prjName}.jar" tofile="${epgate_deploy}/${prjName}-${version}-${time_logo}.jar"/>
+		<checksum file="${epgate_deploy}/${prjName}-${version}-${time_logo}.jar" forceOverwrite="yes"/>
+	</target>	
+	
+	<target name="clean">		
+		<delete dir="build" quiet="true" />
+		<delete>
+		  <fileset dir="${epgate_deploy}" includes="${prjName}-*"/>
+		</delete>
+	</target>
+	<echo message="finish build" />
+</project>

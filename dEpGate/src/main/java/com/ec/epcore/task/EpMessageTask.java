@@ -1,10 +1,8 @@
 package com.ec.epcore.task;
 
+import com.ec.epcore.service.NetMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.ec.epcore.service.EpGunService;
-import com.ec.epcore.service.NetMessageService;
 
 public class EpMessageTask  implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(EpMessageTask.class);

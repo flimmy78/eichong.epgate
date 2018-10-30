@@ -1,18 +1,15 @@
 package com.ec.epcore.sender;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-
 import com.ec.epcore.config.GameConfig;
 import com.ec.epcore.net.client.EpCommClient;
 import com.ec.epcore.net.codec.EpEncoder;
-import com.ec.epcore.net.server.InnerApiMessageSender;
 import com.ec.epcore.service.EpCommClientService;
 import com.ec.netcore.client.ITcpClient;
 import com.ec.netcore.queue.RepeatMessage;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EpMessageSender {
 	

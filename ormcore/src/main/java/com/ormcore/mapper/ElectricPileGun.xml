@@ -37,8 +37,14 @@
 		 from tbl_electricpilehead where
 		pk_ElectricPile=#{pkEpId} and ePHe_ElectricpileHeadId=#{epGunNo}
 	</select>
-	
-	
+	<select id="findAllEpGunInfo" resultMap="tblEpGunResultMap">
+		select
+		pk_ElectricpileHead,ePHe_ElectricpileHeadState,pk_ElectricPile,ePHe_ElectricpileHeadId,
+		total_charge_dl,total_charge_time,total_charge_amt,have_gun_lid, have_gun_site_signal,
+		have_radar,hava_car_place_lock,have_bms_comm,ePHe_qr_codes,ePHe_qrdate
+		from tbl_electricpilehead WHERE delete_flag=0
+	</select>
+
 
 	<select id="updateGunState"   parameterType="TblElectricPileGun">
 	   update tbl_electricpilehead set

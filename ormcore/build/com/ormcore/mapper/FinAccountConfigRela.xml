@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.FinAccountConfigRelaDao">
+    <resultMap id="resultMap" type="FinAccountConfigRela">
+        <id property="pkId" column="pk_id" />
+        <result property="cpyId" column="cpy_id" />
+        <result property="billAccountId" column="bill_account_id" />
+        <result property="paymentRule" column="payment_rule" />
+
+        <result property="isDel" column="is_del" />
+        <result property="creator" column="creator" />
+        <result property="modifier" column="modifier" />
+        <result property="gmtCreate" column="gmt_create" />
+        <result property="gmtModified" column="gmt_modified" />
+    </resultMap>
+
+	<select id="findPaymentRule" parameterType="int" resultType="short">
+        select f.payment_rule
+        from fin_account_config_rela f
+        where cpy_id=#{cpyId}
+    </select>
+	
+</mapper>

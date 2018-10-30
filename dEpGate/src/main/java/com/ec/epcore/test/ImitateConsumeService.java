@@ -1939,6 +1939,45 @@ public class ImitateConsumeService {
 		}
 		return "params invalid";
     }
+
+	/**
+	 * 获取充电车电流、电压信息
+	 * @auth liuqiang
+	 * @return
+	 * @param params
+	 */
+	static public String getChargeCarInfo(Map<String, List<String>> params){
+		Map map = new HashMap();
+		String epCode = null;
+		Integer epGunNo = null;
+		String realData = null;
+		List<String> pileId = params.get("pileId");
+		List<String> gunId = params.get("gunId");
+		if (pileId != null && pileId.size() >= 1 && gunId != null
+				&& gunId.size() >= 1) {
+			epCode = pileId.get(0);
+			String s = gunId.get(0);
+			epGunNo = Integer.parseInt(s);
+		}
+		EpGunCache epGunCache = EpGunService.getEpGunCache(epCode, epGunNo);
+		if (epGunCache != null) {
+			RealChargeInfo realInfo = epGunCache.getRealChargeInfo();
+			if(realInfo !=null)
+			{
+				int outVoltage = realInfo.getOutVoltage();
+				int outCurrent = realInfo.getOutCurrent();
+				map.put("outVoltage",outVoltage);
+				map.put("outCurrent",outCurrent);
+				realData = map.toString();
+			}else {
+				return "暂无数据。。。";
+			}
+		}else{
+			return "暂无数据。。。";
+		}
+		return realData;
+	}
+
 	public static String getRealData( Map<String, List<String>> params)
     {
 		boolean paramValid = false;

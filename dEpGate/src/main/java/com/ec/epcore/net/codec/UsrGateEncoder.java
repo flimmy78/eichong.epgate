@@ -1,19 +1,19 @@
 package com.ec.epcore.net.codec;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
-
-import java.util.ArrayList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.common.net.U2ECmdConstants;
+import com.ec.config.Global;
 import com.ec.epcore.net.proto.ConsumeRecord;
 import com.ec.epcore.net.proto.PhoneConstant;
 import com.ec.epcore.service.ChargingInfo;
 import com.ec.netcore.netty.buffer.DynamicByteBuffer;
+import com.ec.utils.NumUtil;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToByteEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 
 
 public class UsrGateEncoder extends MessageToByteEncoder{
@@ -28,7 +28,7 @@ public class UsrGateEncoder extends MessageToByteEncoder{
 	 * 所以encode需要返回 ByteBuf 类型的对象
 	 
 	 * @param chc
-	 * @param bb   (Message)
+	 * @param msg   (Message)
 	 * @param byteBuf   (Byte)
 	 * @return
 	 * @throws Exception
@@ -199,7 +199,7 @@ public class UsrGateEncoder extends MessageToByteEncoder{
 	
 	public static byte[] chargeRecord(int h,int m, int s, String epCode,int epGunNo,int OrgNo,String usrLog,String token,
 			String chargeOrder,ConsumeRecord consumeRecord,
-			int userFirst,int couPonAmt,int realCouPonAmt)
+			int userFirst,int couPonAmt,int realCouPonAmt,int personalAmt)
 	{
 		DynamicByteBuffer byteBuffer = DynamicByteBuffer.allocate();
 		
@@ -219,48 +219,58 @@ public class UsrGateEncoder extends MessageToByteEncoder{
 		byteBuffer.putLong(consumeRecord.getEndTime());
 		byteBuffer.putInt(consumeRecord.getTotalDl());
 		if (consumeRecord.getType() == 1) {
-			byteBuffer.putInt(consumeRecord.getTotalChargeAmt()/100);
-			byteBuffer.putInt(consumeRecord.getServiceAmt()/100);
-		} else {
 			byteBuffer.putInt(consumeRecord.getTotalChargeAmt());
 			byteBuffer.putInt(consumeRecord.getServiceAmt());
+		} else {
+			byteBuffer.putInt(consumeRecord.getTotalChargeAmt()*100);
+			byteBuffer.putInt(consumeRecord.getServiceAmt()*100);
 		}
 		byteBuffer.putInt(0);
 		byteBuffer.put((byte)userFirst);
 		byteBuffer.putInt(couPonAmt);
 		byteBuffer.putInt(realCouPonAmt);
-		
+		byteBuffer.putInt(personalAmt);
+
 		byteBuffer.putInt(consumeRecord.getStartMeterNum());
 		byteBuffer.putInt(consumeRecord.getEndMeterNum());
 		
 		byteBuffer.putInt(consumeRecord.getjDl());
 		byteBuffer.putInt(consumeRecord.getjPrice());
-		byteBuffer.putInt(0);
+		byteBuffer.putInt(consumeRecord.getjMoney());
 		byteBuffer.putInt(consumeRecord.getjAmt());
-		byteBuffer.putInt(0);
-		byteBuffer.putInt(0);
+		byteBuffer.putInt(consumeRecord.getJqValue());
+		byteBuffer.putInt(consumeRecord.getJzValue());
 		
 		byteBuffer.putInt(consumeRecord.getfDl());
 		byteBuffer.putInt(consumeRecord.getfPrice());
-		byteBuffer.putInt(0);
+		byteBuffer.putInt(consumeRecord.getfMoney());
 		byteBuffer.putInt(consumeRecord.getfAmt());
-		byteBuffer.putInt(0);
-		byteBuffer.putInt(0);
+		byteBuffer.putInt(consumeRecord.getFqValue());
+		byteBuffer.putInt(consumeRecord.getFzValue());
 		
 		byteBuffer.putInt(consumeRecord.getpDl());
 		byteBuffer.putInt(consumeRecord.getpPrice());
-		byteBuffer.putInt(0);
+		byteBuffer.putInt(consumeRecord.getpMoney());
 		byteBuffer.putInt(consumeRecord.getpAmt());
-		byteBuffer.putInt(0);
-		byteBuffer.putInt(0);
+		byteBuffer.putInt(consumeRecord.getPqValue());
+		byteBuffer.putInt(consumeRecord.getPzValue());
 		
 		byteBuffer.putInt(consumeRecord.getgDl());
 		byteBuffer.putInt(consumeRecord.getgPrice());
-		byteBuffer.putInt(0);
+		byteBuffer.putInt(consumeRecord.getgMoney());
 		byteBuffer.putInt(consumeRecord.getgAmt());
-		byteBuffer.putInt(0);
-		byteBuffer.putInt(0);
-		
+		byteBuffer.putInt(consumeRecord.getGqValue());
+		byteBuffer.putInt(consumeRecord.getGzValue());
+		byteBuffer.putInt(consumeRecord.getCustomCuspElect());
+		byteBuffer.putInt(consumeRecord.getCustomCuspServicePrice());
+		byteBuffer.putInt(consumeRecord.getCustomFlatElectPrice());
+		byteBuffer.putInt(consumeRecord.getCustomFlatServicePrice());
+		byteBuffer.putInt(consumeRecord.getCustomPeakElectPrice());
+		byteBuffer.putInt(consumeRecord.getCustomPeakServicePrice());
+		byteBuffer.putInt(consumeRecord.getCustomValleyElectPrice());
+		byteBuffer.putInt(consumeRecord.getCustomValleyServicePrice());
+		byteBuffer.putString(consumeRecord.getStopCause());
+
 		return Package(U2ECmdConstants.EP_CONSUME_RECODE,byteBuffer.getBytes());
 	}
 	
@@ -316,51 +326,50 @@ public class UsrGateEncoder extends MessageToByteEncoder{
 		}
 	  }		
 	 
-	   public static byte[] IchargeRecord(int h,int m, int s, String epCode,int epGunNo,int  OrgNo,String usrLog,String token,int pkEpId,
-				String chargeOrder,long st,long et,int totalMeterNum,int totalAmt,int serviceAmt,
-				int userFirst,int couPonAmt,int realCouPonAmt)
-		{//version 1.2
-			DynamicByteBuffer byteBuffer = DynamicByteBuffer.allocate();
-			
-			byteBuffer.put((byte)h);
-			byteBuffer.put((byte)m);
-			byteBuffer.put((byte)s);
-			
-			byteBuffer.putString(epCode);
-			byteBuffer.put((byte)epGunNo);
-			byteBuffer.putInt(OrgNo);
-			byteBuffer.putString(usrLog);
-			byteBuffer.putString(token);
-			
-			byteBuffer.putString(chargeOrder);
-			byteBuffer.putLong(st);
-			byteBuffer.putLong(et);
-			byteBuffer.putInt(totalMeterNum);
-			byteBuffer.putInt(totalAmt);
-			byteBuffer.putInt(serviceAmt);
-			byteBuffer.putInt(pkEpId);
-			
-			byteBuffer.put((byte)userFirst);
-			byteBuffer.putInt(couPonAmt);
-			byteBuffer.putInt(realCouPonAmt);
-			
-			return Package(U2ECmdConstants.EP_CONSUME_RECODE,byteBuffer.getBytes());
-		}
+	public static byte[] IchargeRecord(int h,int m, int s, String epCode,int epGunNo,int  OrgNo,String usrLog,String token,int pkEpId,
+									   String chargeOrder,long st,long et,int totalMeterNum,int totalAmt,int serviceAmt,
+									   int userFirst,int couPonAmt,int realCouPonAmt,int personalAmt,int chargeStyle)
+	{//version 1.2
+		DynamicByteBuffer byteBuffer = DynamicByteBuffer.allocate();
+
+		byteBuffer.put((byte)h);
+		byteBuffer.put((byte)m);
+		byteBuffer.put((byte)s);
+
+		byteBuffer.putString(epCode);
+		byteBuffer.put((byte)epGunNo);
+		byteBuffer.putInt(OrgNo);
+		byteBuffer.putString(usrLog);
+		byteBuffer.putString(token);
+
+		byteBuffer.putString(chargeOrder);
+		byteBuffer.putLong(st);
+		byteBuffer.putLong(et);
+		byteBuffer.putInt(totalMeterNum);
+		byteBuffer.putInt(totalAmt);
+		byteBuffer.putInt(serviceAmt);
+		byteBuffer.putInt(pkEpId);
+
+		byteBuffer.put((byte)userFirst);
+		byteBuffer.putInt(couPonAmt);
+		byteBuffer.putInt(realCouPonAmt);
+		byteBuffer.putInt(personalAmt);
+		if (chargeStyle >= 0) byteBuffer.put((byte)chargeStyle);
+
+		return Package(U2ECmdConstants.EP_CONSUME_RECODE,byteBuffer.getBytes());
+	}
 		public static byte[] chargeRealInfo(int h,int m,int s,String epCode,int epGunNo,int OrgNo,String usrLog,
-			    String token,ChargingInfo info)
+			    String token,ChargingInfo info,int type)
 		{//version 1.2
 			DynamicByteBuffer byteBuffer = DynamicByteBuffer.allocate();
-			
 			byteBuffer.put((byte)h);
 			byteBuffer.put((byte)m);
 			byteBuffer.put((byte)s);
-			
 			byteBuffer.putString(epCode);
 			byteBuffer.put((byte)epGunNo);
 			byteBuffer.putInt(OrgNo);
 			byteBuffer.putString(usrLog);
 			byteBuffer.putString(token);
-			
 			byteBuffer.put((byte)info.getWorkStatus());
 			byteBuffer.putShort((short)info.getTotalTime());
 			byteBuffer.putShort((short)info.getOutVol());
@@ -372,8 +381,13 @@ public class UsrGateEncoder extends MessageToByteEncoder{
 			byteBuffer.put((byte)info.getSoc());
 			byteBuffer.putInt(info.getDeviceStatus());
 			byteBuffer.putInt(info.getWarns());
-			
-			return Package(U2ECmdConstants.EP_REALINFO,byteBuffer.getBytes());
+			byteBuffer.putFloat(info.getElecAmt());
+			//新增开始充电时间，服务费
+			byteBuffer.putLong(info.getChargeStartTime());
+			byteBuffer.putFloat(info.getServiceRate());
+			byteBuffer.putFloat(info.getTotalPower());
+
+			return Package(type,byteBuffer.getBytes());
 		}
 		
 		public static byte[] orderInfo(int h,int m,int s,String epCode,int epGunNo,int OrgNo,String usrLog,
@@ -396,9 +410,47 @@ public class UsrGateEncoder extends MessageToByteEncoder{
 			
 			return Package(U2ECmdConstants.CCZC_QUERY_ORDER,byteBuffer.getBytes());
 		}
-		
-		
-		public static  byte[] do_gun_workstatus(int h,int m,int s,int status,String epCode,int epGunNo,int  OrgNo,String usrLog,String token) 
+
+		//通用实时数据
+	public static byte[] queryData4Common(int h, int m, int s, String epCode, int epGunNo,
+	                                     String extra, String extraData, int successFlag, int errorCode) {
+		DynamicByteBuffer byteBuffer = DynamicByteBuffer.allocate();
+
+		byteBuffer.put((byte) h);
+		byteBuffer.put((byte) m);
+		byteBuffer.put((byte) s);
+
+		byteBuffer.putString(epCode);
+		byteBuffer.put((byte) epGunNo);
+
+		byteBuffer.putString(extra);
+		byteBuffer.putString(extraData);
+
+		byteBuffer.put((byte) successFlag);
+		byteBuffer.putShort((short) errorCode);
+
+		return Package(U2ECmdConstants.EP_4COMMON_REALDATA, byteBuffer.getBytes());
+	}
+
+	//发送状态变化数据给html 全国的
+	public static byte[] sendAllGunWorkStatus4Html(int h, int m, int s, String epCode, int epGunNo, int currentType, String realData) {
+		DynamicByteBuffer byteBuffer = DynamicByteBuffer.allocate();
+
+		byteBuffer.put((byte) h);
+		byteBuffer.put((byte) m);
+		byteBuffer.put((byte) s);
+
+		byteBuffer.putString(epCode);
+		byteBuffer.put((byte) epGunNo);
+		byteBuffer.put((byte) currentType);
+
+		byteBuffer.putString(realData);
+
+
+		return Package(U2ECmdConstants.EP_GUN_STATUS_CHANGE_DATA, byteBuffer.getBytes());
+	}
+
+	public static  byte[] do_gun_workstatus(int h,int m,int s,int status,String epCode,int epGunNo,int  OrgNo,String usrLog,String token)
 		 {
 			 DynamicByteBuffer byteBuffer = DynamicByteBuffer.allocate();
 

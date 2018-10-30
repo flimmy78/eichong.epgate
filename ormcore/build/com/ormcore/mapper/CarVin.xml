@@ -59,13 +59,24 @@
 		FROM
 		tbl_car_vin_rela v,tbl_user_vin_rela u
 		WHERE
-		v.pk_id = u.vin_id AND v.is_del = 0
+		v.pk_id = u.vin_id AND v.is_del = 0 AND v.is_used = 0
 		and u.user_id=#{userId}
 	</select>
 
 	<select id="isValidVin" parameterType="map" resultType="int">
 		select count(*) num from tbl_car_vin_rela
-		where is_del = 0 and cpy_id = #{cpyId} and cv_vin_code = #{vinCode}
+		where is_del = 0 AND is_used = 0 and cpy_id = #{cpyId} and cv_vin_code = #{vinCode}
+	</select>
+
+	<select id="selectByVinCode" parameterType="String" resultMap="TblCarVinresultMap">
+		SELECT
+		u.user_id pkCarVin
+		,v.cv_frozenAmt vinServicemoney
+		FROM
+		tbl_car_vin_rela v,tbl_user_vin_rela u
+		WHERE
+		v.pk_id = u.vin_id AND v.is_del = 0 AND v.is_used = 0
+		and cv_vin_code = #{vinCode}
 	</select>
 
 </mapper>

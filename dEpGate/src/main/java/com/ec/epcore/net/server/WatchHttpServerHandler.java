@@ -17,15 +17,14 @@ package com.ec.epcore.net.server;
 
 
 
+import com.ec.epcore.test.ImitateConsumeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.ec.epcore.test.ImitateConsumeService;
 
 public class WatchHttpServerHandler
 {
@@ -173,9 +172,9 @@ public class WatchHttpServerHandler
         break;
         case "/testStartCharge":
         {
-        	String retDesc=ImitateConsumeService.testStartCharge(params);
-        	if(retDesc!=null)
-        		buf.append(retDesc);
+            String retDesc = ImitateConsumeService.testStartCharge(params);
+            if (retDesc != null)
+                buf.append(retDesc);
         }
         break; 	
         case "/testStartCharge2":
@@ -187,10 +186,9 @@ public class WatchHttpServerHandler
         break;
         case "/testStopCharge":
         {
-        	
-        	String stopDesc=ImitateConsumeService.testStopCharge(params);
-        	if(stopDesc!=null)
-        		buf.append(stopDesc);
+            String stopDesc = ImitateConsumeService.testStopCharge(params);
+            if (stopDesc != null)
+                buf.append(stopDesc);
         	
         }
         break;
@@ -218,9 +216,9 @@ public class WatchHttpServerHandler
         break;
         case "/stat":
         {
-        	String stopDesc=ImitateConsumeService.stat(params);
-        	if(stopDesc!=null)
-        		buf.append(stopDesc);
+            String stopDesc = ImitateConsumeService.stat(params);
+            if (stopDesc != null)
+                buf.append(stopDesc);
        
         }
         break;
@@ -234,10 +232,11 @@ public class WatchHttpServerHandler
         break;
         case "/queryConsumeRecord":
         {
-        	String stopDesc=ImitateConsumeService.queryConsumeRecord(params);
-        	if(stopDesc!=null)
-        		buf.append(stopDesc);
-       
+
+            String stopDesc = ImitateConsumeService.queryConsumeRecord(params);
+            if (stopDesc != null)
+                buf.append(stopDesc);
+
         }
         break;
         case "/queryFlashRam":
@@ -302,13 +301,21 @@ public class WatchHttpServerHandler
         }
         	
         break;
+        case "/car":
+        {
+            String realData = ImitateConsumeService.getChargeCarInfo(params);
+            if(realData!=null){
+                buf.append(realData);
+            }
+        }
+        break;
         case "/getGameConfig":
         {
         	String stopDesc=ImitateConsumeService.getGameConfig(params);
         	if(stopDesc!=null)
         		buf.append(stopDesc);
         }
-        	
+
         break;
         case "/getLastConsumeRecord":
         {
@@ -487,6 +494,18 @@ public class WatchHttpServerHandler
     
     public static String handlePostMessage(String method,HashMap<String,Object> params) throws  IOException
    	{
-    	return "";
+        StringBuilder buf = new StringBuilder();
+
+        switch(method)
+        {
+//            case "/car":
+//            {
+//                Map chargeCarInfo = ImitateConsumeService.getChargeCarInfo(params);
+//            }
+//            break;
+//            default:
+//                break;
+   	}
+        return buf.toString();
    	}
 }

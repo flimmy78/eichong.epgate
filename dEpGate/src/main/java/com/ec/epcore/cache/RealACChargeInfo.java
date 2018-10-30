@@ -1,19 +1,18 @@
 package com.ec.epcore.cache;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.config.Global;
 import com.ec.constants.YXCConstants;
 import com.ec.net.proto.SingleInfo;
 import com.ec.utils.NumUtil;
 import com.ormcore.dao.DB;
 import com.ormcore.model.TblChargeACInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class RealACChargeInfo extends RealChargeInfo{
@@ -140,7 +139,7 @@ public class RealACChargeInfo extends RealChargeInfo{
 		tblRealData.setTotalActivMeterNum((new BigDecimal(this.totalActivMeterNum)).multiply(Global.Dec3));
 		tblRealData.setChargedMeterNum((new BigDecimal(this.chargedMeterNum)).multiply(Global.Dec3));
 		tblRealData.setChargePrice((new BigDecimal(this.chargePrice)).multiply(Global.Dec3));
-						
+
 		//充电相关
 		//chargeUserId  = tblRealData.getChargeUserId() ;
 		//chargeSerialNo  = tblRealData.getChargeSerialNo();
@@ -153,10 +152,10 @@ public class RealACChargeInfo extends RealChargeInfo{
 														
 		return true;
 	}
-	
-	
-	
-	
+
+
+
+
 	@Override
 	public boolean loadFromDb(String epCode,int epGunNo)
 	{

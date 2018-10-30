@@ -58,7 +58,7 @@ public class UserConstants {
 
     public static final int ORG_CHAT = 9006;//微信
 
-    public static final int ORG_AMAP= 9009;//高德
+    public static final int ORG_AMAP = 9009;//高德
 
     public static final int ORG_TJD = 9010;//北京停简单
 
@@ -87,4 +87,30 @@ public class UserConstants {
     public static final int ORG_TCEC_HAINAN = 9023;//海南省充电基础设施信息平台
 
     public static final int ORG_TCEC_XIAOJU = 9024;//小桔科技，滴滴专车
+
+    public static final int ORG_TCEC_ChangAn = 9027;//杭州车厘子,重庆长安车联
+
+    public static final int ORG_TCEC_DongFeng = 9028;//东风电动车辆股份有限公司
+
+    public static final int ORG_TCEC_ShenZhenTraffic = 9029;//深圳交通局出租车业务平台
+
+    public static final int ORG_TCEC_QiDian = 9030;//奇点平台(智车优行科技有限公司)
+
+    public static final int ORG_TCEC_PonyCar = 9031;//Ponycar(深圳市乐途汇科技有限公司)
+
+    public static final int ORG_TCEC_ShouQi = 9033;//北京首汽智行科技有限公司
+
+    public static final int ORG_TCEC_PuTian = 9034;//普天新能源有限责任公司（深圳）
+
+    public static final int ORG_TCEC_YuEXing= 9035;//国网重庆市政府平台（渝e行）
+
+    public static final int ORG_TCEC_Guangzhou= 9036;//广州平台
+
+    public static final int BIG_ACCOUNT_ADDAMT = 1;   //大账户退钱
+
+    public static final int BIG_ACCOUNT_SUBAMT = 2;   //大账户扣钱
+
+
+
+
 }

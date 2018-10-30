@@ -127,7 +127,10 @@ public class UserService {
     	List<TblUserInfo> userInfoList = DB.userInfoDao.findUserInfoByPhone(userAccount);
 		if(null != userInfoList && userInfoList.size() < 1)
 		{
-			return userInfo;
+			userInfoList = DB.userInfoDao.findUserInfoByCard(userAccount);
+			if(null != userInfoList && userInfoList.size() < 1) {
+				return userInfo;
+			}
 		}
 		
 		TblUserInfo dbUser = userInfoList.get(0);

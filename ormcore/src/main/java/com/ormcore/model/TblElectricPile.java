@@ -171,4 +171,32 @@ public class TblElectricPile {
 	public void setCompany_number(Integer company_number) {
 		this.company_number = company_number;
 	}
+
+	@Override
+	public String toString() {
+		return "TblElectricPile{" +
+				"pkEpId=" + pkEpId +
+				", epCode='" + epCode + '\'' +
+				", epName='" + epName + '\'' +
+				", epGunNum=" + epGunNum +
+				", currentType=" + currentType +
+				", comm_status=" + comm_status +
+				", rateid=" + rateid +
+				", gateid=" + gateid +
+				", stationId=" + stationId +
+				", epType=" + epType +
+				", company_number=" + company_number +
+				", elPiOwnCityCode='" + elPiOwnCityCode + '\'' +
+				", elPiOwnProvinceCode='" + elPiOwnProvinceCode + '\'' +
+				", elpiUpdatedate=" + elpiUpdatedate +
+				", elpiChargingmode=" + elpiChargingmode +
+				", elpiPowerinterface=" + elpiPowerinterface +
+				", elpiPoweruser=" + elpiPoweruser +
+				", elpiState=" + elpiState +
+				", address='" + address + '\'' +
+				", epTypeSpanId=" + epTypeSpanId +
+				", deleteFlag=" + deleteFlag +
+				", stationIndex=" + stationIndex +
+				'}';
+	}
 }

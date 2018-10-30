@@ -1,4 +1,50 @@
-/.svn
+# Created by .ignore support plugin (hsz.mobi)
+### Example user template template
+### Example user template
+
+# IntelliJ project files
+/**/.settings/
+/**/.classpath
+/**/target/
+/**/bin/
+/**/.project
+/**/*.iml
+
+/.idea/*
 /.idea
-*.class
-/target
+/**/rebel-remote.xml
+/**/rebel.xml
+/**/.DS_Store
+/**/node_modules/
+logs/**
+/epserver.iml
+logs
+dEpGate/src/test/
+dEpGate/src/main/java/.svn/
+libECCommon/src/main/resources/
+libECCommon/src/main/java/.svn/
+libECCommon/src/test/
+libNetCore/src/main/resources/
+libNetCore/src/main/java/com/.svn/
+libNetCore/src/test/
+ormcore/src/test/
+ormcore/src/main/java/.svn/
+usrlayer/src/main/resources/
+usrlayer/src/main/java/.svn/
+ormcore/src/main/java/.svn/
+libECCommon/src/main/java/.svn/
+libNetCore/src/main/java/com/.svn/
+ usrlayer/src/.svn/
+usrlayer/src/test/
+usrlayer/src/.svn/
+dEpGate/.idea/
+dEpGate/build/
+usrlayer/build/
+libNetCore/build/
+libCooperate/build/
+libECCommon/build/
+/dEpGate/EpGate.iml
+dPhoneGate/src/.svn/
+ecnLibs3.0/lib/.svn/
+
+/README.md

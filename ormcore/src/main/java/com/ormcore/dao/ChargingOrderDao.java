@@ -1,9 +1,9 @@
 package com.ormcore.dao;
 
+import com.ormcore.model.TblChargingOrder;
+
 import java.util.List;
 import java.util.Map;
-
-import com.ormcore.model.TblChargingOrder;
 
 
 
@@ -24,7 +24,13 @@ public interface ChargingOrderDao {
 	public int insertChargeOrder(TblChargingOrder tblChargingorder);
 
 	public int insertFullChargeOrder(TblChargingOrder tblChargingorder);
-	
+
+	public int insertChargeOrderExt(TblChargingOrder tblChargingorder);
+
+	public int insertFullChargeOrderExt(TblChargingOrder tblChargingorder);
+
+	public int updateOrderExt(TblChargingOrder tblChargingorder);
+
 	/**
 	 * @Title: selectChargeData
 	 * @Description: 获取充电电度，金额，服务费，总费用，开始时间，结束时间
@@ -50,9 +56,11 @@ public interface ChargingOrderDao {
 	public int getUnpayOrder(int userId);
 	
 	public String getOrderStatus(String chorTransactionnumber);
-	
+
+	public String getMaxOrCode(String chorCode);
+
 	public List<TblChargingOrder> findOrderId(String chorTransactionnumber);
-	
+
 	public String getOrderStatusBytime(TblChargingOrder tblChargingorder);
 
 }

@@ -1,12 +1,14 @@
 package com.ec.epcore.cache;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.ec.epcore.net.proto.EqVersionInfo;
 import com.ec.epcore.service.EqVersionService;
+import com.ormcore.model.TblEquipmentVersion;
 
 
 public class EqVersionCache {
@@ -15,6 +17,7 @@ public class EqVersionCache {
 	private  Map<String, EqVersionInfo> mapEpVersion = new ConcurrentHashMap<String,EqVersionInfo>();
 	//保存桩需要升级的硬件清单
 	private  Map<String,BomListInfo> mapBomList = null;
+	private List<TblEquipmentVersion> mapEpVerList = null;
 
 	
 	public EqVersionCache()
@@ -73,7 +76,15 @@ public class EqVersionCache {
 		if(mapBomList !=null)
 		         mapBomList.remove(key);
 	}
-	
+
+	public List<TblEquipmentVersion> getMapEpVerList() {
+		return mapEpVerList;
+	}
+
+	public void setMapEpVerList(List<TblEquipmentVersion> mapEpVerList) {
+		this.mapEpVerList = mapEpVerList;
+	}
+
 	public void removeEpVersion(Vector<EqVersionInfo> verInfos)
 	{
 		Iterator iter = mapEpVersion.entrySet().iterator();

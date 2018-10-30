@@ -1,22 +1,20 @@
 package com.ec.epcore.net.codec;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
-
-import java.nio.ByteBuffer;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.epcore.config.GameConfig;
 import com.ec.epcore.net.proto.PhoneConstant;
 import com.ec.epcore.net.server.UsrGateMessage;
 import com.ec.epcore.service.UsrGateService;
 import com.ec.net.proto.WmIce104Util;
 import com.ec.netcore.util.ByteUtil;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.ByteToMessageDecoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
+import java.util.List;
 
 /**
  * 收消息，解码   
@@ -171,7 +169,7 @@ public class UsrGateDecoder extends ByteToMessageDecoder {
 		String epCode = ByteUtil.getString(byteBuffer);
 		int epGunNo = (int)byteBuffer.get();
 		int OrgNo = byteBuffer.getInt();
-		
+		//用户usrId
 		String usrLog = ByteUtil.getString(byteBuffer);
 		
 		String carNo = ByteUtil.getString(byteBuffer);
@@ -247,6 +245,25 @@ public class UsrGateDecoder extends ByteToMessageDecoder {
 		logger.debug("usrGate,receive queryOrder,OrgNo:{},usrLog:{},epCode:{},epGunNo:{},extra:{}",
 				new Object[]{OrgNo,usrLog,epCode,epGunNo,extra});
 		UsrGateService.handleQueryOrder(channel, h,m,s,epCode,epGunNo,OrgNo,usrLog,extra);
+	}
+
+	public static void deQueryData4Common(Channel channel, ByteBuffer byteBuffer) {
+		int h = (int) byteBuffer.get();
+		int m = (int) byteBuffer.get();
+		int s = (int) byteBuffer.get();
+
+		String epCode = ByteUtil.getString(byteBuffer);
+		int epGunNo = (int) byteBuffer.get();
+
+		String extra = ByteUtil.getString(byteBuffer);
+		if (extra == null)
+			extra = "";
+
+		logger.debug("usrGate,receive queryData4Common,epCode:{},epGunNo:{},extra:{}",
+				new Object[]{epCode, epGunNo, extra});
+
+
+		UsrGateService.handleQueryData4Common(channel, h, m, s, epCode, epGunNo, extra);
 	}
 
 }

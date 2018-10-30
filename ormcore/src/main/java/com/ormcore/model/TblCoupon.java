@@ -41,7 +41,9 @@ public class TblCoupon {
 	/** 修改时间**/
 	private java.util.Date cpUpdatedate;
 	private String cpRate;
-					
+	/** 可用时段**/
+	private String usingTimeRange;
+
 	public void setPkCoupon(Integer pkCoupon){
 		this.pkCoupon = pkCoupon;
 	} 
@@ -152,5 +154,13 @@ public class TblCoupon {
 
 	public void setCpRate(String cpRate) {
 		this.cpRate = cpRate;
-	} 
 	}
+
+	public String getUsingTimeRange() {
+		return usingTimeRange;
+	}
+
+	public void setUsingTimeRange(String usingTimeRange) {
+		this.usingTimeRange = usingTimeRange;
+	}
+}

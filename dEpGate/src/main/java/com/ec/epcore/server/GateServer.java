@@ -1,35 +1,11 @@
 package com.ec.epcore.server;
 
-import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.handler.codec.MessageToByteEncoder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.cooperate.real3rdFactory;
 import com.ec.epcore.config.GameConfig;
 import com.ec.epcore.net.client.MonitorConnect;
-import com.ec.epcore.net.codec.ApiDecoder;
-import com.ec.epcore.net.codec.ApiEncoder;
-import com.ec.epcore.net.codec.EpDecoder;
-import com.ec.epcore.net.codec.EpEncoder;
-import com.ec.epcore.net.codec.ShEpDecoder;
-import com.ec.epcore.net.codec.ShEpEncoder;
-import com.ec.epcore.net.codec.UsrGateDecoder;
-import com.ec.epcore.net.codec.UsrGateEncoder;
-import com.ec.epcore.net.server.EpNettyServer;
-import com.ec.epcore.net.server.InnerApiNettyServer;
-import com.ec.epcore.net.server.ShEpNettyServer;
-import com.ec.epcore.net.server.UsrGateServer;
-import com.ec.epcore.net.server.WatchHttpServer;
-import com.ec.epcore.service.EpCommClientService;
-import com.ec.epcore.service.EpConcentratorService;
-import com.ec.epcore.service.EpGunService;
-import com.ec.epcore.service.EpService;
-import com.ec.epcore.service.EqVersionService;
-import com.ec.epcore.service.MonitorService;
-import com.ec.epcore.service.RateService;
-import com.ec.epcore.service.UsrGateService;
+import com.ec.epcore.net.codec.*;
+import com.ec.epcore.net.server.*;
+import com.ec.epcore.service.*;
 import com.ec.netcore.conf.CoreConfig;
 import com.ec.netcore.model.conf.ClientConfig;
 import com.ec.netcore.model.conf.ClientConfigs;
@@ -39,6 +15,13 @@ import com.ec.netcore.netty.httpserver.AbstractHttpServer;
 import com.ec.netcore.server.impl.AbstractGameServer;
 import com.ec.utils.LogUtil;
 import com.ormcore.cache.GameContext;
+import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.MessageToByteEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.ec.epcore.config.GameConfig.initAllEpCache;
+import static com.ec.epcore.service.EpService.initAllEpInfo;
 
 public class GateServer extends AbstractGameServer{
 	private static final Logger logger = LoggerFactory.getLogger(LogUtil.getLogName(GateServer.class.getName()));
@@ -55,7 +38,7 @@ public class GateServer extends AbstractGameServer{
 	
 	/**数据监控分析中连接**/
 	public static MonitorConnect nettyAnalyzeClient;
-	
+
 	public ClientConfig convert(ServerConfig srvCfg)
 	{
 		if(srvCfg==null)
@@ -115,13 +98,13 @@ public class GateServer extends AbstractGameServer{
 			//1.创建电桩侦听服务
 			ServerConfig shepSvrCfg = serverConfigs.get("shep-server");
 			if (shepSvrCfg !=null) {
-				
+
 				ByteToMessageDecoder decoder = new ShEpDecoder();
 				MessageToByteEncoder encoder = new ShEpEncoder();
-				
+
 				ShEpNettyServer shepServer = new ShEpNettyServer(shepSvrCfg, decoder, encoder,0,0);
 				nettyServerList.add(shepServer);
-				
+
 			}else {
 				String errMsg = "ep server dont find config! exit";
 				logger.error(errMsg);
@@ -204,6 +187,13 @@ public class GateServer extends AbstractGameServer{
 		
 		//第三方工厂初始化
 		real3rdFactory.init();
+
+		//初始化所有电桩 ，桩合作公司信息，离线充次数，硬件版本信息
+		System.out.println("initAllEpCache:"+initAllEpCache);
+		if (initAllEpCache.equals("true")){
+			initAllEpInfo();
+		}
+
 		
 	}
 	
@@ -257,12 +247,13 @@ public class GateServer extends AbstractGameServer{
 		
 		//检查电桩僵尸状态通讯
         EpCommClientService.startCommClientTimeout(5);
-        
+		//检查线程池 任务队列的大小
+		EpCommClientService.startCheckThreadPool(10);
         //检查UsrGate僵尸状态通讯
         UsrGateService.startCommClientTimeout(5);
         
         //检查连接监控中心通讯状态
-        MonitorService.startMonitorCommTimer(10);
+       // MonitorService.startMonitorCommTimer(10);
  
         EpGunService.startRepeatSendMessage();
         

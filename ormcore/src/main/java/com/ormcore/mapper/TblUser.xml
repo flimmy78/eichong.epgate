@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.ormcore.dao.TblUserDao">
+    <resultMap id="resultMap" type="TblUser">
+        <id property="userId" column="user_id" />
+        <result property="userAccount" column="user_account" />
+        <result property="userPassword" column="user_password" />
+        <result property="userLeval" column="user_leval" />
+
+        <result property="userStatus" column="user_status" />
+        <result property="userIdcard" column="user_idcard" />
+        <result property="provinceCode" column="province_code" />
+        <result property="cityCode" column="city_code" />
+        <result property="areaCode" column="area_code" />
+        <result property="gmtCreate" column="gmt_create" />
+        <result property="gmtModified" column="gmt_modified" />
+        <result property="creator" column="creator" />
+        <result property="modifier" column="modifier" />
+        <result property="userHeadImg" column="user_head_img" />
+        <result property="levelId" column="level_id" />
+    </resultMap>
+
+	<select id="findIdByAccount" parameterType="String" resultMap="resultMap">
+        select e.user_id,
+        e.user_account,
+        e.user_password
+        from tbl_user e
+        where user_account=#{userAccount}
+    </select>
+	
+</mapper>

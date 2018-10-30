@@ -1,11 +1,8 @@
 package com.ec.epcore.cache;
 
-import java.util.List;
-
-import com.cooperate.CooperateFactory;
 import com.ec.constants.EpConstants;
 import com.ec.constants.ErrorCodeConstants;
-import com.ec.constants.UserConstants;
+import com.ec.epcore.epdata.RedisKey;
 import com.ec.epcore.net.client.EpCommClient;
 import com.ec.epcore.net.codec.EpEncoder;
 import com.ec.epcore.sender.EpMessageSender;
@@ -14,17 +11,27 @@ import com.ec.epcore.service.EpGunService;
 import com.ec.epcore.service.EpService;
 import com.ec.net.proto.Iec104Constant;
 import com.ec.net.proto.WmIce104Util;
+import com.ec.netcore.util.JedisUtil;
 import com.ormcore.model.CompanyRela;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.ec.constants.GunConstants.EP_GUN_W_STATUS_IDLE;
+import static com.ec.constants.GunConstants.EP_GUN_W_STATUS_OFF_LINE;
+import static com.ec.epcore.service.EpService.saveOfflineToRedis;
+import static com.ec.epcore.service.EpService.saveOnlineToRedis;
 
 public class ElectricPileCache {
 		
 	private Integer pkEpId; // 
 	private String code; //
 	private String name;
-    private int concentratorId;//站索引
+    private int concentratorId;//集中器id
 	
 
-	private int stationIndex;//站索引
+	private int stationIndex;//集中器内序号
 	private int gunNum;
 	private int currentType; // 
 	private int epType;
@@ -64,9 +71,9 @@ public class ElectricPileCache {
 		pkEpId=0; // 
 		code=""; //
 		name="";
-	    concentratorId=0;//站索引
+	    concentratorId=0;//集中器id
 
-		stationIndex=0;//站索引
+		stationIndex=0;//集中器内序号
 		gunNum=0;
 		currentType=0; // 
 		epType=0;
@@ -205,13 +212,57 @@ public class ElectricPileCache {
 		
 		return true;
 	}
+
+	public boolean initAllGuns() {
+
+		for (int i = 1; i <= gunNum; i++) {
+			EpGunCache gunCache = new EpGunCache();
+			gunCache.setEpGunNo(i);
+			gunCache.setEpCode(code);
+			gunCache.setPkEpId(this.pkEpId);
+			if (gunCache.initAllGunsWithoutCharge(this, i)) {
+				gunCache.setConcentratorId(this.getConcentratorId());
+				EpGunService.putEpGunCache(code, i, gunCache);
+				gunCache.setEpNetObject(epNetObject);
+			} else {
+				return false;
+			}
+		}
+
+		return true;
+	}
+	//这里在ep启动 初始化时已加载部分信息，上次未完成充电信息，在桩连接上来后再初始化
+	public boolean initGunsUnfinishCharge(){
+		for (int i = 1; i <= gunNum; i++) {
+			EpGunCache gunCache = EpGunService.getEpGunCache(code, i);
+			//如果没有在ep 启动时初始化，则重新来
+			if (gunCache==null){
+				gunCache = new EpGunCache();
+				gunCache.setEpGunNo(i);
+				gunCache.setEpCode(code);
+				gunCache.setPkEpId(this.pkEpId);
+				if (gunCache.init(this, i, 0)) {
+					gunCache.setConcentratorId(this.getConcentratorId());
+					EpGunService.putEpGunCache(code, i, gunCache);
+
+					gunCache.setEpNetObject(epNetObject);
+				} else {
+					return false;
+				}
+			}else {
+				gunCache.initGunsUnfinishChargeDetail(this, i);
+			}
+		}
+		return true;
+	}
 	
 	public boolean initGuns(int bootLoader) {
 
 		for (int i = 1; i <= gunNum; i++) {
 			EpGunCache gunCache = EpGunService.getEpGunCache(code, i);
-			if (gunCache == null)
+			if (gunCache == null){
 				gunCache = new EpGunCache();
+			}
 			gunCache.setEpGunNo(i);
 			gunCache.setEpCode(code);
 			gunCache.setPkEpId(this.pkEpId);
@@ -350,29 +401,53 @@ public class ElectricPileCache {
 
 	public void onNetStatus(int epStatus)
 	{
-    	boolean canOperate = checkOrgOperate(UserConstants.ORG_EC);
-        boolean canOperate1 = checkOrgOperate(UserConstants.ORG_TCEC_ECHONG);
+		String epGunsKey = RedisKey.EP_STATUS + code;
+		Map<String, String> map = new HashMap<>();
 		for(int i=1;i<= gunNum;i++)
 		{
 			EpGunCache loopEpGunCache = EpGunService.getEpGunCache(code, i);
+			if (loopEpGunCache != null) loopEpGunCache.handleECSignleOrgNo(0);
 			loopEpGunCache.onNetStatus(epStatus);
-			if (canOperate && loopEpGunCache != null) loopEpGunCache.handleECSignleOrgNo(UserConstants.ORG_EC, 0);
-            if (canOperate1 && loopEpGunCache != null) loopEpGunCache.handleECSignleOrgNo(UserConstants.ORG_TCEC_ECHONG, 0);
 			EpChargeService.insertConsumeRecord(loopEpGunCache);
+			map.put(String.valueOf(loopEpGunCache.getPkEpGunId()), String.valueOf(EP_GUN_W_STATUS_OFF_LINE));
+			map.put(String.valueOf(i), String.valueOf(EP_GUN_W_STATUS_OFF_LINE));
+			map.put("status", String.valueOf(EP_GUN_W_STATUS_OFF_LINE));
+
 		}
+		try {
+			//保存状态到redis
+			JedisUtil.hmset(epGunsKey, map);
+			//记录离线时间
+			saveOfflineToRedis(code);
+		}catch (Exception e){
+			e.printStackTrace();
+			System.out.println("onNetStatus saveOfflineToRedis error epCode:{}"+code);
+		}
+
 	}
 
 	public void sendStatus(int status)
 	{
-        boolean canOperate = checkOrgOperate(UserConstants.ORG_EC);
-        boolean canOperate1 = checkOrgOperate(UserConstants.ORG_TCEC_ECHONG);
-        if (!canOperate && !canOperate1) return;
+		String epGunsKey = RedisKey.EP_STATUS + code;
+		Map<String, String> map = new HashMap<>();
         for(int i=1;i<= gunNum;i++)
         {
             EpGunCache loopEpGunCache = EpGunService.getEpGunCache(code, i);
-            if (canOperate && loopEpGunCache != null) loopEpGunCache.handleECSignleOrgNo(UserConstants.ORG_EC, status);
-            //if (canOperate1) loopEpGunCache.handleECSignleOrgNo(UserConstants.ORG_TCEC_ECHONG, status);
+            if (loopEpGunCache != null) loopEpGunCache.handleECSignleOrgNo(status);
+	        map.put(String.valueOf(i), String.valueOf(EP_GUN_W_STATUS_IDLE));
+	        map.put(String.valueOf(loopEpGunCache.getPkEpGunId()), String.valueOf(EP_GUN_W_STATUS_IDLE));
+	        map.put("status", String.valueOf(EP_GUN_W_STATUS_IDLE));
         }
+        try {
+	        //保存状态到redis
+	        JedisUtil.hmset(epGunsKey, map);
+	        //记录上线时间
+	        saveOnlineToRedis(code);
+        }catch (Exception e){
+        	e.printStackTrace();
+	        System.out.println("sendStatus saveOnlineToRedis error epCode:"+ code);
+        }
+
 	}
 	
 	public int getCompany_number() {
@@ -566,12 +641,18 @@ public class ElectricPileCache {
 		return false;
 	}
 
-	public boolean checkOrgOperate(int orgNo)
-	{
-		if (!CooperateFactory.isCooperate(orgNo)) return true;
-
-		//合作方电桩过滤
-		return canOrgOperate(orgNo);
+//	public boolean checkOrgOperate(int orgNo)
+//	{
+//		if (!CooperateFactory.isCooperate(orgNo)) return true;
+//
+//		//合作方电桩过滤
+//		return canOrgOperate(orgNo);
+//	}
+	public void getGun(){
+		for (int i = 1; i < gunNum; i++) {
+			EpGunCache epGunCache = EpGunService.getEpGunCache(code, i);
+			System.out.println( epGunCache.toString());
+		}
 	}
 	
 	  public String getEpTypeDesc() {

@@ -1,9 +1,9 @@
 package com.ormcore.dao;
 
+import com.ormcore.model.TblChargingrecord;
+
 import java.util.List;
 import java.util.Map;
-
-import com.ormcore.model.TblChargingrecord;
 
 /**
  * @Description: 充电记录操作DAO层接口Maper
@@ -38,7 +38,7 @@ public interface ChargingrecordDao {
 	public <T, K, V> List<T> find(Map<K, V> params);
 	
 	public List<TblChargingrecord> getUnFinishedCharge(TblChargingrecord tblChargingrecord);
-	
+
 	public List<TblChargingrecord> getUnFinishedChargeByUsrId(TblChargingrecord tblChargingrecord);
 	
 	public List<TblChargingrecord> getChargeByUser(int accountId);

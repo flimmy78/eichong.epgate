@@ -6,7 +6,7 @@ public class TblCompany {
 	private java.lang.Integer cpyCompanyNumber;// 公司组织编码
 	private java.lang.Integer cpynum;// 临时充电次数
 	private java.lang.Integer isValid;
-	
+
 	public java.lang.Integer getPkCompanyId() {
 		return pkCompanyId;
 	}

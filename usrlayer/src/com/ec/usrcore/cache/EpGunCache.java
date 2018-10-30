@@ -1,10 +1,5 @@
 package com.ec.usrcore.cache;
 
-import java.math.BigDecimal;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.config.Global;
 import com.ec.constants.EpConstants;
 import com.ec.constants.ErrorCodeConstants;
@@ -12,14 +7,15 @@ import com.ec.constants.GunConstants;
 import com.ec.constants.UserConstants;
 import com.ec.logs.LogConstants;
 import com.ec.usrcore.net.client.EpGateNetConnect;
-import com.ec.usrcore.service.CacheService;
-import com.ec.usrcore.service.EpChargeService;
-import com.ec.usrcore.service.EpGateService;
-import com.ec.usrcore.service.EpGunService;
-import com.ec.usrcore.service.UserService;
+import com.ec.usrcore.service.*;
 import com.ec.utils.DateUtil;
 import com.ec.utils.LogUtil;
 import com.ec.utils.NumUtil;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
 
 public class EpGunCache {
 	
@@ -56,7 +52,7 @@ public class EpGunCache {
 		this.epGunNo =epGunNo;
 			
 		lastUPTime =0;//手机更新时间
-		currentType =0;	
+		currentType =0;
 	}
 	
 	public int getPkEpGunId() {
@@ -191,7 +187,7 @@ public class EpGunCache {
 	public int startChargeAction(String token,int orgNo,String userIdentity,String epCode,int epGunNo,
 			short chargeStyle,int frozenAmt,int payMode, int watchPrice,String carCode, String vinCode, int serverType)
 	{
-		if (payMode == EpConstants.P_M_FIRST && orgNo == UserConstants.ORG_I_CHARGE)
+		if (payMode == EpConstants.P_M_FIRST && orgNo == UserConstants.ORG_I_CHARGE && !StringUtils.contains(token, "chargeStyle:1"))
 		{
 			BigDecimal bdRemainAmt = UserService.getRemainBalance(Integer.valueOf(userIdentity), serverType);
 			

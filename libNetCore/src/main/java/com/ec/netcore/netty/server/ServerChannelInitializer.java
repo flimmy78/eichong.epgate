@@ -3,7 +3,6 @@ package com.ec.netcore.netty.server;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.logging.LoggingHandler;
 
 /**
  * 閫氫俊淇￠亾宸ュ巶绫�
@@ -30,7 +29,7 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
 
         ChannelPipeline pipeline = ch.pipeline();
 
-        pipeline.addLast("logger", new LoggingHandler());
+//        pipeline.addLast("logger", new LoggingHandler());
         pipeline.addLast("decoder", server.getDecoder().getClass().newInstance());
         pipeline.addLast("encoder", server.getEncoder().getClass().newInstance());
         pipeline.addLast("handler", new ServerHandler(server));

@@ -169,8 +169,23 @@ public class EqVersionInfo {
 	public void setHardwareA(int hardwareA) {
 		this.hardwareA = hardwareA;
 	}
-    
 
-	
-		
+	@Override
+	public String toString() {
+		return "EqVersionInfo{" +
+				"pk_EquipmentVersion=" + pk_EquipmentVersion +
+				", epCode='" + epCode + '\'' +
+				", stationAddr=" + stationAddr +
+				", type=" + type +
+				", softNumber='" + softNumber + '\'' +
+				", softVersion='" + softVersion + '\'' +
+				", softM=" + softM +
+				", softA=" + softA +
+				", softC=" + softC +
+				", hardwareNumber='" + hardwareNumber + '\'' +
+				", hardwareVersion='" + hardwareVersion + '\'' +
+				", hardwareM=" + hardwareM +
+				", hardwareA=" + hardwareA +
+				'}';
+	}
 }

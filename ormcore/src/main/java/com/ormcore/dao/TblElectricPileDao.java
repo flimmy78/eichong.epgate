@@ -1,8 +1,9 @@
 package com.ormcore.dao;
 
-import java.util.List;
-
+import com.ormcore.model.ElectricPileCachePo;
 import com.ormcore.model.TblElectricPile;
+
+import java.util.List;
 
 public interface TblElectricPileDao {
 	
@@ -11,7 +12,11 @@ public interface TblElectricPileDao {
 	public List<TblElectricPile> findResultObjectBySpanId(int typeSpanId);
 	
 	public List<TblElectricPile> findResultObject(String code);
-	
+
+	public List<ElectricPileCachePo> initAllEpInfo();
+
+	public List<TblElectricPile> initAllEpBaseInfo();
+
 	public List<TblElectricPile> getLastUpdate();
 	
 	public int updateCommStatus(TblElectricPile epClient);

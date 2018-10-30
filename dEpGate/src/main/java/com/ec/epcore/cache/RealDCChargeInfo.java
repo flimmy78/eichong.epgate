@@ -1,15 +1,7 @@
 package com.ec.epcore.cache;
 
 
-import java.math.BigDecimal;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.alibaba.fastjson.JSON;
 import com.ec.config.Global;
 import com.ec.constants.YXCConstants;
 import com.ec.epcore.service.EpChargeService;
@@ -18,6 +10,14 @@ import com.ec.net.proto.SingleInfo;
 import com.ec.utils.NumUtil;
 import com.ormcore.dao.DB;
 import com.ormcore.model.TblChargeDCInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RealDCChargeInfo extends RealChargeInfo{
 	
@@ -1302,7 +1302,7 @@ public class RealDCChargeInfo extends RealChargeInfo{
 	
 	public int setPowerModuleValue(int addr,SingleInfo singleInfo )
 	{
-		logger.debug("setPowerModuleValue,addr:{}, singleInfo:{}",addr, singleInfo);
+		logger.debug("setPowerModuleValue,addr:{}, singleInfo:{}",addr, JSON.toJSON(singleInfo));
 		int ret=0;
 		if(addr < YXCConstants.YC_CHARGER_MOD_START_POS  || addr>= 2500)
 		{
@@ -1359,7 +1359,7 @@ public class RealDCChargeInfo extends RealChargeInfo{
 
 	public int setCarInfoValue(int addr,SingleInfo singleInfo )
 	{
-		logger.debug("setPowerModuleValue,addr:{}, singleInfo:{}",addr, singleInfo);
+		logger.debug("setPowerModuleValue,addr:{}, singleInfo:{}",addr, JSON.toJSON(singleInfo));
 		
 		int ret=0;
 		if(!EpGunService.checkCardInfoAddr(addr))

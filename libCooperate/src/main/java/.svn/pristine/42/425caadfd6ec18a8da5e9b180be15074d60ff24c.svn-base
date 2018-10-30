@@ -1,0 +1,133 @@
+package com.cooperate.TCEC.util;
+
+import com.cooperate.CooperateFactory;
+import com.cooperate.utils.AesCBC;
+import com.cooperate.utils.HttpUtils;
+import com.cooperate.utils.SigTool;
+import com.cooperate.utils.Strings;
+import com.ec.utils.LogUtil;
+import net.sf.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Created by zangyaoyi on 2018/2/24.
+ */
+public class CommonService {
+    private static final Logger logger = LoggerFactory.getLogger(CommonService.class);
+
+
+    public static TokenModel sendChargeResp(TokenModel tokenModel, Map<String, Object> params) {
+        int org = tokenModel.getOrg();
+        logger.debug(LogUtil.addExtLog("CHARGE_URL"), CooperateFactory.getCoPush(org).getChargeRespUrl());
+
+        return send2TCEC(tokenModel, CooperateFactory.getCoPush(org).getChargeRespUrl(), params);
+    }
+
+    public static TokenModel sendStopChargeResp(TokenModel tokenModel, Map<String, Object> params) {
+        int org = tokenModel.getOrg();
+        logger.debug(LogUtil.addExtLog("STOP_CHARGE_URL"), CooperateFactory.getCoPush(org).getStopchargeRespUrl());
+
+        return send2TCEC(tokenModel, CooperateFactory.getCoPush(org).getStopchargeRespUrl(), params);
+    }
+
+    public static TokenModel sendRealData(TokenModel tokenModel, Map<String, Object> params) {
+        int org = tokenModel.getOrg();
+        logger.debug(LogUtil.addExtLog("REAL_DATA_URL"), CooperateFactory.getCoPush(org).getRealDataUrl());
+
+        return send2TCEC(tokenModel, CooperateFactory.getCoPush(org).getRealDataUrl(), params);
+    }
+
+    public static TokenModel sendEpStatusChange(TokenModel tokenModel, Map<String, Object> params) {
+        int org = tokenModel.getOrg();
+        logger.debug(LogUtil.addExtLog("E_EP_STATUS_CHANGE_URL"), CooperateFactory.getCoPush(org).getStatusChangeUrl());
+
+        return send2TCEC(tokenModel, CooperateFactory.getCoPush(org).getStatusChangeUrl(), params);
+    }
+
+    public static TokenModel sendOrderInfo(TokenModel tokenModel, Map<String, Object> params) {
+        int org = tokenModel.getOrg();
+        logger.debug(LogUtil.addExtLog("E_ORDER_INFO_URL"), CooperateFactory.getCoPush(org).getOrderUrl());
+
+        return send2TCEC(tokenModel, CooperateFactory.getCoPush(org).getOrderUrl(), params);
+    }
+
+    public static TokenModel send2TCEC(TokenModel tokenModel, String url, Map<String, Object> params) {
+
+        logger.info(LogUtil.addExtLog("send2TCEC ORG:" + tokenModel.getOrg() + " is begin, url|tokenAvailableTime"), new Object[]{url, tokenModel.getTokenAvailableTime()});
+        try {
+            //token值
+            String token = tokenModel.getStaticToken();
+            Date tokenAvailableTime = tokenModel.getTokenAvailableTime();
+            Date now = new Date();
+            logger.debug("send2TCEC ORG:" + tokenModel.getOrg() + " token:{}|tokenAvailableTime:{}", token, tokenAvailableTime);
+            if (Strings.isNullOrEmpty(token) || now.after(tokenAvailableTime)) {
+                token = getToken(tokenModel);
+                if (Strings.isNullOrEmpty(token)) {
+                    logger.info("send2TCEC ORG:" + tokenModel.getOrg() + " is fail ,getToken is error,url:{}", url);
+                    return tokenModel;
+                }
+            }
+            JSONObject jsonObject = JSONObject.fromObject(params);
+            String data;
+
+
+            data = AesCBC.getInstance().encrypt(jsonObject.toString(), "utf-8", tokenModel.getDataSecret(), tokenModel.getDataSecretIv());
+            data = data.replace("\n", "").replace("\r", "");
+            HashMap<String, String> map = SigTool.makeSig(data, tokenModel.getOperatorId(), tokenModel.getSigSecret());
+            String answerStr = HttpUtils.httpJSONPost(url, map, token);
+            String resultCode = CommonService.getErrorCode(answerStr);
+            logger.debug("send2TCEC ORG:" + tokenModel.getOrg() + " answerStr:{}", answerStr);
+            if (isNeedLog(url)) {
+                logger.info("send2TCEC ORG:" + tokenModel.getOrg() + " answerStr:{}", answerStr);
+            }
+            if (!"0".equals(resultCode)) {
+                logger.info("send2TCEC ORG:" + tokenModel.getOrg() + " fail answerStr:{}|params:{}", answerStr, jsonObject.toString());
+                token = getToken(tokenModel);
+                answerStr = HttpUtils.httpJSONPost(url, map, token);
+                resultCode = CommonService.getErrorCode(answerStr);
+                if (!"0".equals(resultCode)) {
+                    logger.info("send2TCEC ORG:" + tokenModel.getOrg() + " fail again answerStr:{}|params:{}", answerStr, jsonObject.toString());
+                }
+            }
+        } catch (Exception e) {
+            logger.info("send2TCEC ORG:" + tokenModel.getOrg() + " exception:{}", e.getMessage());
+        }
+        return tokenModel;
+    }
+
+    private static String getToken(TokenModel tokenModel) {
+        logger.info("getToken ORG:" + tokenModel.getOrg() + "  decryptToken is begin");
+        String decryptToken = CommonPush.getToken(tokenModel);
+        if (Strings.isNullOrEmpty(decryptToken)) {
+            return null;
+        }
+        logger.info("getToken ORG:" + tokenModel.getOrg() + "  decryptToken:{}", decryptToken);
+        CommonPush.handleToken(decryptToken, tokenModel);
+        if (Strings.isNullOrEmpty(decryptToken)) {
+            return null;
+        }
+        logger.info("getToken ORG:" + tokenModel.getOrg() + " tokenAvailableTime:{}", tokenModel.getTokenAvailableTime());
+        logger.info("getToken ORG:" + tokenModel.getOrg() + " StaticToken:{}", tokenModel.getStaticToken());
+        CommonPush.updateToken(tokenModel.getOrg(), tokenModel);
+        return tokenModel.getStaticToken();
+    }
+
+    private static String getErrorCode(String answerStr) {
+        Map response = JSONObject.fromObject(answerStr);
+        String resultCode = String.valueOf(response.get("Ret"));
+        if (null == resultCode) {
+            return "-1";
+        }
+        return resultCode;
+
+    }
+
+    private static boolean isNeedLog(String url) {
+        return !url.contains("notification_stationStatus") && !url.contains("notification_equip_charge_status");
+    }
+}

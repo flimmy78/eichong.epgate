@@ -1,24 +1,39 @@
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.epcore.server.GateServer;
 import com.ec.utils.LogUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ServerStart {
 
 	private static final Logger logger = LoggerFactory.getLogger(LogUtil.getLogName(ServerStart.class.getName()));
-
-
+	
+	//private static EpDataClientService epDataClientService;
 	/**
 	 * 启动网关服务器
-	 * @author
+	 * @author 
 	 * 2014-12-1
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		
+		// 初始化 epData Client 
+		//epDataClientService = new EpDataClientService() ;
+		//epDataClientService.init();
+        //
+		//CoreConfig config = new CoreConfig();
+		//ServerConfigs serverConfigs = CoreConfig.serverConfigs;
+		//System.out.println("serverConfigs:" + serverConfigs);
+		//ServerConfig shepSvrCfg = serverConfigs.get("shep-server");
+		//System.out.println("shepSvrCfg:" + shepSvrCfg);
+		//try {
+		//	Thread.sleep(2000);
+		//} catch (InterruptedException e) {
+		//	e.printStackTrace();
+		//}
+		
 		long begin = System.currentTimeMillis();
+
 		
 		//创建网关服务器
 		GateServer gateServer = GateServer.getInstance();

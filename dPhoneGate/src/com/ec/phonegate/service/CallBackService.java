@@ -1,14 +1,10 @@
 package com.ec.phonegate.service;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.ec.config.Global;
 import com.ec.logs.LogConstants;
 import com.ec.net.message.JPushUtil;
 import com.ec.phonegate.client.PhoneClient;
+import com.ec.phonegate.config.GameConfig;
 import com.ec.phonegate.proto.PhoneConstant;
 import com.ec.phonegate.proto.PhoneProtocol;
 import com.ec.phonegate.sender.PhoneMessageSender;
@@ -16,8 +12,14 @@ import com.ec.usrcore.server.IEventCallBack;
 import com.ec.utils.DateUtil;
 import com.ec.utils.LogUtil;
 import com.ec.utils.NetUtils;
+import com.ec.utils.NumUtil;
 import com.ormcore.dao.DB;
 import com.ormcore.model.TblJpush;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CallBackService implements IEventCallBack {
 
@@ -60,7 +62,9 @@ public class CallBackService implements IEventCallBack {
 			return;
 		}
 
-		byte[] data = PhoneProtocol.do_start_charge_event(status);
+		int ret = 1;
+		if (status != 0) ret = 0;
+		byte[] data = PhoneProtocol.do_start_charge_event(ret);
 
 		PhoneMessageSender.sendMessage(phoneClient.getChannel(), data);
 	}
@@ -78,7 +82,9 @@ public class CallBackService implements IEventCallBack {
 			return;
 		}
 
-		PhoneService.sendMessage(phoneClient.getChannel(), PhoneConstant.D_START_CHARGE, ret, errorCode);
+		int status = 1;
+		if (ret != 0) status = 0;
+		PhoneService.sendMessage(phoneClient.getChannel(), PhoneConstant.D_START_CHARGE, status, errorCode);
 	}
 
 	/**
@@ -99,6 +105,8 @@ public class CallBackService implements IEventCallBack {
 
 	public void onQueryOrderInfo(int orgNo,String userIdentity,String epCode,int epGunNo,String extra,int ret,int errorCode) {
 	}
+	public void onQueryCommonRealData(String epCode, int epGunNo, String extra, String ranRuiQueryData) {
+	}
 
 	/**
 	 * 充电实时数据（usrGate->phone）
@@ -115,6 +123,11 @@ public class CallBackService implements IEventCallBack {
 
 		byte[] data = PhoneProtocol.do_real_charge_info(realData);
 		PhoneMessageSender.sendMessage(phoneClient.getChannel(), data);
+	}
+
+	@Override
+	public void onChargeReal4Html(final int i, final String s, final String s1, final int i1, final String s2, final Map<String, Object> map) {
+
 	}
 
 	/**
@@ -141,20 +154,29 @@ public class CallBackService implements IEventCallBack {
 		int totalAmt = (int) data.get("elect_money");
 		int serviceAmt = (int) data.get("service_money");
 		int pkEpId = (int) data.get("pkEpId");
+		// BUG4348修复
+		if (Integer.valueOf(GameConfig.serverType) != 2) {
+			totalAmt = NumUtil.BigDecimal2ToInt(NumUtil.intToBigDecimal42(totalAmt).multiply(Global.DecTime2));
+			serviceAmt = NumUtil.BigDecimal2ToInt(NumUtil.intToBigDecimal42(serviceAmt).multiply(Global.DecTime2));
+		}
 
 		int version = phoneClient.getVersion();
 		int couPonAmt = 0;
 		int userFirst = 0;
 		int realCouPonAmt = 0;
+		int personalAmt = 0;//个性化优惠金额
+		int chargeStyle = -1;
 		if(version>=2)
 		{
 			couPonAmt = (int) data.get("New_conpon");
 			userFirst = (int) data.get("Conpon_face_value");
 			realCouPonAmt = (int) data.get("Conpon_discount_value");
+			personalAmt = (int) data.get("personalAmt");
+			if (data.get("chargeStyle") != null) chargeStyle = (int) data.get("chargeStyle");
 		}
 		
 		byte[] extraData = PhoneProtocol.do_consume_record((short)version,chargeOrder,st,et,totalMeterNum,totalAmt,serviceAmt,
-				pkEpId,userFirst,couPonAmt,realCouPonAmt);
+				pkEpId,userFirst,couPonAmt,realCouPonAmt,personalAmt,chargeStyle);
 
 		PhoneMessageSender.sendRepeatMessage(phoneClient.getChannel(), extraData, chargeOrder, phoneClient.getVersion());
 	}
@@ -206,7 +228,12 @@ public class CallBackService implements IEventCallBack {
 
 		PhoneMessageSender.sendRepeatMessage(phoneClient.getChannel(), data, messagekey, phoneClient.getVersion());
 	}
-	
+
+	@Override
+	public void onGunWorkStatusChange4Html(final String s, final int i, final int i1, final String s1) {
+
+	}
+
 	public void jmsgChargeStat(int userId,String epCode,int epGunNo,int status)
 	{
 		TblJpush ju=DB.jpushDao.getByuserInfo(userId);

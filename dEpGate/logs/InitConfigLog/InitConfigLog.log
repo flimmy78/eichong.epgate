@@ -1,0 +1,46 @@
+[2018-05-24 15:16:01 INFO][InitConfigLog]开始初始化全局配置...
+[2018-05-24 15:16:01 INFO][InitConfigLog]读取xml文件：【D:\idea\eichong\dEpGate\conf\global-config.xml】
+[2018-05-24 15:16:01 INFO][InitConfigLog]初始化全局配置结束...配置信息:【com.ec.netcore.model.conf.GlobalConfig@11758f2a[mask1=89,mask2=122,mask3=122,mask4=89]】
+[2018-05-24 15:16:01 INFO][InitConfigLog]开始初始化应用服配置...
+[2018-05-24 15:16:01 INFO][InitConfigLog]读取xml文件：【D:\idea\eichong\dEpGate\conf\game-config.xml】
+[2018-05-24 15:16:01 INFO][InitConfigLog]初始化应用服配置结束，配置信息:【com.ec.netcore.model.conf.GameConfig@757942a1[id=1,name=GateServer1,description=网关服1,pfId=10,zoneId=1,shutdownPort=50011]】
+[2018-05-24 15:16:01 INFO][InitConfigLog]开始初始化服务器配置...
+[2018-05-24 15:16:01 INFO][InitConfigLog]读取xml文件：【D:\idea\eichong\dEpGate\conf\server-config.xml】
+[2018-05-24 15:16:01 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@2db7a79b[name=ep gate server,description=电桩服务,ip=,port=2406]】
+[2018-05-24 15:16:01 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@6950e31[name=ep gate server,description=电桩服务,ip=,port=2407]】
+[2018-05-24 15:16:01 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@b7dd107[name=ep gate server,description=电桩服务,ip=,port=30011]】
+[2018-05-24 15:16:01 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@42eca56e[name=monitor server,description=内部服务,ip=,port=7777]】
+[2018-05-24 15:16:01 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@52f759d7[name=AppGateServer,description=app内网网关服,ip=,port=30012]】
+[2018-05-24 15:16:01 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@7cbd213e[name=monitor server,description=内部服务,ip=,port=9001]】
+[2018-05-24 15:16:02 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@192d3247[name=monitor server,description=内部服务,ip=,port=7787]】
+[2018-05-24 15:16:02 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@3ecd23d9[name=phone server,description=内部服务,ip=,port=8001]】
+[2018-05-24 15:16:02 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@569cfc36[name=dataAnalyzeserver,description=数据分析中心服务端,ip=,port=8002]】
+[2018-05-24 15:16:02 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@43bd930a[name=thirdServer,description=第三方中心服务端,ip=,port=8003]】
+[2018-05-24 15:16:02 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@33723e30[name=httpServer,description=httpServer,ip=,port=2410]】
+[2018-05-24 15:16:02 INFO][InitConfigLog]初始化服务器配置结束...配置信息:【com.ec.netcore.model.conf.ServerConfigs@64f6106c[cfgs={shep-server=com.ec.netcore.model.conf.ServerConfig@6950e31[name=ep gate server,description=电桩服务,ip=,port=2407], phone-server=com.ec.netcore.model.conf.ServerConfig@3ecd23d9[name=phone server,description=内部服务,ip=,port=8001], usrgate-server=com.ec.netcore.model.conf.ServerConfig@b7dd107[name=ep gate server,description=电桩服务,ip=,port=30011], data-centre-montior-server=com.ec.netcore.model.conf.ServerConfig@192d3247[name=monitor server,description=内部服务,ip=,port=7787], monitor-server=com.ec.netcore.model.conf.ServerConfig@569cfc36[name=dataAnalyzeserver,description=数据分析中心服务端,ip=,port=8002], manage-server=com.ec.netcore.model.conf.ServerConfig@52f759d7[name=AppGateServer,description=app内网网关服,ip=,port=30012], data-centre-server=com.ec.netcore.model.conf.ServerConfig@7cbd213e[name=monitor server,description=内部服务,ip=,port=9001], http-server=com.ec.netcore.model.conf.ServerConfig@33723e30[name=httpServer,description=httpServer,ip=,port=2410], third-server=com.ec.netcore.model.conf.ServerConfig@43bd930a[name=thirdServer,description=第三方中心服务端,ip=,port=8003], ep-server=com.ec.netcore.model.conf.ServerConfig@2db7a79b[name=ep gate server,description=电桩服务,ip=,port=2406], epwatch-server=com.ec.netcore.model.conf.ServerConfig@42eca56e[name=monitor server,description=内部服务,ip=,port=7777]}]】
+[2018-05-24 15:16:02 INFO][InitConfigLog]开始初始化客户端配置...
+[2018-05-24 15:16:02 INFO][InitConfigLog]读取xml文件：【D:\idea\eichong\dEpGate\conf\client-config.xml】
+[2018-05-24 15:16:02 INFO][InitConfigLog]初始化客户端配置结束...配置信息【com.ec.netcore.model.conf.ClientConfigs@8e24743[cfgs={monitor-server=com.ec.netcore.model.conf.ClientConfig@74a10858[name=AnalyzeServer,description=数据分析中心服务端,ip=10.9.2.109,port=8002], third-server=com.ec.netcore.model.conf.ClientConfig@23fe1d71[name=thirdServer,description=第3方服务,ip=10.9.3.117,port=8002]}]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]开始初始化全局配置...
+[2018-05-24 15:34:41 INFO][InitConfigLog]读取xml文件：【D:\idea\eichong\dEpGate\conf\global-config.xml】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化全局配置结束...配置信息:【com.ec.netcore.model.conf.GlobalConfig@11758f2a[mask1=89,mask2=122,mask3=122,mask4=89]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]开始初始化应用服配置...
+[2018-05-24 15:34:41 INFO][InitConfigLog]读取xml文件：【D:\idea\eichong\dEpGate\conf\game-config.xml】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化应用服配置结束，配置信息:【com.ec.netcore.model.conf.GameConfig@757942a1[id=1,name=GateServer1,description=网关服1,pfId=10,zoneId=1,shutdownPort=50011]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]开始初始化服务器配置...
+[2018-05-24 15:34:41 INFO][InitConfigLog]读取xml文件：【D:\idea\eichong\dEpGate\conf\server-config.xml】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@2db7a79b[name=ep gate server,description=电桩服务,ip=,port=2406]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@6950e31[name=ep gate server,description=电桩服务,ip=,port=2407]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@b7dd107[name=ep gate server,description=电桩服务,ip=,port=30011]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@42eca56e[name=monitor server,description=内部服务,ip=,port=7777]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@52f759d7[name=AppGateServer,description=app内网网关服,ip=,port=30012]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@7cbd213e[name=monitor server,description=内部服务,ip=,port=9001]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@192d3247[name=monitor server,description=内部服务,ip=,port=7787]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@3ecd23d9[name=phone server,description=内部服务,ip=,port=8001]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@569cfc36[name=dataAnalyzeserver,description=数据分析中心服务端,ip=,port=8002]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@43bd930a[name=thirdServer,description=第三方中心服务端,ip=,port=8003]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化服务器配置:【com.ec.netcore.model.conf.ServerConfig@33723e30[name=httpServer,description=httpServer,ip=,port=2410]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化服务器配置结束...配置信息:【com.ec.netcore.model.conf.ServerConfigs@64f6106c[cfgs={shep-server=com.ec.netcore.model.conf.ServerConfig@6950e31[name=ep gate server,description=电桩服务,ip=,port=2407], phone-server=com.ec.netcore.model.conf.ServerConfig@3ecd23d9[name=phone server,description=内部服务,ip=,port=8001], usrgate-server=com.ec.netcore.model.conf.ServerConfig@b7dd107[name=ep gate server,description=电桩服务,ip=,port=30011], data-centre-montior-server=com.ec.netcore.model.conf.ServerConfig@192d3247[name=monitor server,description=内部服务,ip=,port=7787], monitor-server=com.ec.netcore.model.conf.ServerConfig@569cfc36[name=dataAnalyzeserver,description=数据分析中心服务端,ip=,port=8002], manage-server=com.ec.netcore.model.conf.ServerConfig@52f759d7[name=AppGateServer,description=app内网网关服,ip=,port=30012], data-centre-server=com.ec.netcore.model.conf.ServerConfig@7cbd213e[name=monitor server,description=内部服务,ip=,port=9001], http-server=com.ec.netcore.model.conf.ServerConfig@33723e30[name=httpServer,description=httpServer,ip=,port=2410], third-server=com.ec.netcore.model.conf.ServerConfig@43bd930a[name=thirdServer,description=第三方中心服务端,ip=,port=8003], ep-server=com.ec.netcore.model.conf.ServerConfig@2db7a79b[name=ep gate server,description=电桩服务,ip=,port=2406], epwatch-server=com.ec.netcore.model.conf.ServerConfig@42eca56e[name=monitor server,description=内部服务,ip=,port=7777]}]】
+[2018-05-24 15:34:41 INFO][InitConfigLog]开始初始化客户端配置...
+[2018-05-24 15:34:41 INFO][InitConfigLog]读取xml文件：【D:\idea\eichong\dEpGate\conf\client-config.xml】
+[2018-05-24 15:34:41 INFO][InitConfigLog]初始化客户端配置结束...配置信息【com.ec.netcore.model.conf.ClientConfigs@8e24743[cfgs={monitor-server=com.ec.netcore.model.conf.ClientConfig@74a10858[name=AnalyzeServer,description=数据分析中心服务端,ip=10.9.2.109,port=8002], third-server=com.ec.netcore.model.conf.ClientConfig@23fe1d71[name=thirdServer,description=第3方服务,ip=10.9.3.117,port=8002]}]】

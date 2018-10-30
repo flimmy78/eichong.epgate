@@ -1,16 +1,5 @@
 package com.ec.usrcore.service;
 
-import io.netty.channel.Channel;
-
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.netcore.core.pool.TaskPoolFactory;
 import com.ec.netcore.queue.RepeatConQueue;
 import com.ec.netcore.queue.RepeatMessage;
@@ -23,6 +12,15 @@ import com.ec.usrcore.net.client.EpGateNetConnect;
 import com.ec.usrcore.task.CheckEpGateNetTimeOutTask;
 import com.ec.utils.DateUtil;
 import com.ec.utils.LogUtil;
+import io.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class CacheService {
 	
@@ -198,14 +196,14 @@ public class CacheService {
 		
 		while (iter.hasNext()) {
 			Map.Entry entry = (Map.Entry) iter.next();
-			
+
 			EpGateNetConnect commClient=(EpGateNetConnect) entry.getValue();
 			if(commClient==null)
 			{
 				logger.error(LogUtil.getExtLog("commClient is null"));
 				continue ;
 			}
-		
+
 			//需要连接
 			boolean bNeedReConnect=false;
 			//检查

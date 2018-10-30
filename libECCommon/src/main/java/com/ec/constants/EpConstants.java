@@ -119,5 +119,15 @@ public class EpConstants {
 	public static final int LEN_ACCOUNT = 11;
 	//账号长度
 	public static final int LEN_BIG_ACCOUNT = 12;
-	
+
+	/** 交易途径 */
+	public static short CHARGE_TYPE_NORMAL_APP = 1;//爱充普通APP
+	public static short CHARGE_TYPE_GOVERN_APP = 2;//爱充政企APP
+	public static short CHARGE_TYPE_WX_PROG = 3;//微信小程序
+	public static short CHARGE_TYPE_ALI_PROG = 4;//支付宝小程序
+	public static short CHARGE_TYPE_NORMAL_CARD = 5;//储值充电卡
+	public static short CHARGE_TYPE_CREDIT_CARD = 6;//信用充电卡
+	public static short CHARGE_TYPE_THIRD_APP = 7;//第三方APP
+	public static short CHARGE_TYPE_VIN = 8;//车辆识别码（即插即充）
+	public static short CHARGE_TYPE_THIRD_CARD = 9;//第三方卡
 }

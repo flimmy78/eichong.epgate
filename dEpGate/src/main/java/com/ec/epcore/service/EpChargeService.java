@@ -1,44 +1,8 @@
 package com.ec.epcore.service;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.MessageFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import com.ormcore.model.*;
-import net.sf.json.JSONObject;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.cooperate.CooperateFactory;
-import com.cooperate.Push;
 import com.ec.config.Global;
-import com.ec.constants.ChargeOrderConstants;
-import com.ec.constants.ChargeRecordConstants;
-import com.ec.constants.EpConstants;
-import com.ec.constants.ErrorCodeConstants;
-import com.ec.constants.UserConstants;
-import com.ec.constants.YXCConstants;
-import com.ec.epcore.cache.AuthUserCache;
-import com.ec.epcore.cache.ChargeCache;
-import com.ec.epcore.cache.ChargeCarInfo;
-import com.ec.epcore.cache.ChargeCardCache;
-import com.ec.epcore.cache.ChargePowerModInfo;
-import com.ec.epcore.cache.ElectricPileCache;
-import com.ec.epcore.cache.EpGunCache;
-import com.ec.epcore.cache.RateInfoCache;
-import com.ec.epcore.cache.RealChargeInfo;
-import com.ec.epcore.cache.RealDCChargeInfo;
-import com.ec.epcore.cache.UserCache;
-import com.ec.epcore.cache.UserOrigin;
-import com.ec.epcore.cache.UserRealInfo;
+import com.ec.constants.*;
+import com.ec.epcore.cache.*;
 import com.ec.epcore.config.GameConfig;
 import com.ec.epcore.net.client.EpCommClient;
 import com.ec.epcore.net.codec.EpEncoder;
@@ -53,19 +17,38 @@ import com.ec.net.message.JPushUtil;
 import com.ec.net.message.MobiCommon;
 import com.ec.net.proto.Iec104Constant;
 import com.ec.net.proto.WmIce104Util;
-import com.ec.utils.DateUtil;
-import com.ec.utils.LogUtil;
-import com.ec.utils.NumUtil;
-import com.ec.utils.StringUtil;
+import com.ec.netcore.util.JedisUtil;
+import com.ec.utils.*;
 import com.ormcore.dao.DB;
+import com.ormcore.model.*;
+import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.ec.constants.UserConstants.BIG_ACCOUNT_ADDAMT;
+import static com.ec.constants.UserConstants.ORG_I_CHARGE;
+import static com.ec.epcore.epdata.RedisKey.EP_PREVENT_REP_CONSUME_RECORD;
+import static com.ec.epcore.net.server.EpMessageHandler.bizExecutorService;
 
 public class EpChargeService {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(LogUtil.getLogName(EpChargeService.class.getName()));
-	
+
 	private static final String ChargeYearDateFmt = "yyyy-MM-dd HH:mm:ss";
 	private static final String ChargeDayShortDateFmt = "MM-dd HH:mm";
-	
+
+	private static final String LOCK_SUCCESS = "OK";
+	private static final String SET_IF_NOT_EXIST = "NX";
+	private static final String SET_WITH_EXPIRE_TIME = "PX";
+
+	private static ConcurrentHashMap<String,String> preventRepConsumeRecordMap = new ConcurrentHashMap();
 	public static boolean isValidAddress(int address,int type)
 	{
 		//logger.debug("into isValidAddress address:{},type:{}",address,type);
@@ -106,12 +89,13 @@ public class EpChargeService {
 			{
 				ret = false;
 			}
-			else if(address>=50 && address <=128)//保留
+			// 50(桩内部环境温度)
+			else if(address>50 && address <=128)//保留
 			{
 				ret = false;
 			}
-			
-			
+
+
 		}
 		break;
 		case 132:
@@ -126,52 +110,48 @@ public class EpChargeService {
 			ret= false;
 			break;
 		}
-		
+
 		//logger.debug("isValidAddress ret:{}",ret);
 		return ret;
-		
+
 	}
-	
-	
-	public static ChargeCache convertFromDb(TblChargingrecord tcr)
-	{
-		if(tcr ==null)
+
+	public static ChargeCache convertFromDb(TblChargingrecord tcr) {
+		if (tcr == null)
 			return null;
-		
+
 		ChargeCache chargeCache = new ChargeCache();
-	
-		chargeCache.setSt(tcr.getChreStartdate().getTime()/1000);
+
+		chargeCache.setSt(tcr.getChreStartdate().getTime() / 1000);
 		chargeCache.setStatus(tcr.getStatus());
 		chargeCache.setAccount(tcr.getUserPhone());
 		chargeCache.setBespNo(tcr.getChreBeginshowsnumber());
 		chargeCache.setChargeSerialNo(tcr.getChreTransactionnumber());
 		chargeCache.setToken(tcr.getThirdExtraData());
-	   
+
 		chargeCache.setChOrCode(tcr.getChreCode());
-		
+
 		chargeCache.setUserId(tcr.getUserId());
 		chargeCache.setThirdUsrIdentity(tcr.getThirdUsrIdentity());
 		//怎么加载userLevel
-		if(tcr.getPkUserCard()>0)
-		{
-			ChargeCardCache cardCache=UserService.getChargeCardCache(tcr.getPkUserCard());
+		if (tcr.getPkUserCard() > 0) {
+			ChargeCardCache cardCache = UserService.getChargeCardCache(tcr.getPkUserCard());
 			chargeCache.setCard(cardCache);
-			chargeCache.setStartChargeStyle((short)EpConstants.CHARGE_TYPE_CARD);
+			chargeCache.setStartChargeStyle((short) EpConstants.CHARGE_TYPE_CARD);
+		} else {
+			chargeCache.setStartChargeStyle((short) EpConstants.CHARGE_TYPE_QRCODE);
 		}
-		else{
-			chargeCache.setStartChargeStyle((short)EpConstants.CHARGE_TYPE_QRCODE);
-		}
-		
-		
-		BigDecimal value= tcr.getFrozenAmt().multiply(Global.DecTime2);
+
+
+		BigDecimal value = tcr.getFrozenAmt().multiply(Global.DecTime2);
 		chargeCache.setFronzeAmt(value.intValue());
 		chargeCache.setPresent(tcr.getRealAmt());
 		chargeCache.setPayMode(tcr.getPayMode());
-		
-		UserOrigin userOrigin = new UserOrigin(tcr.getUserOrgNo(),2,tcr.getUsrGateIp());
-		
+
+		UserOrigin userOrigin = new UserOrigin(tcr.getUserOrgNo(), 2, tcr.getUsrGateIp());
+
 		chargeCache.setUserOrigin(userOrigin);
-		
+
 		RateInfo rateInfo = new RateInfo();
 		if (tcr.getTipPrice() != null) {
 			rateInfo.setModelId(3);
@@ -198,21 +178,22 @@ public class EpChargeService {
 		rateInfo.setQuantumDate(tcr.getQuantumDate());
 
 		chargeCache.setRateInfo(rateInfo);
-		
-		int pkOrderId= getOrderId(tcr.getChreTransactionnumber());
+
+		int pkOrderId = getOrderId(tcr.getChreTransactionnumber());
 		chargeCache.setPkOrderId(pkOrderId);
-		
+
 		return chargeCache;
 	}
-	
-	private static int getOrderId(String chorTransactionnumber)
+
+
+	public static int getOrderId(String chorTransactionnumber)
 	{
 		List<TblChargingOrder> orderList = DB.chargeOrderDao.findOrderId(chorTransactionnumber);
 		if(orderList==null || orderList.size()<=0)
 			return 0;
 		return Integer.parseInt(orderList.get(0).getPkChargingorder());
 	}
-	
+
 	private static TblChargingrecord getChargingRecord(String chorTransactionnumber)
 	{
 		if (StringUtils.isEmpty(chorTransactionnumber)) return null;
@@ -223,7 +204,7 @@ public class EpChargeService {
 
 		return chargeList.get(0);
 	}
-	
+
 	public static ChargeCache GetChargeCacheFromDb(String serialNo)
 	{
 		TblChargingrecord tblChargeRecord = getChargingRecord(serialNo);
@@ -232,14 +213,14 @@ public class EpChargeService {
 					new Object[]{serialNo});
 			return null;
 		}
-		
+
 		return convertFromDb(tblChargeRecord);
 	}
 
 	public static ChargeCache getUnFinishChargeFromDb(String epCode, int epGunNo) {
 		TblChargingrecord tblQueryChargeRecord = new TblChargingrecord();
-		tblQueryChargeRecord.setChreUsingmachinecode(epCode);
 		tblQueryChargeRecord.setChreChargingnumber(epGunNo);
+		tblQueryChargeRecord.setChreUsingmachinecode(epCode);
 
 		List<TblChargingrecord> chargeList = DB.chargingrecordDao.getUnFinishedCharge(tblQueryChargeRecord);
 		logger.debug("chargeList count:{}", chargeList.size());
@@ -259,7 +240,7 @@ public class EpChargeService {
 	{
 		TblChargingrecord tblQueryChargeRecord= new TblChargingrecord();
 		tblQueryChargeRecord.setUserId(u.getId());
-		
+
 		List<TblChargingrecord> chargeList = DB.chargingrecordDao.getUnFinishedChargeByUsrId(tblQueryChargeRecord);
 
 		if (chargeList == null)
@@ -275,7 +256,7 @@ public class EpChargeService {
 			u.addCharge(cache);
 		}
 	}
-	
+
 	public static int getChargeOrderStatus(String serialNo)
 	{
 		String ret = DB.chargeOrderDao.getOrderStatus(serialNo);
@@ -300,7 +281,7 @@ public class EpChargeService {
 			return ErrorCodeConstants.INVALID_ACCOUNT;
 		}*/
 		return 0;
-		
+
 	}
 	public static int appApiStartElectric(String epCode,int epGunNo,String bespNo,
 			int accountId,String account,short ermFlag,
@@ -308,45 +289,45 @@ public class EpChargeService {
 	{
 		logger.info("appApiStartElectric charge accept orgNo:{},accountId:{},account:{},chargeStyle:{},epCode:{},epGunNo:{},fronzeAmt:{} from api",
 				new Object[]{orgNo,accountId,account,ermFlag,epCode,epGunNo,fronzeAmt});
-		
-		if(orgNo!=UserConstants.ORG_I_CHARGE && payMode==EpConstants.P_M_FIRST)
+
+		if(orgNo!= ORG_I_CHARGE && payMode==EpConstants.P_M_FIRST)
 			return  ErrorCodeConstants.INVALID_ACCOUNT;
 		UserCache u=null;
-		
-		if(orgNo !=UserConstants.ORG_I_CHARGE)
+
+		if(orgNo != ORG_I_CHARGE)
 		{
 			u=UserService.getUserIdByOrgNo(orgNo);
-			
+
 			if(u == null)
 			{
 				return ErrorCodeConstants.INVALID_ACCOUNT;
-			
+
 			}
 		}
 		else
 		{
 			u = UserService.getMemUser(accountId,account);
 		}
-		
+
 		if(u==null)
 		{
 			return ErrorCodeConstants.INVALID_ACCOUNT;
 		}
-		
+
 		BigDecimal bdFronzeAmt = new BigDecimal(fronzeAmt);
 		bdFronzeAmt = bdFronzeAmt.multiply(Global.DecTime2);
 		int nFronzeamt = NumUtil.BigDecimal2ToInt(bdFronzeAmt);
-		
+
 		byte[] cmdTimes = WmIce104Util.timeToByte();
-		
+
 		logger.info("charge accept orgNo:{},accountId:{},account:{},chargeStyle:{},epCode:{},epGunNo:{},fronzeAmt:{},nFronzeamt:{} from api",
 				new Object[]{orgNo,accountId,account,ermFlag,epCode,epGunNo,fronzeAmt,nFronzeamt});
-		
-		
+
+
 		return EpChargeService.apiStartElectric(epCode,epGunNo,u,account,null,bespNo,ermFlag,
 				nFronzeamt,payMode,orgNo,1,clientIp,"",cmdTimes);
 	}
-	
+
 	/**
 	 * api开始充电
 	 * @param epCode
@@ -369,11 +350,11 @@ public class EpChargeService {
 		{
 			return ErrorCodeConstants.INVALID_ACCOUNT;
 		}
-		
+
 		int errorCode = checkChargeParams(epCode,u.getAccount());
 		if(errorCode>0)
 			return errorCode;
-		
+
 		//检查电桩
 		ElectricPileCache epCache =  EpService.getEpByCode(epCode);
 		if(epCache == null)
@@ -382,7 +363,7 @@ public class EpChargeService {
 			return ErrorCodeConstants.EP_UNCONNECTED;
 		}
 		int pkUserCard = (card!=null)? card.getId():0;
-		
+
 		boolean allowMutliCharge = (card!=null)? card.isAllowMutliCharge():false;
 		int cardType= (card!=null)? card.getCardType():0;
 		int cardOrgNo= (card!=null)? card.getCompanyNumber():0;
@@ -390,7 +371,7 @@ public class EpChargeService {
 		if(error>0)
 		{
 			logger.error("charge apiStartElectric fail, canCharge,epCode:{},error",epCode,error);
-			
+
 			return error;
 		}
     	if (!epCache.canOrgOperate(orgNo)) return ErrorCodeConstants.EP_NOT_OPERATE;
@@ -398,7 +379,7 @@ public class EpChargeService {
 		String epChargeGun = epCode + epGunNo;
         Map<String,Object> map =  new HashMap<String,Object> ();
 		//所有合作商户在我们这儿都有用户体系，都需要做判断
-        if (orgNo == UserConstants.ORG_I_CHARGE) {
+        if (orgNo == ORG_I_CHARGE) {
             UserRealInfo userRealInfo = UserService.findUserRealInfo(u.getId());
 
             if (userRealInfo == null) {
@@ -418,46 +399,66 @@ public class EpChargeService {
         }
 
         map.put("pkEpId", epCache.getPkEpId());
-        int rateInfoId = DB.rateInfoDao.findPerRateId(map);
-        int modelId = 3;
-        if (rateInfoId == 0) {
-            modelId = 1;
-            rateInfoId = epCache.getRateid();
-        }
-        RateInfoCache rateInfo = RateService.getRateById(rateInfoId);
-        if (rateInfo == null) {
-			RateInfo perRateInfo = DB.rateInfoDao.findRateInfofromId(rateInfoId);
-
-			if(perRateInfo ==null) {
-				logger.error("charge apiStartElectric fail,rateInfo is null,epCode:{},rateInfoId:{}",epCode,rateInfoId);
+		int modelId = 1;
+        int rateInfoId = epCache.getRateid();
+		RateInfoCache rateInfo = RateService.getRateById(rateInfoId);
+		if (StringUtils.contains(token, "chargeStyle:1")) {
+			if (rateInfo.getModelId() == 3) {
+				logger.error("charge apiStartElectric fail,rateInfo is per,epCode:{},rateInfoId:{}", epCode, rateInfoId);
 				return ErrorCodeConstants.INVALID_RATE;
 			}
-			rateInfo = RateService.convertFromDb(perRateInfo);
-			if(!rateInfo.parseStage())
-			{
+			Map<String,Object> map1 =  new HashMap<String,Object> ();
+			map1.put("userId", u.getId());
+			map1.put("epCode", epCode);
+			int remainId = DB.favRecordDao.queryElectricCard(map1);
+			if (remainId == 0) {
+				logger.error("charge apiStartElectric fail,dont find ElectricCard,epCode:{},accountId:{}",epCode, u.getId());
+				return ErrorCodeConstants.INVALID_ACCOUNT;
+			}
+			token = token + "|" + String.valueOf(remainId) + "|" + String.valueOf(frozenAmt*10);
+			frozenAmt = NumUtil.BigDecimal2ToInt(new BigDecimal(frozenAmt).multiply(rateInfo.getCurrentPrice().add(
+					rateInfo.getRateInfo().getServiceRate())));
+			logger.debug("charge apiStartElectric,frozenAmt:{},rateInfo:{}",frozenAmt, rateInfo.getRateInfo().toString());
+		} else {
+			int rateInfoId1 = DB.rateInfoDao.findPerRateId(map);
+			if (rateInfoId1 > 0) {
+				modelId = 3;
+				rateInfoId = rateInfoId1;
 				rateInfo = RateService.getRateById(rateInfoId);
 			}
-			if(rateInfo == null) {
-				logger.error("charge apiStartElectric fail,rateInfo is null,epCode:{},rateInfoId:{}",epCode,rateInfoId);
-				return ErrorCodeConstants.INVALID_RATE;
-			}
-			RateService.AddRate(rateInfoId, rateInfo);
-		}
+			if (rateInfo == null) {
+				RateInfo perRateInfo = DB.rateInfoDao.findRateInfofromId(rateInfoId);
 
-		if (modelId == 3) {
-			if (RateService.getRateById(epCache.getRateid()).getRateInfo().getModelId() == 3) rateInfo.setModelId(3);
-		} else {
-			rateInfo.setModelId(0);
+				if (perRateInfo == null) {
+					logger.error("charge apiStartElectric fail,rateInfo is null,epCode:{},rateInfoId:{}", epCode, rateInfoId);
+					return ErrorCodeConstants.INVALID_RATE;
+				}
+				rateInfo = RateService.convertFromDb(perRateInfo);
+				if (!rateInfo.parseStage()) {
+					rateInfo = RateService.getRateById(rateInfoId);
+				}
+				if (rateInfo == null) {
+					logger.error("charge apiStartElectric fail,rateInfo is null,epCode:{},rateInfoId:{}", epCode, rateInfoId);
+					return ErrorCodeConstants.INVALID_RATE;
+				}
+				RateService.AddRate(rateInfoId, rateInfo);
+			}
+
+			if (modelId == 3) {
+				if (RateService.getRateById(epCache.getRateid()).getRateInfo().getModelId() == 3)
+					rateInfo.setModelId(3);
+			}
 		}
+		if (modelId != 3) rateInfo.setModelId(0);
 
 		/*errorCode = u.canCharge(epChargeGun,u.getId(),orgNo,thirdUsrIdentity,pkUserCard,allowMutliCharge);
-		
+
 		if(errorCode>0)
 		{
 			return errorCode;
 		}*/
 		EpGunCache epGunCache = EpGunService.getEpGunCache(epCode, epGunNo);
-		
+
 		errorCode = epGunCache.canCharge(startChargeStyle,u.getId(),true);
 		if(errorCode>0)
 		{
@@ -466,14 +467,14 @@ public class EpChargeService {
 
 		errorCode = epGunCache.startChargeAction(u, thirdUsrIdentity,card,RateService.getRateById(epCache.getRateid()),rateInfo, bespNo, startChargeStyle, frozenAmt,
 				payMode, orgNo,fromSource,actionIdentity,token,cmdTimes);
-		
-		
+
+
 		return errorCode;
 	}
 	public static int appApiStopElectric(String epCode,int epGunNo,int orgNo,int userId,String account,int source,String apiClientIp)
 	{
         UserCache userInfo = null;
-        if(orgNo !=UserConstants.ORG_I_CHARGE)
+        if(orgNo != ORG_I_CHARGE)
 		{
             userInfo=UserService.getUserIdByOrgNo(orgNo);
 			if(userInfo==null)
@@ -482,10 +483,10 @@ public class EpChargeService {
 			}
 		}
 		return apiStopElectric(epCode, epGunNo,orgNo, userId,account,source,apiClientIp);
-		
+
 	}
 	/**
-	 * 
+	 *
 	 * @param epCode
 	 * @param epGunNo
 	 * @param orgNo
@@ -501,7 +502,7 @@ public class EpChargeService {
 		{
 			return ErrorCodeConstants.INVALID_EP_CODE;//
 		}
-		
+
 		//检查电桩
 		ElectricPileCache epCache =  EpService.getEpByCode(epCode);
 		if(epCache == null)
@@ -509,20 +510,20 @@ public class EpChargeService {
 			logger.error("charge fail,dont find ElectricPileCache:{}",epCode);
 			return ErrorCodeConstants.EP_UNCONNECTED;
 		}
-		
-		
+
+
 		if(epGunNo<1|| epGunNo> epCache.getGunNum())
 		{
 			return ErrorCodeConstants.INVALID_EP_GUN_NO;//
 		}
-		
+
 		EpGunCache epGunCache= EpGunService.getEpGunCache(epCode, epGunNo);
 		//桩断线，不能结束充电
  		if(epGunCache ==null )
 		{
 			return ErrorCodeConstants.EP_UNCONNECTED;//
 		}
-		
+
 		return epGunCache.stopChargeAction(orgNo, userId, account, source, apiClientIp);
 	}
 
@@ -530,9 +531,9 @@ public class EpChargeService {
 	{
 		logger.info(LogUtil.addExtLog("cmd|epCode|epGunNo|cmdTime|ChargeCmdResp")
 				,new Object[]{LogConstants.FUNC_ONSTARTCHARGE,chargeCmdResp.getEpCode(),chargeCmdResp.getEpGunNo(),cmdTimes,chargeCmdResp});
-	
+
 		EpGunCache epGunCache = EpGunService.getEpGunCache(chargeCmdResp.getEpCode(),chargeCmdResp.getEpGunNo());
-		
+
 		if(epGunCache!=null)
 		{
 			epGunCache.onEpStartCharge(chargeCmdResp);
@@ -543,12 +544,12 @@ public class EpChargeService {
 	 */
 	public static void handEpStopChargeResp(String epCode,int epGunNo,int ret,byte []cmdTimes )
 	{
-		logger.debug("handEpStopChargeResp epCode:{},epGunNo:{},ret:{}",
+		logger.info("handEpStopChargeResp epCode:{},epGunNo:{},ret:{}",
                 new Object[]{epCode, epGunNo, ret});
-		
+
 	}
 	/**
-	 * 
+	 *
 	 * @param chargeEvent
 	 * @return 4:参数错误
 	 */
@@ -566,14 +567,14 @@ public class EpChargeService {
 			return 4;
 		}
 		int epGunNo = chargeEvent.getEpGunNo();
-		
+
 		if(chargeEvent.getSuccessFlag()!=0&&  chargeEvent.getSuccessFlag()!=1)
 		{
 			logger.error(LogUtil.addExtLog("invalid successFlag"),chargeEvent.getSuccessFlag());
 			return 4;
 		}
-		
-        String serialNo = chargeEvent.getSerialNo();		
+
+        String serialNo = chargeEvent.getSerialNo();
 		if(serialNo==null || serialNo.length()!=32)
 		{
 			logger.error(LogUtil.addExtLog("not find serialno"),serialNo);
@@ -593,16 +594,16 @@ public class EpChargeService {
 			return 7;
 		}
 		return 0;
-		
+
 	}
-	public static  int  handleStartElectricizeEventV3(EpCommClient epCommClient,ChargeEvent chargeEvent,byte []cdmTimes) 
+	public static  int  handleStartElectricizeEventV3(EpCommClient epCommClient,ChargeEvent chargeEvent,byte []cdmTimes)
 	{
 		logger.info(LogUtil.addExtLog("onEpStartChargeEvent,chargeEvent"),chargeEvent);
-		
+
 		String retEpCode= null;
 		int retEpGunNo = 0;
 		String serialNo = null;
-		
+
 		//1.检查充电时间参数
 		int retCode=checkRespChargeEventParams(chargeEvent);
 		if(retCode==0)
@@ -610,9 +611,21 @@ public class EpChargeService {
 			 retEpCode= chargeEvent.getEpCode();
 			 retEpGunNo = chargeEvent.getEpGunNo();
 			 serialNo = chargeEvent.getSerialNo();
-			
+
 			EpGunCache epGunCache = EpGunService.getEpGunCache(retEpCode,retEpGunNo);
-		
+			//用redis 做了个同步锁，防止同一个桩并发上传相同冻结金额
+//			try {
+//				String epCodeGunNoNew = serialNo + chargeEvent.getStartChargeTime() + chargeEvent.getStartMeterNum();
+//				String result = JedisUtil.set4Lock(EP_PREVENT_REP_CHARGEEVENT + epCodeGunNoNew, epCodeGunNoNew, "NX", "PX", 17000);
+//				logger.debug("handleStartElectricizeEventV3 set4Lock result:{},epCodeGunNoNew:{}", result, epCodeGunNoNew);
+//				if (!LOCK_SUCCESS.equals(result)) {
+//					logger.info(LogUtil.addFuncExtLog(LogConstants.FUNC_PREVENT_REPEAT_CHARGEEVENT, "handleStartElectricizeEventV3"), epCodeGunNoNew);
+//					return 0;
+//				}
+//			}catch (Exception e){
+//				logger.error("handleStartElectricizeEventV3 set4Lock Exception e:{}",e.getMessage());
+//			}
+
 			retCode = epGunCache.handleStartChargeEvent(chargeEvent);
 		}
 		else
@@ -633,26 +646,31 @@ public class EpChargeService {
 			{
 				serialNo = chargeEvent.getSerialNo();
 			}
-			
+
 		}
-		
+
 		if(!ImitateEpService.IsStart() )
 		{
 			byte[] confirmdata = EpEncoder.do_charge_event_confirm(chargeEvent.getEpCode(),chargeEvent.getEpGunNo(),chargeEvent.getSerialNo(),retCode);
-				
+
 			if(confirmdata==null)
 			{
 				logger.error(LogUtil.getExtLog("do_charge_event_confirm exception"));
 				return retCode;
 			}
-			
+
 			EpMessageSender.sendMessage(epCommClient, 0,0,(byte)Iec104Constant.C_CHARGE_EVENT_CONFIRM,confirmdata,cdmTimes,epCommClient.getVersion());
-			
+
 			logger.info(LogUtil.addExtLog("cmd|epCode|epGunNo|retCode|serialNo")
                     , new Object[]{LogConstants.FUNC_ONCHARGEEVENT, chargeEvent.getEpCode(), chargeEvent.getEpGunNo(), retCode, chargeEvent.getSerialNo()});
+			// 充电事件确认结果不存在时做充电失败处理
+//			if (retCode == 3) {
+//				EpGunCache epGunCache = EpGunService.getEpGunCache(retEpCode,retEpGunNo);
+//				epGunCache.onStartChargeEventFail(3, ErrorCodeConstants.EPE_STOP_CHARGE);
+//			}
 		}
 		return retCode;
-		
+
 	}
 	public static void updateBeginRecordToDb(int chargeUserId,int chorType,
 			String chargeAccount,int pkUserCard,int userOrigin,int pkEpId,String epCode,
@@ -660,12 +678,12 @@ public class EpChargeService {
 			String chargeSerialNo,int startMeterNum,RateInfo rateInfo,int status,int thirdCode,int thirdType)
 	{
 		TblChargingrecord record = new TblChargingrecord();
-		
+
 		BigDecimal bdMeterNum = NumUtil.intToBigDecimal3(startMeterNum);
 		// 开始充电表低示数
 		String beginShowsNumber = String.valueOf(bdMeterNum);
 		record.setChreBeginshowsnumber(beginShowsNumber);
-		
+
 		// 充电开始时间
 		Date startDate = DateUtil.toDate(st * 1000);
 		record.setChreStartdate(startDate);
@@ -678,9 +696,9 @@ public class EpChargeService {
 	    record.setUserId(chargeUserId);
 	    record.setUserPhone(chargeAccount);
 		record.setChreElectricpileid(pkEpId);
-	
+
 		record.setChreChargingmethod(chargingmethod);
-		
+
 		record.setChreEndshowsnumber("0");
 		record.setChreCode(chOrCode);
 		record.setStatus(status);
@@ -698,26 +716,26 @@ public class EpChargeService {
 		record.setPkUserCard(pkUserCard);
 		record.setUserOrigin(userOrigin);
 		BigDecimal bdFrozenAmt = NumUtil.intToBigDecimal2(frozenAmt);
-		
+
 		record.setFrozenAmt(bdFrozenAmt);
-		
+
 		record.setThirdCode(thirdCode);
 		record.setThirdType(thirdType);
-		
+
 		// 新增开始充电记录
 		DB.chargingrecordDao.updateBeginRecord(record);
 	}
-	
+
 	public static void updateFailRecordToDb(String serialNo,int status)
 	{
 		TblChargingrecord record = new TblChargingrecord();
-	
+
 		record.setChreTransactionnumber(serialNo);
 		record.setStatus(status);
 		// 新增开始充电记录
 		DB.chargingrecordDao.updateFailChargeRecord(record);
 	}
-	
+
 	public static void insertChargeRecordToDb(int chargeUserId,int chorType,
 			String chargeAccount,int pkUserCard,int userOrigin,int pkEpId,String epCode,
 			int epGunNo,int chargingmethod,String bespokeNo,String chOrCode, int frozenAmt,
@@ -725,12 +743,12 @@ public class EpChargeService {
 			, RateInfo defRateInfo,RateInfo rateInfo,int status,String thirdUsrIdentity,String token,int accountId)
 	{
 		TblChargingrecord record = new TblChargingrecord();
-		
+
 		BigDecimal bdMeterNum = NumUtil.intToBigDecimal3(chargeEvent.getStartMeterNum());
 		// 开始充电表低示数
 		String beginShowsNumber = String.valueOf(bdMeterNum);
 		record.setChreBeginshowsnumber(beginShowsNumber);
-		
+
 		// 充电开始时间
 		Date startDate = DateUtil.toDate(chargeEvent.getStartChargeTime() * 1000);
 		record.setChreStartdate(startDate);
@@ -743,12 +761,12 @@ public class EpChargeService {
         record.setUserId(chargeUserId);
 	    record.setUserPhone(chargeAccount);
 		record.setChreElectricpileid(pkEpId);
-		
+
 		record.setChreChargingmethod(chargingmethod);
-		
+
 		record.setChreEndshowsnumber("0");
 		record.setChreCode(chOrCode);
-	
+
 		record.setStatus(status);
 		record.setJPrice(defRateInfo.getJ_Rate());
 		record.setFPrice(defRateInfo.getF_Rate());
@@ -768,7 +786,7 @@ public class EpChargeService {
         }
 		record.setPkUserCard(pkUserCard);
 		record.setUserOrigin(0);
-		
+
 		BigDecimal bdFrozenAmt = NumUtil.intToBigDecimal2(frozenAmt);
 		record.setFrozenAmt(bdFrozenAmt);
 		record.setRealAmt(presentAmt);
@@ -780,7 +798,7 @@ public class EpChargeService {
 		record.setAccountId(accountId);
 		// 新增开始充电记录
 		DB.chargingrecordDao.insertBeginRecord(record);
-		
+
 	}
 	public static int insertChargeOrderToDb(int chargeUserId,int chorType,
 			int pkUserCard,int userOrigin,int pkEpId,String epCode,
@@ -790,27 +808,27 @@ public class EpChargeService {
 	{
 		//订单编号，赞借用流水号
 		Date date = new Date();
-		
+
 		Date dtStart = new Date(st *1000);
 		// 计算总电量
 		String beginTime = DateUtil.toDateFormat(dtStart, "MM-dd HH:mm");
-		
+
 		BigDecimal  bdZero = new BigDecimal(0.0);
-		
+
 		BigDecimal  chargeAmt = new BigDecimal(0.0);
 		BigDecimal  serviceAmt =new BigDecimal(0.0);
 		// 充电消费订单
 		 TblChargingOrder order = new TblChargingOrder();
 		 order.setChorCode(chOrCode);
-		
+
 		order.setChorAppointmencode(bespokeNo);
-		
+
 		 order.setChorPilenumber(epCode);
 		 order.setChorUserid("" + chargeUserId);
-		
+
 		 order.setChorType(chorType);
 		 //order.setChorType(0);
-		 
+
 		 order.setChorMoeny(chargeAmt.add(serviceAmt) + "");
 		 order.setChOr_tipPower(bdZero);
 		 order.setChOr_peakPower(bdZero);
@@ -821,7 +839,7 @@ public class EpChargeService {
 		 order.setChorMuzzle(epGunNo);
 		 order.setChorChargingstatus(ChargeOrderConstants.ORDER_STATUS_WAIT + "");
 		 order.setChorTranstype("1");
-		
+
 		 order.setChorCreatedate(new Date());
 		 order.setChorUpdatedate(new Date());
 		 //order.setChorUsername(userInfo.getUsinFacticityname() == null ? "":userInfo.getUsinFacticityname());
@@ -831,7 +849,7 @@ public class EpChargeService {
 		 order.setChorServicemoney(serviceAmt);
 		 order.setChorOrdertype(0);
 		 beginTime = DateUtil.toDateFormat(dtStart, ChargeYearDateFmt);
-		
+
 		 order.setChargeBegintime(beginTime);
 		 order.setChargeEndtime(beginTime);
 		 order.setPkUserCard(pkUserCard);
@@ -840,9 +858,13 @@ public class EpChargeService {
 		 //order.setPayMode(payMode);
 		 order.setThirdUsrIdentity(thirdUsrIdentity);
 		 order.setThirdExtraData(token);
+		 //EpDataClientService.getInstance().reportStartCharge(order);
 		 // 新增充电消费订单
 		 int pkOrderId = getOrderId(chargeSerialNo);
-		 if (pkOrderId == 0) return DB.chargeOrderDao.insertChargeOrder(order);
+		 if (pkOrderId == 0) {
+		 	DB.chargeOrderDao.insertChargeOrder(order);
+		 	return DB.chargeOrderDao.insertChargeOrderExt(order);
+		 }
 		 return pkOrderId;
 	}
 	public static String getMeterNum(int nMeterNum)
@@ -935,10 +957,15 @@ public class EpChargeService {
 		if (consumeRecord.getType() == 1) {
 			order.setStartSoc(consumeRecord.getStartSoc());
 			order.setEndSoc(consumeRecord.getEndSoc());
+			order.setBatteryRatedCapacity(consumeRecord.getBatteryRatedCapacity());
+			order.setBatteryTotalEnergy(consumeRecord.getBatteryTotalEnergy());
 		}
         order.setVinCode(consumeRecord.getCarVinCode());
 		// 新增充电消费订单
 		DB.chargeOrderDao.insertFullChargeOrder(order);
+		if (consumeRecord.getType() == 1) {
+			DB.chargeOrderDao.insertFullChargeOrderExt(order);
+		}
 	}
 
 	public static void insertFullChargeRecord(int chargeUserId,int chorType,
@@ -953,31 +980,31 @@ public class EpChargeService {
 		 {
 			thirdUsrIdentity = consumeRecord.getEpUserAccount();
 		 }
-		
+
 		TblChargingrecord record = new TblChargingrecord();
 		// 开始充电表低示数
 		String beginShowsNumber = getMeterNum(consumeRecord.getStartMeterNum());
 		String endShowsnumber = getMeterNum(consumeRecord.getEndMeterNum());
-		
+
 		// 充电开始时间
-		
+
         record.setUserId(chargeUserId);
 	    record.setUserPhone(chargeAccount);
 		record.setChreElectricpileid(pkEpId);
 		record.setChreUsingmachinecode(epCode);
 
 		record.setChreTransactionnumber(consumeRecord.getSerialNo());
-		
+
 		record.setChreStartdate(dtStart);
 		record.setChreChargingnumber(epGunNo);
 		record.setChreChargingmethod(chargingmethod);
 		record.setChreReservationnumber("");
-		
+
 		record.setChreBeginshowsnumber(beginShowsNumber);
 		record.setChreEndshowsnumber(endShowsnumber);
-		
+
 		record.setChreCode(chOrCode);
-		
+
 		record.setChreEnddate(dtEnd);
 		record.setChreResttime(0);
 		record.setStatus(1);
@@ -1001,10 +1028,10 @@ public class EpChargeService {
 		record.setThirdExtraData("");
 		// 新增开始充电记录
 		DB.chargingrecordDao.insertFullChargeRecord(record);
-		
+
 	}
 
-	public static void insertChargeWithConsumeRecord(int chargeUserId,
+	public static void 	insertChargeWithConsumeRecord(int chargeUserId,
 			int chorType, String chargeAccount, int pkUserCard, int userOrigin,
 			int pkEpId, String epCode, int epGunNo, int chargingmethod,
 			String bespokeNo, String chOrCode, int payMode,
@@ -1096,10 +1123,15 @@ public class EpChargeService {
 		if (consumeRecord.getType() == 1) {
 			order.setStartSoc(consumeRecord.getStartSoc());
 			order.setEndSoc(consumeRecord.getEndSoc());
+			order.setBatteryRatedCapacity(consumeRecord.getBatteryRatedCapacity());
+			order.setBatteryTotalEnergy(consumeRecord.getBatteryTotalEnergy());
 		}
         order.setVinCode(consumeRecord.getCarVinCode());
 		// 新增充电消费订单
 		DB.chargeOrderDao.insertFullChargeOrder(order);
+		if (consumeRecord.getType() == 1) {
+			DB.chargeOrderDao.insertFullChargeOrderExt(order);
+		}
 
 		TblChargingrecord record = new TblChargingrecord();
 		// 开始充电表低示数
@@ -1156,21 +1188,21 @@ public class EpChargeService {
 		DB.chargingrecordDao.insertFullChargeRecord(record);
 
 	}
-	
-	public static void updateChargeToDb(EpGunCache epGunCache,ChargeCache chargeCache,ConsumeRecord consumeRecord,
+
+	public static void 	updateChargeToDb(EpGunCache epGunCache,ChargeCache chargeCache,ConsumeRecord consumeRecord,
 			boolean exceptionData,BigDecimal discountAmt,int pkCouPon,int thirdType,BigDecimal servicePrice)
 	{
 		String epCode =  epGunCache.getEpCode();
 		int epGunNo =  epGunCache.getEpGunNo();
 		int pkEpId = epGunCache.getPkEpGunId();
-		
+
 		int payMode = chargeCache.getPayMode();
 		String chargeUserAccount = chargeCache.getAccount();
 		int userId = chargeCache.getUserId();
 		RateInfo rateInfo = chargeCache.getRateInfo();
 		String chOrCode = chargeCache.getChOrCode();
-		
-		
+
+
 		// 尖时段用电度数
 		BigDecimal tipPower = NumUtil.intToBigDecimal3(consumeRecord.getjDl());
 		// 峰时段用电度数
@@ -1178,18 +1210,18 @@ public class EpChargeService {
 		// 平时段用电度数
 		BigDecimal usualPower = NumUtil.intToBigDecimal3(consumeRecord.getpDl());
 		// 谷时段用电度数
-		BigDecimal valleyPower = NumUtil.intToBigDecimal3(consumeRecord.getgDl()); 
+		BigDecimal valleyPower = NumUtil.intToBigDecimal3(consumeRecord.getgDl());
 		// 时间段
-		
+
 		BigDecimal totalPower = NumUtil.intToBigDecimal3(consumeRecord.getTotalDl());
-				
-			
+
+
 		Date dtStart = new Date(consumeRecord.getStartTime()*1000);
 		Date dtEnd = new Date(consumeRecord.getEndTime()*1000);
 		// 计算总电量
 		String beginTime = DateUtil.toDateFormat(dtStart, "MM-dd HH:mm");
 		String endTime = DateUtil.toDateFormat(dtEnd,"MM-dd HH:mm");
-		
+
 		BigDecimal  chargeAmt =  new BigDecimal(0);
 		BigDecimal  serviceAmt = new BigDecimal(0);
 		BigDecimal  chargeCost = new BigDecimal(0);
@@ -1261,14 +1293,22 @@ public class EpChargeService {
 		if (consumeRecord.getType() == 1) {
 			order.setStartSoc(consumeRecord.getStartSoc());
 			order.setEndSoc(consumeRecord.getEndSoc());
+			order.setBatteryRatedCapacity(consumeRecord.getBatteryRatedCapacity());
+			order.setBatteryTotalEnergy(consumeRecord.getBatteryTotalEnergy());
 		}
         order.setVinCode(consumeRecord.getCarVinCode());
         // 新增充电消费订单
 		int pkOrderId = getOrderId(consumeRecord.getSerialNo());
 		if (pkOrderId > 0) {
 			DB.chargeOrderDao.updateOrder(order);
+			if (consumeRecord.getType() == 1) {
+				DB.chargeOrderDao.updateOrderExt(order);
+			}
 		} else {
 			DB.chargeOrderDao.insertFullChargeOrder(order);
+			if (consumeRecord.getType() == 1) {
+				DB.chargeOrderDao.insertFullChargeOrderExt(order);
+			}
 		}
 
 		// 根据交易流水号更新充电订单编号
@@ -1426,25 +1466,25 @@ public class EpChargeService {
 		}
 		return faultCause;
 	}
-	
+
 	public static  int handleStopElectricizeEvent(EpCommClient epCommClient,String epCode,int epGunNo,String serialNo,long et,
 			short nStopRet,int nDbValue,byte ChargeStye,byte offstates,byte successflag,byte[]time,byte []cmdTimes) throws IOException
 	{
-		
+
 		short isException=0;
 		int exceptionCode=0;
-	
+
 		//1.
 		EpGunCache epGunCache = EpGunService.getEpGunCache(epCode, epGunNo);
 		if(epGunCache==null)
 		{
-			logger.error("stopcharge Event error epGunCache==null,epCode:{},epGunNo:{}",epCode,epGunNo);			
+			logger.error("stopcharge Event error epGunCache==null,epCode:{},epGunNo:{}",epCode,epGunNo);
 			return  1;
 		}
 		short nTimeOut =0;
 		ChargeCache chargeCache = epGunCache.getChargeCache();
 			//在线二维码停止充电超时
-		
+
 		if (chargeCache == null )
 		{
 			logger.error("stopcharge event error not find ElectricCache,epCode:{},epGunNo:{}",
@@ -1457,8 +1497,8 @@ public class EpChargeService {
 					epCode ,epGunNo );
 			return 3;
 		}
-		
-		//桩停止充电不成功		
+
+		//桩停止充电不成功
 		if (successflag != 1)
 		{
 			logger.error("stopcharge fail,epCode:{},epGunNo:{},successflag:{}",
@@ -1472,7 +1512,7 @@ public class EpChargeService {
 		}
 		if (nStopRet == 1 || nStopRet == 2 || nStopRet == 3 || nStopRet == 10) {
 			isException = 1;
-		} 
+		}
 		else {
 			exceptionCode = nStopRet;
 		}
@@ -1482,11 +1522,14 @@ public class EpChargeService {
 			nnStopRet = nStopRet;
 		}
 		chargeCache.setStopCause(nStopRet);
-		
-		endChargeRecord(chargeCache.getChargeSerialNo(),et ,0,chargeCache.getRateInfo().getServiceRate());
+
+		endChargeRecord(chargeCache.getChargeSerialNo(),et , 0,chargeCache.getRateInfo().getServiceRate());
+		//EpDataClientService.getInstance().reportStopCharge( epCode,epGunNo,epGunCache.getChargeCache().getChargeSerialNo() );
 
 		chargeCache.setStatus(ChargeRecordConstants.CS_CHARGE_END);
-		
+
+		epGunCache.onEndCharge();
+
 		return 0;
 	}
 	public static void endChargeRecord(String serialNo,long et,int endMeterNum,BigDecimal servicePrice)
@@ -1494,81 +1537,82 @@ public class EpChargeService {
 		TblChargingrecord record = new TblChargingrecord();
 		record.setChreTransactionnumber(serialNo);
 		record.setStatus( ChargeRecordConstants.CS_CHARGE_END);
-		
+
 		record.setServicePrice(servicePrice);
-		
+
 		BigDecimal bdEndMeterNum = NumUtil.intToBigDecimal3(endMeterNum);
 		String endShowsnumber = String.valueOf(bdEndMeterNum);
-		
+
 		record.setChreEndshowsnumber(endShowsnumber);
 		Date endDate = DateUtil.toDate(et * 1000);
-		
-		
+
+
 		record.setChreEnddate(endDate);
-		
+
 		// 更新充电记录 记录结束时间和用电度数
-		DB.chargingrecordDao.insertEndRecord(record); 
+		DB.chargingrecordDao.insertEndRecord(record);
+
 	}
 	public static void insertFaultRecord(String stopCause,String epCode,int pkEpId,int epGunNo,String serialNo,Date faultDate)
 	{
 		try
 		{
-			
+
 			String faultCause = ""+stopCause;//getFaultDesc(stopCause);
-			
+
             TblChargingfaultrecord faultrecord = new TblChargingfaultrecord();
 			faultrecord.setCfreUsingmachinecode(epCode);
 			faultrecord.setCfreElectricpileid(pkEpId);
 			faultrecord.setCfreElectricpilename("");
-			
+
 			faultrecord.setcFRe_EphNo(epGunNo);
-				
-			
+
+
 			faultrecord.setCfreChargingsarttime(faultDate);
 			faultrecord.setCfreFaultcause(faultCause);
 			faultrecord.setCfreTransactionnumber(serialNo);
 			// 新增故障记录
 			DB.chargingfaultrecordDao.insertFaultRecord(faultrecord);
-			
+
 		}catch(Exception e)
 		{
 			logger.error("insertFaultRecord,exception stack trace:{}",e.getStackTrace());
 		}
-		
+
 	}
 	private static int convertChargeCodeToAuthCode(int code)
 	{
 		switch(code)
 		{
 		case 1002:
-		{				
-			return 1;	
+		{
+			return 1;
 		}
-		
+
 		case ErrorCodeConstants.EP_UNCONNECTED:
 		case ErrorCodeConstants.INVALID_EP_CODE:
 		case ErrorCodeConstants.INVALID_EP_GUN_NO:
 		case ErrorCodeConstants.INVALID_RATE:
 		{
-			return 2;	
+			return 2;
 		}
-		
+
 		case 6800:
 		case ErrorCodeConstants.CANNOT_OTHER_OPER:
 		{
 			return 4;
 		}
-		
+
 		case ErrorCodeConstants.INVALID_ACCOUNT:
 		{
 			return 3;
 		}
-		
+
 		default:
 			break;
 		}
 		return code;
-		
+
 	}
 	public static int getCardPayMode(int cardPayMode)
 	{
@@ -1579,7 +1623,7 @@ public class EpChargeService {
 		return 1;
 	}
 	/**
-	 * 
+	 *
 	 * @param epCode
 	 * @param epGunNo
 	 * @param innerCardNo
@@ -1601,42 +1645,42 @@ public class EpChargeService {
 				return 2;
 			}
 			int errorCode=0;
-			
+
 			EpGunCache epGunCache = EpGunService.getEpGunCache(epCode, epGunNo);
 			if(epGunCache == null)
 				return  2;
-	
+
 			ChargeCardCache cardCache =  UserService.getCard(innerCardNo);
 			if(cardCache == null)
 				return 3;
-			
+
 			int payMode= getCardPayMode(cardCache.getCardType());
-			
+
 			errorCode = epCache.canCharge(true,cardCache.getId(),payMode,cardCache.getCompanyNumber(),epGunNo);
 			if(errorCode>0)
 			{
 				logger.error(LogUtil.addBaseExtLog("errorCode")
-						,new Object[]{LogConstants.FUNC_START_CHARGE,epCode,epGunNo,UserConstants.ORG_I_CHARGE,innerCardNo,errorCode});
+						,new Object[]{LogConstants.FUNC_START_CHARGE,epCode,epGunNo, ORG_I_CHARGE,innerCardNo,errorCode});
 				return 3;
 			}
-			
+
 			int usrId = cardCache.getUserId();
 			UserCache userCache= UserService.getUserCache(usrId);
 			if(userCache==null)
 				return 3;
-			
+
 			AuthUserCache authCache = epGunCache.getAuthCache();
 			long now =DateUtil.getCurrentSeconds();
-			
+
 			if(authCache!=null)
 			{
 				long authTime = authCache.getLastTime();
 				int curUsrId = epGunCache.getCurUserId();
-				if(!cardCache.isAllowMutliCharge() && 
-						(now- authTime)<GameConfig.userAuthTimeOut && 
+				if(!cardCache.isAllowMutliCharge() &&
+						(now- authTime)<GameConfig.userAuthTimeOut &&
 						curUsrId>0 && curUsrId!=userCache.getId())
-				{	
-					errorCode = 4;	
+				{
+					errorCode = 4;
 				}
 				else
 				{
@@ -1648,19 +1692,107 @@ public class EpChargeService {
 				authCache = new AuthUserCache(userCache.getId(),userCache.getAccount(),now,(short)3);
 				epGunCache.setAuthCache(authCache);
 			}
-			
+
 			if(errorCode==0)
 			{
 				int pkCardId = cardCache.getId();
 				String usrLog = ""+usrId;
+				short startChargeStyle = EpConstants.CHARGE_TYPE_NORMAL_CARD;
+				if (cardCache.getCardType() == EpConstants.CARD_CO_CREDIT) {
+					startChargeStyle = EpConstants.CHARGE_TYPE_CREDIT_CARD;
+				}
 				logger.info(LogUtil.addBaseExtLog("charge card fronze amt success errorCode|innerCardNo|cardPayMode"),
-						new Object[]{LogConstants.FUNC_START_CHARGE,epCode,epGunNo,UserConstants.ORG_I_CHARGE,usrId,errorCode,innerCardNo,payMode});
-				
+						new Object[]{LogConstants.FUNC_START_CHARGE,epCode,epGunNo, ORG_I_CHARGE,usrId,errorCode,innerCardNo,payMode});
+
 				errorCode = apiStartElectric(
-						epCode,epGunNo,userCache,usrLog,cardCache,"",
-						(short)EpConstants.CHARGE_TYPE_CARD,
+						epCode,epGunNo,userCache,usrLog,cardCache,"",startChargeStyle,
 						fronzeAmt,payMode,cardCache.getCompanyNumber(),2,userCache.getAccount(),"",cmdTimes);
-				
+
+				return convertChargeCodeToAuthCode(errorCode);
+			}
+			return errorCode;
+		}
+		catch(Exception e)
+		{
+			logger.error(LogUtil.addExtLog("exception"), e.getStackTrace());
+			return 3;
+		}
+	}
+
+	/**
+	 *
+	 * @param epCode
+	 * @param epGunNo
+	 * @param carVinNo
+	 * @param fronzeAmt
+	 * @param cmdTimes
+	 * @return 1：金额不足
+	2：没找到桩
+	3：无效VIN码
+	4：在其他桩上使用，不能充电
+
+	 */
+	private static int fronzeVinAmt(String epCode,int epGunNo,String carVinNo,int fronzeAmt,byte []cmdTimes )
+	{
+		try
+		{
+			ElectricPileCache epCache=EpService.getEpByCode(epCode);
+			if(epCache==null)
+			{
+				return 2;
+			}
+			int errorCode=0;
+
+			EpGunCache epGunCache = EpGunService.getEpGunCache(epCode, epGunNo);
+			if(epGunCache == null)
+				return  2;
+
+			List<TblCarVin> carVinList = DB.carVinDao.selectByVinCode(carVinNo);
+			if(carVinList==null || carVinList.size()==0)
+			{
+				return 3;
+			} else if (carVinList.size()>1) {
+				return 3;
+			}
+			int userId = carVinList.get(0).getPkCarVin();
+			UserCache userCache = UserService.getUserCache(userId);
+			if(userCache == null)
+				return 3;
+
+			int payMode= DB.phDao.getPayMode(userCache.getAccountId());
+
+			errorCode = epCache.canCharge(true,0,payMode,userCache.getCpyNumber(),epGunNo);
+			if(errorCode>0)
+			{
+				logger.error(LogUtil.addBaseExtLog("errorCode")
+						,new Object[]{LogConstants.FUNC_START_CHARGE,epCode,epGunNo, ORG_I_CHARGE,carVinNo,errorCode});
+				return 3;
+			}
+
+			AuthUserCache authCache = epGunCache.getAuthCache();
+			long now =DateUtil.getCurrentSeconds();
+
+			if(authCache!=null)
+			{
+				authCache.setLastTime(now);
+			}
+			else
+			{
+				authCache = new AuthUserCache(userCache.getId(),userCache.getAccount(),now,(short)3);
+				epGunCache.setAuthCache(authCache);
+			}
+
+			if(errorCode==0)
+			{
+				String usrLog = ""+userId;
+				logger.info(LogUtil.addBaseExtLog("charge vin fronze amt success errorCode|carVinNo|vinPayMode"),
+						new Object[]{LogConstants.FUNC_START_CHARGE,epCode,epGunNo, ORG_I_CHARGE,userId,errorCode,carVinNo,payMode});
+
+				errorCode = apiStartElectric(
+						epCode,epGunNo,userCache,usrLog,null,"",
+						(short)EpConstants.CHARGE_TYPE_VIN,
+						fronzeAmt,payMode,userCache.getCpyNumber(),2,userCache.getAccount(),"",cmdTimes);
+
 				return convertChargeCodeToAuthCode(errorCode);
 			}
 			return errorCode;
@@ -1676,17 +1808,47 @@ public class EpChargeService {
 	{
 		int accountId=0;
 		String account="";
-		
+        //用redis 做了个同步锁，防止同一个桩并发上传相同冻结金额
+//		try {
+//			String epCodeGunNoNew = epCode + epGunNo + innerCardNo + fronzeAmt;//桩号+枪号+innerCardNo+fronzeAmt
+//			String result = JedisUtil.set4Lock(EP_PREVENT_REP_CARDFROZEAMT + epCodeGunNoNew, epCodeGunNoNew, "NX", "PX", 17000);
+//			logger.debug("handleCardFronzeAmt set4Lock result:{},epCodeGunNoNew:{}", result, epCodeGunNoNew);
+//			if (!LOCK_SUCCESS.equals(result)) {
+//				logger.info(LogUtil.addFuncExtLog(LogConstants.FUNC_PREVENT_REPEAT_CARDFROZEAMT, "handleCardFronzeAmt"), epCodeGunNoNew);
+//				return;
+//			}
+//		}catch (Exception e){
+//			logger.error("handleCardFronzeAmt set4Lock Exception:{}",e.getMessage());
+//		}
+
 		int errorCode= fronzeCardAmt(epCode, epGunNo,innerCardNo,fronzeAmt,cmdTimes);
-		
+
 		if(errorCode>0)
 		{
 			logger.info("charge card fronze amt fail response to ep errorCode:{} accountId:{},account:{},inCardNo:{},epCode:{},epGunNo:{}",
 					new Object[]{errorCode,accountId,account,innerCardNo,epCode,epGunNo});
-			
+
 			byte[] data = EpEncoder.do_card_frozen_amt(epCode,epGunNo,innerCardNo,0,errorCode);
 			EpMessageSender.sendMessage(epCommClient,0,0,Iec104Constant.M_CARD_FRONZE_AMT_RET,data,cmdTimes,epCommClient.getVersion());
-			
+
+		}
+	}
+
+	public static  void handleVinFronzeAmt(EpCommClient epCommClient,String epCode,int epGunNo,String carVinNo,int fronzeAmt,byte []cmdTimes) throws IOException
+	{
+		int accountId=0;
+		String account="";
+
+		int errorCode= fronzeVinAmt(epCode, epGunNo,carVinNo,fronzeAmt,cmdTimes);
+
+		if(errorCode>0)
+		{
+			logger.info("charge vin fronze amt fail response to ep errorCode:{} accountId:{},account:{},carVinNo:{},epCode:{},epGunNo:{}",
+					new Object[]{errorCode,accountId,account,carVinNo,epCode,epGunNo});
+
+			byte[] data = EpEncoder.do_card_frozen_amt(epCode,epGunNo,carVinNo,0,errorCode);
+			EpMessageSender.sendMessage(epCommClient,0,0,Iec104Constant.M_VIN_FRONZE_AMT_RET,data,cmdTimes,epCommClient.getVersion());
+
 		}
 	}
 		/**
@@ -1696,17 +1858,18 @@ public class EpChargeService {
 	{
 		int ret=1;
 		int orderStatus = EpChargeService.getChargeOrderStatus(chargeSerialNo);
-		if(orderStatus==2|| orderStatus==3)//
+		// 异常订单不处理
+		if(orderStatus > 1)
 		{
 			logger.info(LogUtil.addFuncExtLog(LogConstants.FUNC_END_CHARGE, "serialNo|orderStatus"),chargeSerialNo,orderStatus);
 			ret= 3;
 		}
 		else
 			ret = orderStatus;
-		
+
 		return ret;
 	}
-	
+
 	/**
 	 * 检查参数
 	 * @param consumeRecord
@@ -1720,19 +1883,19 @@ public class EpChargeService {
 		   return 4;
 	   }
 	   //1.检查流水号是否合法
-	   
+
 	   String epCode = consumeRecord.getEpCode();
 	   int epGunNo = consumeRecord.getEpGunNo();
-		  
+
 	   String serialNo = consumeRecord.getSerialNo();
 	   String zeroSerialNo= StringUtil.repeat("0", 32);
 	   String zeroEpCode= StringUtil.repeat("0", 32);
-	   
-	   
+
+
 	   if(serialNo==null || serialNo.length()!=32)
 	   {
 		   logger.error("endcharge invalid consumeSerialNo:{},consumeRecord:{}",serialNo,consumeRecord);
-			
+
 		   consumeRecord.setSerialNo(zeroSerialNo);
 		   return 5;
 	   }
@@ -1747,7 +1910,7 @@ public class EpChargeService {
 	   if(epCode==null || epCode.length()!=16)
 		{
 			logger.error("endcharge invalid epCode:{},consumeRecord:{}",epCode,consumeRecord);
-			  
+
 			epCode = zeroEpCode;
 			return 4;
 		}
@@ -1759,10 +1922,10 @@ public class EpChargeService {
 			   return 4;
 		   }
 	   }
-		   
-		
+
+
 		return 0;
-		
+
 	}
 	public  static int isNewCouponStatus(int currentType,int newCouponAcStatus,int newCouponDcStatus)
 	{
@@ -1775,16 +1938,18 @@ public class EpChargeService {
 	}
 	public static int getPayMode(ConsumeRecord consumeRecord)
 	{
+		//桩跟据服务端下发充电命令时的扣费方式， payMode=1 先付费 ,payMode=2  后付费
+		//桩判断 如果是先付费，AccountType=2 ， 后付费 AccountType=3，其他情况 AccountType=1  , 但是下发2后，消费记录上传后依然给的是先付费，
 		if(consumeRecord.getAccountType()==3)
 			return EpConstants.P_M_POSTPAID;
-		
+
 		if(consumeRecord.getAccountType() == 4 && consumeRecord.getUserOrgin() == UserConstants.ORG_PXGJ)
 			return EpConstants.P_M_POSTPAID;
-		
+
 		return EpConstants.P_M_FIRST;
-		
+
 	}
-	
+
 	/**
 	 * 处理后付费订单
 	 * @param epGunCache
@@ -1794,14 +1959,14 @@ public class EpChargeService {
 	public static  int  statAfterPayCharge(EpGunCache epGunCache,ConsumeRecord consumeRecord)
 	{
 		int chOrStatus = checkDBOrderStatus(consumeRecord.getSerialNo());
-		
+
 		if(chOrStatus!=ChargeOrderConstants.ORDER_STATUS_NO)
 		{
 			return 1;
 		}
 		String epCode = consumeRecord.getEpCode();
 		int epGunNo = consumeRecord.getEpGunNo();
-		
+
 		if(consumeRecord.getAccountType()==3)
 		{
 			if(consumeRecord.getUserOrgin() == UserConstants.ORG_BQ || consumeRecord.getUserOrgin() == UserConstants.ORG_XIAN)
@@ -1817,21 +1982,22 @@ public class EpChargeService {
 			else
 			{
 				return epGunCache.endCreditConsumeRecord(consumeRecord);
-				
+
 			}
 		}
-			
+
 		else if(consumeRecord.getAccountType() == 4 && consumeRecord.getUserOrgin() == UserConstants.ORG_PXGJ)
 		{
 			return epGunCache.endPXConsumeRecord(consumeRecord);
 		}
-		
+
 		logger.info(LogUtil.addBaseExtLog("invalid accountType|serialNo"),
 				new Object[]{LogConstants.FUNC_END_CHARGE,epCode,epGunNo,consumeRecord.getUserOrgin(),consumeRecord.getEpUserAccount(),consumeRecord.getAccountType(),consumeRecord.getSerialNo()});
 		return 1;
-		
-		
+
 	}
+
+
 	/**TODO:确认回复需要回复
 	 * 消费记录电桩编号和枪口编号一定要准确，错了就发到别的地方
 	 * @param channel
@@ -1840,31 +2006,47 @@ public class EpChargeService {
 	 */
 	public static  void handleConsumeRecord(int cmdNo,EpCommClient epCommClient,ConsumeRecord consumeRecord,byte []cmdTimes) throws IOException
 	{
-		insertConsumeRecord(consumeRecord);
-		logger.debug(LogUtil.addFuncExtLog(LogConstants.FUNC_END_CHARGE, "consumeRecord"), consumeRecord);
-		
+		/*try {
+			//用redis 做了个同步锁，防止同一个桩并发上传相同消费记录
+			String epCodeGunNoNew = consumeRecord.getEpCode()+consumeRecord.getEpGunNo()+consumeRecord.getStartTime();//桩号+枪号+开始充电时间
+			String result = JedisUtil.set4Lock(EP_PREVENT_REP_CONSUME_RECORD + epCodeGunNoNew, epCodeGunNoNew, "NX", "PX", 16000);
+			logger.debug("handleConsumeRecord set4Lock result:{},epCodeGunNoNew:{}", result,epCodeGunNoNew);
+			if (!LOCK_SUCCESS.equals(result)) {
+				logger.info(LogUtil.addFuncExtLog(LogConstants.FUNC_PREVENT_REPEAT_CONSUME_RECORD, "consumeRecord"), consumeRecord);
+				return;
+			}
+
+		}catch (Exception e){
+			logger.error("handleConsumeRecord redis error,e:{},serialNo:{} ",e, consumeRecord.getSerialNo());
+		}*/
+
 		//1.检查订单参数
 		int retCode= checkConsumeRecordParams(consumeRecord);
 		if(retCode != 0)
 		{
 			logger.error(LogUtil.addFuncExtLog(LogConstants.FUNC_END_CHARGE, "error,retCode"),retCode);
 			byte[] confirmdata = EpEncoder.do_consumerecord_confirm(consumeRecord.getEpCode(),consumeRecord.getEpGunNo(),consumeRecord.getSerialNo(),retCode);
-			EpMessageSender.sendMessage(epCommClient,0,0,cmdNo, confirmdata,cmdTimes,epCommClient.getVersion());	
-			
+			EpMessageSender.sendMessage(epCommClient,0,0,cmdNo, confirmdata,cmdTimes,epCommClient.getVersion());
+
 			return ;
 		}
+
+		//异常记录不处理
+		insertConsumeRecord(consumeRecord);
+		logger.debug(LogUtil.addFuncExtLog(LogConstants.FUNC_END_CHARGE, "consumeRecord"), consumeRecord);
+
 		//2.检查桩和枪是否存在
 		String epCode = consumeRecord.getEpCode();
 		int epGunNo = consumeRecord.getEpGunNo();
 		String serialNo = consumeRecord.getSerialNo();
-		
+
 		EpGunCache  epGunCache = EpGunService.getEpGunCache(epCode, epGunNo);
 		if(epGunCache==null)
 		{
 			logger.error(LogUtil.addFuncExtLog(LogConstants.FUNC_END_CHARGE, "did not find gun,epCode|epGunNo"),
 					new Object[]{epCode,epGunNo});
 			byte[] confirmdata = EpEncoder.do_consumerecord_confirm(consumeRecord.getEpCode(),consumeRecord.getEpGunNo(),consumeRecord.getSerialNo(),retCode);
-			EpMessageSender.sendMessage(epCommClient,0,0,cmdNo, confirmdata,cmdTimes,epCommClient.getVersion());	
+			EpMessageSender.sendMessage(epCommClient,0,0,cmdNo, confirmdata,cmdTimes,epCommClient.getVersion());
 			return ;
 		}
 		//3.判断订单是后付费还是预付费
@@ -1890,23 +2072,20 @@ public class EpChargeService {
 				isHistoryRecord= true;
 				statingCC = EpChargeService.GetChargeCacheFromDb(serialNo);
 			}
-			
+
 			retCode=0;
-			//6.判断历史订单是否已经处理过
-			if(isHistoryRecord)
+			//6.判断订单是否已经处理过
+			int ret = EpChargeService.checkDBOrderStatus(serialNo);
+			//订单已经处理过
+			if(ret == ChargeOrderConstants.ORDER_STATUS_DONE)//
 			{
-				int ret = EpChargeService.checkDBOrderStatus(serialNo);
-				//订单已经处理过
-				if(ret == ChargeOrderConstants.ORDER_STATUS_DONE)//
-				{
-					retCode= 3;
-					
-				}
+				retCode= 3;
+
 			}
 			logger.info(LogUtil.addFuncExtLog(LogConstants.FUNC_END_CHARGE, "epCode|epGunNo|isHistoryRecord|statingCC|retCode"),
 						new Object[]{epCode,epGunNo,isHistoryRecord,statingCC,retCode});
-		        
-			 
+
+
 			//7.结算订单
 			if(retCode==0 && statingCC != null)
 			{
@@ -1914,8 +2093,20 @@ public class EpChargeService {
 				//爱充正常用户充电记录
 				if(retCode==1)
 				{
+					//处理先付费订单
 					retCode = epGunCache.statFirstPayCharge(statingCC,consumeRecord);
 				}
+				//大账户余额预警处理
+				final ChargeCache statingCC4Msg= statingCC;
+
+				bizExecutorService.execute(()->{
+					String currentThreadName = Thread.currentThread().getName();
+					Thread.currentThread().setName("balanceDeal");
+					balanceDeal(statingCC4Msg);
+					Thread.currentThread().setName(currentThreadName);
+				});
+
+
 			}
 			//8.清理当前枪状态
 			if (!isHistoryRecord && retCode==1)
@@ -1926,22 +2117,49 @@ public class EpChargeService {
 				//8.清空掉充电缓存对象
 				epGunCache.cleanChargeInfo();
 			}
-			
+
 		}
-		
+
         logger.info(LogUtil.addFuncExtLog(LogConstants.FUNC_END_CHARGE, "epCode|epGunNo|serialNo|retCode"),
 				new Object[]{epCode,epGunNo,serialNo,retCode});
-        
+
 		if(retCode>=0 && retCode <=4)
-		{	
+		{
 			byte[] confirmdata=null;
 			confirmdata = EpEncoder.do_consumerecord_confirm(epCode,epGunNo,consumeRecord.getSerialNo(),retCode);
 			EpMessageSender.sendMessage(epCommClient,0,0,cmdNo, confirmdata,cmdTimes,epCommClient.getVersion());
 			updateConsumeRecord(consumeRecord.getSerialNo());
 		}
-		
 	}
-	
+
+	/**
+	 * 大账户余额预警处理
+	 * @param consumeRecord
+	 */
+	public static void balanceDeal(ChargeCache ccObj){
+		try {
+			int accountId = 0;
+			int cpyId = 0;
+			int userId= ccObj.getUserId();
+			List<TblUserCompany> list1 = DB.tblUserCompanyDao.findDataById(userId);
+			if(list1.size()==0){
+				return;
+			}
+			TblUserCompany tblUserCompany = list1.get(0);
+			cpyId = tblUserCompany.getCpyId();
+			Short paymentRule = DB.finAccountConfigRelaDao.findPaymentRule(cpyId);
+			if(paymentRule == 1){
+				String companyName = DB.tblCompanyDataDao.findCompanyName(cpyId);
+				accountId = tblUserCompany.getAccountId();
+				//余额预警
+				UserService.amountWarn(accountId,companyName);
+			}
+		}catch (Exception e){
+			logger.error("balanceDeal 发生异常,{}",e);
+		}
+
+	}
+
 	public static void insertConsumeRecord(EpGunCache epGunCache) {
 		try {
 			if (epGunCache == null) return;
@@ -1952,7 +2170,7 @@ public class EpChargeService {
 			logger.debug(LogUtil.addFuncExtLog(LogConstants.FUNC_CONSUME_RECORD, "orgNo|serialNo"), orgNo,chargeCache.getChargeSerialNo());
 			RealChargeInfo chargeInfo = epGunCache.getRealChargeInfo();
 			if (chargeInfo == null) return;
-	
+
 			ConsumeRecord consumeRecord = new ConsumeRecord();
 			consumeRecord.setEpCode(chargeCache.getEpCode());
 			consumeRecord.setEpGunNo(chargeCache.getEpGunNo());
@@ -1968,7 +2186,7 @@ public class EpChargeService {
 			consumeRecord.setTotalChargeAmt(NumUtil.BigDecimal2ToInt(feeTotal.subtract(feeService).multiply(Global.DecTime2)));
 			consumeRecord.setServiceAmt(NumUtil.BigDecimal2ToInt(feeService.multiply(Global.DecTime2)));
 			consumeRecord.setEndMeterNum(chargeInfo.getTotalActivMeterNum());
-	
+
 			insertConsumeRecord(consumeRecord);
 		} catch (Exception e) {
 			logger.error(LogUtil.addFuncExtLog("epGunCache|exception"), epGunCache, e.getStackTrace());
@@ -1984,14 +2202,14 @@ public class EpChargeService {
 			TblConsumeRecord record = new TblConsumeRecord();
 			record.setTransactionNumber(serialNo);
 			record.setOptFlag(optFlag);
-	
+
 			DB.consumeRecordDao.ConsumeRecord_updateStatus(record);
 		} catch (Exception e) {
 			logger.error(LogUtil.addFuncExtLog("serialNo|exception"), serialNo, e.getStackTrace());
 		}
 	}
 
-	private static void insertConsumeRecord(ConsumeRecord consumeRecord) {
+	private static  void insertConsumeRecord(ConsumeRecord consumeRecord) {
 		try {
 			TblConsumeRecord record = new TblConsumeRecord();
 			record.setTransactionNumber(consumeRecord.getSerialNo());
@@ -2008,7 +2226,7 @@ public class EpChargeService {
 				}
 			}
 			logger.debug(LogUtil.addFuncExtLog(LogConstants.FUNC_CONSUME_RECORD, "orgNo|serialNo"), consumeRecord.getUserOrgin(),consumeRecord.getSerialNo());
-	
+
 			record.setEpCode(consumeRecord.getEpCode());
 			record.setEpGunNo(consumeRecord.getEpGunNo());
 			record.setAccountType(consumeRecord.getAccountType());
@@ -2044,7 +2262,7 @@ public class EpChargeService {
 			logger.error(LogUtil.addFuncExtLog("consumerecord|exception"), consumeRecord, e.getStackTrace());
 		}
 	}
-	
+
 	private static void insertConsumeRecordDB(TblConsumeRecord consumeRecord) {
 		TblConsumeRecord record = new TblConsumeRecord();
 		record.setTransactionNumber(consumeRecord.getTransactionNumber());
@@ -2086,10 +2304,9 @@ public class EpChargeService {
         if (userInfo == null) return;
 		TblPurchaseHistory phInfo = new TblPurchaseHistory(new java.util.Date(),new BigDecimal(0),"",1,userInfo.getId(),0,null,null,
 				consumeRecord.getTransactionNumber(),null,0);
-		int cnt = DB.phDao.getAccountId(phInfo);
-		if (cnt > 0) return;
-		RateService.addPurchaseHistoryToDB(totalAmt,1,userInfo.getId()
-			,0,"充电消费",consumeRecord.getEpCode(),consumeRecord.getTransactionNumber(),"",getAccountId(userInfo.getId()));
+		BigDecimal frozen = DB.phDao.getFrozen(phInfo);
+		RateService.addPurchaseHistoryToDB(frozen.subtract(totalAmt),11,userInfo.getId()
+			,0,"充电消费退款",consumeRecord.getEpCode(),consumeRecord.getTransactionNumber(),"",getAccountId(userInfo.getId()));
 
     	TblChargingOrder order = new TblChargingOrder();
 		order.setChorTransactionnumber(consumeRecord.getTransactionNumber());
@@ -2118,10 +2335,10 @@ public class EpChargeService {
 	public static  void handleHisConsumeRecord(EpCommClient epCommClient,ConsumeRecord consumeRecord) throws IOException
 	{
 		Logger log = LoggerFactory.getLogger("epRamLog");
-		
+
 		log.info("consumeRecord:{}",consumeRecord);
 	}
-	
+
 	/**
 	 * 该函数用来测试强制移除充电业务
 	 * @param epCode
@@ -2138,19 +2355,19 @@ public class EpChargeService {
     	{
     		return "remove charge cache! did not find ep"+ epCode+" \n";
     	}
-        		
+
         int nGunNum=epClient.getGunNum();
-            	
-            	
+
+
     	if(epGunNo<1 ||epGunNo >nGunNum)
     	{
     		return "remove charge cache! epGunNo invalid"+epGunNo+" \n";
     	}
-            	
+
 		//String epGunNoKey = epCode +epGunNo;
 		//int currentType = epClient.getCurrentType();
         //ChargeCache chargeCache=null;
-        
+
         EpGunCache epGunCache = EpGunService.getEpGunCache(epCode, epGunNo);
         if(epGunCache !=null)
         {
@@ -2159,11 +2376,12 @@ public class EpChargeService {
         		long et = DateUtil.getCurrentSeconds();
         		endChargeRecord(epGunCache.getChargeCache().getChargeSerialNo(),et ,0,epGunCache.getChargeCache().getRateInfo().getServiceRate());
         		logger.info("forceRemovecharge,endChargeRecord,epCode:{},epGunNo:{}",epCode,epGunNo);
+        		//EpDataClientService.getInstance().reportStopCharge( epCode,epGunNo,epGunCache.getChargeCache().getChargeSerialNo() );
         	}
-        	
+
         	//TODO://如果处理数据库
         	epGunCache.cleanChargeInfo();
-        	
+
     		BigDecimal bdZero = new BigDecimal(0.0);
     		EpGunService.updateChargeInfoToDbByEpCode(epClient.getCurrentType(),epCode,epGunNo,
     				bdZero,"",bdZero,0,0);
@@ -2188,15 +2406,15 @@ public class EpChargeService {
     	{
     		return "remove bespoke cache! did not find ep"+ epCode+" \n";
     	}
-        		
+
         int nGunNum=epClient.getGunNum();
-            	
-            	
+
+
     	if(epGunNo<1 ||epGunNo >nGunNum)
     	{
     		return "remove bespoke cache! epGunNo invalid"+epGunNo+" \n";
     	}
-            
+
         EpGunCache epGunCache = EpGunService.getEpGunCache(epCode, epGunNo);
         if(epGunCache !=null)
         {
@@ -2209,47 +2427,46 @@ public class EpChargeService {
 	{
 		Date now = new Date();
 		Random random = new Random();
-		
-		return DateUtil.toDateFormat(now, Global.serialSecFormat) + "1"+ String.format("%03d",Math.abs(random.nextLong()%1000)); 
+
+		return DateUtil.toDateFormat(now, Global.serialSecFormat) + "1"+ String.format("%03d",Math.abs(random.nextLong()%1000));
 	}
-	
-	private static String getFixLenthString(int strLength) {  
-	      
-	    Random rm = new Random();  
-	      
-	    // 获得随机数  
+
+	private static String getFixLenthString(int strLength) {
+
+	    Random rm = new Random();
+
+	    // 获得随机数
 	    double a= rm.nextDouble();
-	  
-	    // 将获得的获得随机数转化为字符串  
-	    String fixLenthString = String.valueOf(a);  
-	  
-	    // 返回固定的长度的随机数  
-	    return fixLenthString.substring(2, strLength + 2);  
-	} 
+
+	    // 将获得的获得随机数转化为字符串
+	    String fixLenthString = String.valueOf(a);
+
+	    // 返回固定的长度的随机数
+	    return fixLenthString.substring(2, strLength + 2);
+	}
 	public static String makeChargeOrderNo(long pkGunId,long usrId)
 	{
-		long now = DateUtil.getCurrentSeconds();
-		
+		long now = (new Date()).getTime();
+		Random random = new Random();
+
 		long l1= pkGunId%100000;
-		long l2= pkGunId%1000000;
-		
-		String chOrCode = String.format("%d%05d%06d", now,l1,l2);
+		//毫秒 +  pk枪口(5位) + 3位随机数
+		String chOrCode = String.format("%d%05d%03d", now,l1,Math.abs(random.nextLong()%1000));
 
 		return chOrCode;
 	}
-	
 	public static void addChargeStat(int pkEpGunId,int chargeMeterNum,int chargeTime,int chargeAmt)
 	{
 		TblElectricPileGun info= new TblElectricPileGun();
 		info.setPkEpGunId(pkEpGunId);
-		
+
 		info.setTotalChargeMeter(NumUtil.intToBigDecimal3(chargeMeterNum));
 		info.setTotalChargeTime(chargeTime);
 		info.setTotalChargeAmt(NumUtil.intToBigDecimal2(chargeAmt));
-	    
+
 		DB.epGunDao.addChargeStat(info);
 	}
-	
+
 	public static int getOrType(int level)
 	{
 		int chorType=1;
@@ -2259,61 +2476,61 @@ public class EpChargeService {
 			chorType=2;
 		else
 			chorType=3;
-		
+
 		return chorType;
 	}
-	
+
 	private static TblPowerModule converPowerModule(ChargePowerModInfo info)
 	{
 		TblPowerModule powerModule = new TblPowerModule();
-		
-		
+
+
 		powerModule.setPkPowerModuleid( info.getPkId());
 		//1.输出电压
 		powerModule.setOutput_voltage((new BigDecimal(info.getOutVol())).multiply(Global.Dec1));
-		
+
 		//2.输出电流
 		powerModule.setOutput_current((new BigDecimal(info.getOutCurrent())).multiply(Global.Dec2));
-		
+
 		//3.A相电压
 		powerModule.setA_voltage((new BigDecimal(info.getaVol())).multiply(Global.Dec1));
-		
+
 		//4.B相电压
 		powerModule.setB_voltage((new BigDecimal(info.getbVol())).multiply(Global.Dec1));
-		
+
 		//5.C相电压
 		powerModule.setC_voltage((new BigDecimal(info.getcVol())).multiply(Global.Dec1));
-		
+
 		//6.A相电流
 		powerModule.setA_current((new BigDecimal(info.getaCurrent())).multiply(Global.Dec2));
-		
+
 		//7.B相电流
 		powerModule.setB_current((new BigDecimal(info.getbCurrent())).multiply(Global.Dec2));
-		
+
 		//8.C相电流
 		powerModule.setC_current((new BigDecimal(info.getcCurrent())).multiply(Global.Dec2));
-		
+
 		//9.模块温度
 		powerModule.setTemperature((new BigDecimal(info.getTemp())).multiply(Global.Dec1));
-		
+
 		return powerModule;
-	
+
 	}
-	
+
 	public static void updatePowerInfoToDB(ChargePowerModInfo info){
-		
+
 		if(info==null )
 		{
 			logger.error("updatePowerInfoToDB error!ChargePowerModInfo:{}",info);
 			return ;
 		}
-		
+
 		TblPowerModule dbInfo = converPowerModule(info);
-		
+
 		dbInfo.setPkPowerModuleid(info.getPkId());
 
 		DB.powerModuleDao.update(dbInfo);
-		
+
 	}
 	public static void insertPowerInfoDB(ChargePowerModInfo info,String chargeSerialNo)
 	{
@@ -2322,19 +2539,19 @@ public class EpChargeService {
 			logger.error("insertPowerInfoDB error!ChargePowerModInfo:{},chargeSerialNo:{}",info,chargeSerialNo);
 			return ;
 		}
-		
+
 		TblPowerModule dbInfo = converPowerModule(info);
 		dbInfo.setChargeSerialNo(chargeSerialNo);
-		
+
 		dbInfo.setPowerModuleName("电源模块_"+info.getModId());
-		
-	
+
+
 		int pkId = DB.powerModuleDao.insert(dbInfo);
-		
+
 		info.setPkId(pkId);
-		
+
 	}
-	
+
 	public  static void savePowerModule( Map<Integer,ChargePowerModInfo> mapPowerModule,String chargeSerialNo)
 	{
 		logger.debug("savePowerModule");
@@ -2343,33 +2560,33 @@ public class EpChargeService {
 			return;
 		}
         Iterator iter = mapPowerModule.entrySet().iterator();
-        
+
 		while (iter.hasNext()) {
-			
+
 			Map.Entry entry = (Map.Entry) iter.next();
-			
+
 			ChargePowerModInfo powerModInfo = (ChargePowerModInfo)entry.getValue();
 			if(powerModInfo==null || powerModInfo.getChange()!=1  )
 				continue;
-			
+
 			if(powerModInfo.getPkId()==0)
 				insertPowerInfoDB(powerModInfo,chargeSerialNo);
 			else
 			{
 				updatePowerInfoToDB(powerModInfo);
 			}
-			
+
 			powerModInfo.setChange(0);
 		}
 	}
-	
+
 	private static TblVehicleBattery convertChargeCarInfo(ChargeCarInfo info)
 	{
 		TblVehicleBattery battery = new TblVehicleBattery();
-		
-		
+
+
 		battery.setBattery_manufacturers( info.getBatteryManufacturer());
-		
+
 		battery.setBattery_rated_capacity((int)info.getTotalBattryCapacity());
 		battery.setBattery_type((int)info.getBattryType());
 		battery.setCycle_count((int)info.getBattryChargeTimes());
@@ -2379,30 +2596,30 @@ public class EpChargeService {
 		battery.setTotal_energy((new BigDecimal(info.getTotalBattryPower())).multiply(Global.Dec1));
 		battery.setVin(info.getCarIdenty());
 		battery.setTotal_rated_voltage((new BigDecimal(info.getAllowableHighTotalVol())).multiply(Global.Dec1));
-		
+
 		int year=info.getBattryMadeYear();
 		int day = info.getBattryMadeDay();
-		
-		String dateString=String.format("%04d%02d%02d",year,day/100,day%100);		
+
+		String dateString=String.format("%04d%02d%02d",year,day/100,day%100);
 		battery.setProduction_date(DateUtil.parse(dateString));
-		
+
 		return battery;
 	}
-	
+
 	public static void updateChargeCarInfoToDB(ChargeCarInfo info){
-		
+
 		if(info==null )
 		{
 			logger.error("updatePowerInfoToDB error!ChargePowerModInfo:{}",info);
 			return ;
 		}
-		
+
 		TblVehicleBattery dbInfo = convertChargeCarInfo(info);
-		
+
 		dbInfo.setPk_VehicleBattery(info.getPkId());
-		
+
 		DB.vehicleBatteryDao.update(dbInfo);
-		
+
 	}
 	public static void insertChargeCarInfoToDB(ChargeCarInfo info,String chargeSerialNo)
 	{
@@ -2411,16 +2628,16 @@ public class EpChargeService {
 			logger.error("insertChargeCarInfoToDB error!ChargePowerModInfo:{},chargeSerialNo:{}",info,chargeSerialNo);
 			return ;
 		}
-		
+
 		TblVehicleBattery dbInfo = convertChargeCarInfo(info);
 		dbInfo.setChargeSerialNo(chargeSerialNo);
-		
+
 		int pkId =DB.vehicleBatteryDao.insert(dbInfo);
-	
+
 		info.setPkId(pkId);
-		
+
 	}
-	
+
 	public static void onChargeFail(int userId,ChargeCache chargeCache)
 	{
 		if(chargeCache.getStatus() == ChargeRecordConstants.CS_CHARGE_FAIL)
@@ -2429,17 +2646,22 @@ public class EpChargeService {
 			return ;
 		}
 		chargeCache.setStatus(ChargeRecordConstants.CS_CHARGE_FAIL);
-		
+
 		try{
-			
+
 			EpChargeService.updateChargeRecordStatus(chargeCache.getChargeSerialNo(),ChargeRecordConstants.CS_CHARGE_FAIL);
-				
+
 			//2.退钱.没有更新成功不退钱，否则造成下一次退钱
 			BigDecimal bdFronzeAmt = NumUtil.intToBigDecimal2(chargeCache.getFronzeAmt());
 			logger.info("onChargeFail,return accountId:{},fronze amt:{}",userId,bdFronzeAmt);
-			UserService.addAmt(userId, bdFronzeAmt,chargeCache.getPresent(),chargeCache.getChargeSerialNo());
-			RateService.addPurchaseHistoryToDB(bdFronzeAmt,11,userId,0,"充电消费退款"
-					,chargeCache.getEpCode(),chargeCache.getChargeSerialNo(),"");
+			if (!StringUtils.contains(chargeCache.getToken(), "chargeStyle:1")) {
+				UserService.subAndAddAmtSync(BIG_ACCOUNT_ADDAMT,userId, bdFronzeAmt, chargeCache.getPresent(), chargeCache.getChargeSerialNo());
+				RateService.addPurchaseHistoryToDB(bdFronzeAmt, 11, userId, 0, "充电消费退款"
+						, chargeCache.getEpCode(), chargeCache.getChargeSerialNo(), "");
+			} else {
+				String arr[] = chargeCache.getToken().split(Symbol.SHUXIAN_REG);
+				UserService.addElectric(userId, Integer.valueOf(arr[1]), Integer.valueOf(arr[2]));
+			}
 		}
 		catch(Exception e)
 		{
@@ -2447,7 +2669,7 @@ public class EpChargeService {
 					new Object[]{userId,chargeCache,e.getStackTrace()});
 		}
 	}
-	
+
 	public static void saveVehicleBatteryToDb(ChargeCarInfo info,String chargeSerialNo)
 	{
 		logger.debug("saveVehicleBatteryToDb");
@@ -2482,12 +2704,65 @@ public class EpChargeService {
 		List<TblCoupon> list = DB.couponDao.queryCoupon(map);
 		if (list != null && list.size() > 0)
 		{
-			if ("0".equals(list.get(0).getCpRate())) return null;
-			return list.get(0);
+			if (new BigDecimal(list.get(0).getCpRate()).compareTo(new BigDecimal(0)) == 0)
+					return null;
+			return getCoupon(list);
 		} else {
 			return null;
 		}
 	}
+
+	/**
+	 * 获取在可用时段内的优惠券
+	 * @param list
+	 * @return
+	 */
+	private static TblCoupon getCoupon(List<TblCoupon> list)
+	{
+		String usingTimeRange;
+		for (TblCoupon coupon : list) {
+			usingTimeRange = coupon.getUsingTimeRange();
+			if (isValidCouponTime(usingTimeRange)) {
+				return coupon;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * 判断优惠券是否在可用时段内
+	 * @param usingTimeRange
+	 * @return
+	 */
+	private static boolean isValidCouponTime(String usingTimeRange)
+	{
+		if (StringUtils.isEmpty(usingTimeRange)) return true;
+		Calendar cal = Calendar.getInstance();
+		int hour = cal.get(Calendar.HOUR_OF_DAY);
+		int minute = cal.get(Calendar.MINUTE);
+		int currTime = hour*60 + minute;
+		int currDay = cal.get(Calendar.DAY_OF_WEEK);
+		List<DayTimeOfWeekModel> ja = SerializationUtil.gson2ObjectList(usingTimeRange, DayTimeOfWeekModel.class);
+
+		int dayOfWeek;
+		int startTime;
+		int endTime;
+
+		// 循环添加json对象（可能有多个）
+		for (DayTimeOfWeekModel model : ja) {
+			startTime = model.getStartTime();
+			endTime = model.getEndTime();
+			dayOfWeek = model.getDayOfWeek();
+
+			if (dayOfWeek == currDay && startTime <= currTime && currTime <= endTime) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public static void updateCoupon(int pkCoupon)
 	{
 		DB.couponDao.updateCoupon(pkCoupon);
@@ -2501,19 +2776,19 @@ public class EpChargeService {
 
 			map.put("cpUserid", cpUserid);
 			map.put("pkActivity", list.get(0));
-		    
+
 			DB.couponDao.insertInviteCoupon(map);
 		}
 	}
-	
-	public static void statChargeAmt(int userId,int fronzeAmt,BigDecimal present,int payMode,
-			ConsumeRecord consumeRecord,int couponAmt,int pkOrderId,String orderNo,boolean isPauseStat)
+
+	public static void statChargeAmt(int orgNo,int userId,int fronzeAmt,BigDecimal present,int payMode,
+			ConsumeRecord consumeRecord,int couponAmt,int pkOrderId,String orderNo,boolean isPauseStat,String[] arr)
 	{
-		
+
 		int realConsumeAmt = consumeRecord.getTotalAmt();
-		
+
 		int realDiscountAmt = consumeRecord.getRealCouponAmt();
-		
+
 
 		logger.info("endcharge stat accountId:{},fronzeAmt:{},realConsumeAmt:{},realDiscountAmt:{},isPauseStat:{}",
 				new Object[]{userId,fronzeAmt,realConsumeAmt,realDiscountAmt,isPauseStat});
@@ -2527,20 +2802,28 @@ public class EpChargeService {
 		if (consumeRecord.getType() == 1) fronzeAmt = fronzeAmt * 100;
 		int remainAmt = fronzeAmt- realConsumeAmt; //剩余金额
 		logger.info("endcharge stat userId:{},fronzeAmt:{},realAmt:{},remainAmt:{}",new Object[]{userId,fronzeAmt,realConsumeAmt,remainAmt});
-		
-		if(remainAmt<=0 && (consumeRecord.getTransType() != 2 || (consumeRecord.getjMoney()
+
+		/*if(remainAmt<=0 && (consumeRecord.getTransType() != 2 || (consumeRecord.getjMoney()
 				+ consumeRecord.getfMoney() + consumeRecord.getpMoney() + consumeRecord.getgMoney()) == 0))
 		{
 			logger.info("endcharge stat 2 accountId:{}",userId);
 			return ;
-		}
+		}*/
 
 		BigDecimal bdRemainAmt= NumUtil.intToBigDecimal2(remainAmt);
-		if (consumeRecord.getType() == 1) bdRemainAmt= NumUtil.intToBigDecimal42(remainAmt);
-		if (present.compareTo(bdRemainAmt) >= 0) {
-			UserService.addAmt(userId, bdRemainAmt, bdRemainAmt, consumeRecord.getSerialNo());
+		if (consumeRecord.getType() == 1) {
+			bdRemainAmt= NumUtil.intToBigDecimal42(remainAmt);
+		}
+		if (arr == null) {
+			if (present.compareTo(bdRemainAmt) >= 0) {
+				UserService.subAndAddAmtSync(BIG_ACCOUNT_ADDAMT, userId, bdRemainAmt, bdRemainAmt, consumeRecord.getSerialNo());
+			} else {
+				UserService.subAndAddAmtSync(BIG_ACCOUNT_ADDAMT, userId, bdRemainAmt, present, consumeRecord.getSerialNo());
+			}
+
 		} else {
-			UserService.addAmt(userId, bdRemainAmt, present, consumeRecord.getSerialNo());
+			if (consumeRecord.getTotalDl()*100 < Integer.valueOf(arr[2]))
+				UserService.addElectric(userId, Integer.valueOf(arr[1]), Integer.valueOf(arr[2]) - consumeRecord.getTotalDl()*100);
 		}
 
 		if(isPauseStat)
@@ -2550,14 +2833,14 @@ public class EpChargeService {
 			}
 			catch(Exception e)
 			{
-				
+
 			}
 		}
 	}
 
 	/**
 	 * 处理电桩上送的正确消费记录
-	 * 
+	 *
 	 * @param gunCache
 	 * @param consumeRecord
 	 * @param chargeCacheObj
@@ -2567,7 +2850,7 @@ public class EpChargeService {
 	 * @param totalChargeMeterNum
 	 * @return
 	 */
-	public static int handleRightConsumeRecord(EpGunCache gunCache,ConsumeRecord consumeRecord, 
+	public static int handleRightConsumeRecord(EpGunCache gunCache,ConsumeRecord consumeRecord,
 			ChargeCache chargeCacheObj,UserCache chargeUser,int currentType,
 			int totalChargeTime,int totalChargeMeterNum,boolean isPauseStat)
 	{
@@ -2583,51 +2866,65 @@ public class EpChargeService {
 					new Object[]{consumeRecord.getEpCode(),consumeRecord.getEpGunNo(),consumeRecord.getSerialNo()});
 			return 0;
 		}
-		
+
 		int userId = chargeUser.getId();
 		int accountId = chargeUser.getAccountId();
 		String epCode =  gunCache.getEpCode();
 		int epGunNo = gunCache.getEpGunNo();
 		String chargeSerialNo = chargeCacheObj.getChargeSerialNo();
 
-		int discountType = getDiscountType(gunCache,chargeUser,chargeCacheObj.getFronzeAmt(),chargeCacheObj.getPayMode(),consumeRecord);
-		
-	    int discountIdentity= consumeRecord.getDiscountIdentity();
-	    int couponAmt =consumeRecord.getCouponAmt();
-	    if(discountType==0)
-	    {
-	    	consumeRecord.setDiscountServicePrice(chargeCacheObj.getRateInfo().getServiceRate());
-	    }
-	    
+		String[] arr = null;
+		if (StringUtils.contains(chargeCacheObj.getToken(), "chargeStyle:1")) {
+			arr = chargeCacheObj.getToken().split(Symbol.SHUXIAN_REG);
+		}
+
+		int discountType = 0;
+		int discountIdentity = 0;
+		int couponAmt = 0 ;
+		if (arr == null) {
+			discountType = getDiscountType(gunCache, chargeUser, chargeCacheObj.getFronzeAmt(), chargeCacheObj.getPayMode(), consumeRecord);
+
+			discountIdentity = consumeRecord.getDiscountIdentity();
+			couponAmt = consumeRecord.getCouponAmt();
+			if (discountType == 0) {
+				consumeRecord.setDiscountServicePrice(chargeCacheObj.getRateInfo().getServiceRate());
+			}
+		}
+
 	    logger.info("endcharge before statChargeAmt,epCode:{},epGunNo:{},SerialNo:{},TotalDl:{},totalAmt:{}," +
 				"couponAmt:{},discountAmt:{},discountIdentity:{},discountType:{}",
 					new Object[]{consumeRecord.getEpCode(),consumeRecord.getEpGunNo(),
 					consumeRecord.getSerialNo(),totalChargeMeterNum,consumeRecord.getTotalAmt(),
 					couponAmt,consumeRecord.getRealCouponAmt(),discountIdentity,discountType});
-		
-		 //2.结算钱
-		EpChargeService.statChargeAmt(chargeUser.getId(), chargeCacheObj.getFronzeAmt(), chargeCacheObj.getPresent(),
-                chargeCacheObj.getPayMode(), consumeRecord, couponAmt,
-                chargeCacheObj.getPkOrderId(), chargeCacheObj.getChOrCode(), isPauseStat);
 
-		
 		int totalAmt = consumeRecord.getTotalAmt();
 	    int realCouponAmt = consumeRecord.getRealCouponAmt();
 
 	    int realAmt = totalAmt;
 		int payMode = EpConstants.P_M_FIRST;
 
-	    if (consumeRecord.getType() == 0) {
-			payMode = RateService.addPurchaseHistoryToDB(NumUtil.intToBigDecimal2(chargeCacheObj.getFronzeAmt() - realAmt),11,userId,0,"充电消费退款",epCode,chargeSerialNo,"",accountId);
-	    } else {
-			payMode = RateService.addPurchaseHistoryToDB(NumUtil.intToBigDecimal4(chargeCacheObj.getFronzeAmt()*100 - realAmt),11,userId,0,"充电消费退款",epCode,chargeSerialNo,"",accountId);
-	    }
+		if (arr == null) {
+			if (consumeRecord.getType() == 0) {
+				payMode = RateService.addPurchaseHistoryToDB(NumUtil.intToBigDecimal2(chargeCacheObj.getFronzeAmt() - realAmt), 11, userId, 0, "充电消费退款", epCode, chargeSerialNo, "", accountId);
+			} else {
+				payMode = RateService.addPurchaseHistoryToDB(NumUtil.intToBigDecimal4(chargeCacheObj.getFronzeAmt() * 100 - realAmt), 11, userId, 0, "充电消费退款", epCode, chargeSerialNo, "", accountId);
+			}
+
+			//2.结算钱
+			if (payMode != 0) {
+				EpChargeService.statChargeAmt(chargeCacheObj.getUserOrigin().getOrgNo(),chargeUser.getId(), chargeCacheObj.getFronzeAmt(), chargeCacheObj.getPresent(),
+						chargeCacheObj.getPayMode(), consumeRecord, couponAmt,
+						chargeCacheObj.getPkOrderId(), chargeCacheObj.getChOrCode(), isPauseStat, arr);
+			} else {
+				return 0;
+			}
+		}
 		if(realCouponAmt != 0)//如果有优惠券抵扣
 		{
 			int orgNo = consumeRecord.getUserOrgin();
 			if(orgNo == 0)
 			{
-				orgNo = UserConstants.ORG_I_CHARGE;
+				orgNo = ORG_I_CHARGE;
 			}
 			List<TblCompany> companyList=DB.companyDao.findone(orgNo);
 			if(companyList != null && companyList.size() == 1)
@@ -2641,36 +2938,45 @@ public class EpChargeService {
 		    	RateService.addCouponToDB(new BigDecimal(realCouponAmt/100),userId,orgNo,String.valueOf(discountType),epCode,chargeSerialNo,accountId);
 		    }
 		}
-		
+
 		//3.记录正常数据到订单
 	    if (chargeCacheObj.getPkOrderId()>0 || getChargingRecord(chargeSerialNo) != null)
 	    {
 			chargeCacheObj.setPayMode(payMode);
 		    if (consumeRecord.getType() == 0) {
-		    	updateChargeToDb(gunCache,chargeCacheObj, 
+		    	updateChargeToDb(gunCache,chargeCacheObj,
 						consumeRecord,false,NumUtil.intToBigDecimal2(realCouponAmt),
 						discountIdentity,discountType,consumeRecord.getDiscountServicePrice());
 		    } else {
-		    	updateChargeToDb(gunCache,chargeCacheObj, 
+		    	updateChargeToDb(gunCache,chargeCacheObj,
 						consumeRecord,false,NumUtil.intToBigDecimal4(realCouponAmt),
 						discountIdentity,discountType,consumeRecord.getDiscountServicePrice());
 		    }
 	    } else {
 	    	int chorType= EpChargeService.getOrType(chargeUser.getLevel());
-			
+
 	    	int pkUserCard = chargeCacheObj.getPkUserCard();
-	    	insertFullChargeOrder(chargeUser.getId(),chorType,chargeUser.getAccount(),pkUserCard,consumeRecord.getUserOrgin(),
+	    	insertFullChargeOrder(chargeUser.getId(),chorType,chargeUser.getAccount(),pkUserCard,chargeUser.getCpyNumber(),
 	    			gunCache.getPkEpGunId(),gunCache.getEpCode(),gunCache.getEpGunNo(),EpConstants.CHARGE_TYPE_CARD,"",chargeCacheObj.getChOrCode(),2,
 	    			new BigDecimal(realCouponAmt),discountIdentity,discountType,consumeRecord,chargeCacheObj.getRateInfo(),ChargeOrderConstants.ORDER_STATUS_SUCCESS);
-	    	
+
 	    }
-		
+		if (arr != null)  {
+			UserService.addElectric(chargeUser.getId(), Integer.valueOf(arr[1]), Integer.valueOf(arr[2]) - consumeRecord.getTotalDl());
+			int orderId = getOrderId(consumeRecord.getSerialNo());
+			if (consumeRecord.getType() == 0) {
+				UserService.updElectric(orderId, chargeUser.getId(), Integer.valueOf(arr[1]), consumeRecord.getTotalDl(), totalAmt*100);
+			} else {
+				UserService.updElectric(orderId, chargeUser.getId(), Integer.valueOf(arr[1]), consumeRecord.getTotalDl(), totalAmt);
+			}
+		}
+
 		logger.info("endcharge success,epCode:{},epGunNo:{},SerialNo:{},TotalDl:{},totalAmt:{}," +
 				"getChargeUseTimes:{},getPkCouPon:{},ThirdType:{},realCouponAmt",
 					new Object[]{consumeRecord.getEpCode(),consumeRecord.getEpGunNo(),
 					consumeRecord.getSerialNo(),totalChargeMeterNum,totalAmt,totalChargeTime,
 					discountIdentity,discountType,realCouponAmt});
-		
+
 		int AcStatus = chargeUser.getNewcouponAcStatus();
 		int DcStatus = chargeUser.getNewcouponDcStatus();
 		//3.送邀请者优惠券
@@ -2680,17 +2986,17 @@ public class EpChargeService {
 		}
 		//4.更新用户新手状态
 	    updateNewcouponStatus(chargeUser,currentType);
-		
+
 		//4.记录充电统计
 		EpChargeService.addChargeStat(gunCache.getPkEpGunId(),totalChargeMeterNum,
 					totalChargeTime,totalAmt);
-		
+
 		return couponAmt;
 	}
 
 	/**
 	 * 计算实际优惠
-	 * 
+	 *
 	 * @param totalAmt
 	 * @param couPonAmt
 	 * @return
@@ -2725,7 +3031,7 @@ public class EpChargeService {
 			int cpLimitation= getCouponEpType(currentType);
 			int cpStatus = getNewCouponStatus(currentType,acStatus,dcStatus);
 			if(cpStatus ==0)
-			{   
+			{
 				tblCoupon = queryCoupon(usrId,cpLimitation,2,totalAmt,epCode);
 				if(tblCoupon==null)
 				{
@@ -2734,7 +3040,7 @@ public class EpChargeService {
 			}
 			else
 				tblCoupon = queryCoupon(usrId,cpLimitation,totalAmt,epCode);
-			
+
 			return tblCoupon;
 		}
 		catch(Exception e)
@@ -2756,10 +3062,10 @@ public class EpChargeService {
 			logger.error("endcharge stat not find Invite user,phone:{}",inviteUsrAccount);
 			return ;
 		}
-		
+
 	   insertInviteCoupon(userInfo.getId());
 	}
-	
+
 	public static int getNewCouponStatus(int currentType,int acStatus,int dcStatus)
 	{
 		if(currentType == EpConstants.EP_AC_TYPE)
@@ -2794,7 +3100,7 @@ public class EpChargeService {
 			logger.error("updateChargeRecordStatus,chargeSerialNo:{},status:{},e.getStackTrace():{}",new Object[]{chargeSerialNo,status,e.getStackTrace()});
 		}
 	}
-	
+
 	public static boolean isVinCodeDiscount(String epCode,int epGunNo,int fronzeAmt,int payMode,ConsumeRecord consumeRecord)
 	{
 		if(consumeRecord==null)
@@ -2802,10 +3108,10 @@ public class EpChargeService {
 		String carVinCode = consumeRecord.getCarVinCode();
 		if(carVinCode==null || carVinCode.length()<=0)
 			return false;
-		
+
 		logger.info("isVinCodeDiscount,epCode:{},epGunNo:{},carVinCode:{},carVinCode hex:{},chargeSerialNo:{}",
 				new Object[]{epCode,epGunNo,carVinCode,WmIce104Util.ConvertHex2(carVinCode.getBytes()),consumeRecord.getSerialNo()});
-		
+
 		try
 		{
 		TblCarVin  carVin = getCarVinByCode(epCode,epGunNo,carVinCode );
@@ -2813,42 +3119,42 @@ public class EpChargeService {
 		{
 			consumeRecord.setDiscountIdentity(carVin.getPkCarVin());
 			consumeRecord.setDiscountServicePrice(carVin.getVinServicemoney());
-			
+
 			calcVinCodeDiscount(consumeRecord,fronzeAmt,payMode);
-		
+
 			return true;
-			
+
 		}
 		}
 		catch(Exception e)
 		{
 			logger.error("checkVinCodeDiscount,epCode:{},epGunNo:{},carVinCode:{},chargeSerialNo:{}",
 					new Object[]{epCode,epGunNo,carVinCode,consumeRecord.getSerialNo()});
-			
+
 		}
-		
+
 		return false;
 	}
 	public static void calcVinCodeDiscount(ConsumeRecord consumeRecord,int fronzeAmt,int payMode)
 	{
 		BigDecimal servicePrice = consumeRecord.getDiscountServicePrice();
-		
+
 		//1.重新计算服务费
 	    int totalDl = consumeRecord.getTotalDl();
-	    
+
 	    BigDecimal dl = new BigDecimal(totalDl).multiply(Global.Dec3);
 	    int oldServiceAmt = consumeRecord.getServiceAmt();
-	    
+
 	    int oldTotalAmt = consumeRecord.getTotalChargeAmt()+oldServiceAmt;
 	    int serviceAmt = dl.multiply(servicePrice).multiply(Global.DecTime2).intValue();
 	    if (consumeRecord.getType() == 1) {
 	    	serviceAmt = dl.multiply(servicePrice).multiply(Global.DecTime4).intValue();
 	    	fronzeAmt = fronzeAmt * 100;
 	    }
-	    
+
 	    consumeRecord.setUndiscountTotalAmt(oldTotalAmt);
-	    
-	    
+
+
 	    int totalAmt = consumeRecord.getTotalChargeAmt() + serviceAmt;
 	    int discountAmt=0;
 	    if(payMode == EpConstants.P_M_FIRST)
@@ -2867,16 +3173,16 @@ public class EpChargeService {
 	    {
 	    	discountAmt = oldTotalAmt-totalAmt;
 	    }
-	    
+
 	    logger.info("calcVinCodeDiscount,oldServiceAmt:{},oldTotalAmt:{},serviceAmt:{},totalAmt:{},discountAmt:{}",
 	    		new Object[]{oldServiceAmt,oldTotalAmt,serviceAmt,totalAmt,discountAmt});
-	    
+
 	    consumeRecord.setDiscountServiceAmt(serviceAmt);
 	    consumeRecord.setTotalAmt(totalAmt);
 	    consumeRecord.setCouponAmt(discountAmt);
 	    consumeRecord.setRealCouponAmt(discountAmt);
 	}
-	
+
 	/**
 	 * 检查VINCODE费率优惠情况
 	 * @param gunCache
@@ -2892,20 +3198,20 @@ public class EpChargeService {
 	{
 		if(gunCache==null)
 			return 0;
-			
+
 		if(isVinCodeDiscount(gunCache.getEpCode(),gunCache.getEpGunNo(),fronzeAmt,payMode,consumeRecord))
 			return ChargeRecordConstants.CHARGEORDER_THIRDTYPE_VIN;
-		
+
 		if(isCoupondDiscount(gunCache,consumeRecord,chargeUser))
 			return ChargeRecordConstants.CHARGEORDER_THIRDTYPE_COUPON;
-		
+
 		//
-		
+
 		consumeRecord.setUndiscountTotalAmt(consumeRecord.getTotalAmt() );
-		
+
 		return 0;
-		
-		
+
+
 	}
 	/**
 	 * 使用优惠券统计
@@ -2918,23 +3224,23 @@ public class EpChargeService {
 	 * @param totalChargeMeterNum
 	 * @return
 	 */
-	public static boolean isCoupondDiscount(EpGunCache gunCache,ConsumeRecord consumeRecord, 
+	public static boolean isCoupondDiscount(EpGunCache gunCache,ConsumeRecord consumeRecord,
 			UserCache chargeUser)
 	{
 		if(gunCache==null)
 			return false;
-		
+
 		if(consumeRecord==null)
 			return false;
-		
+
 		int couponAmt = 0; //优惠券金额
 		int pkCouPon=0;
-		
-		int currentType= gunCache.getRealChargeInfo().getCurrentType(); 
-		
+
+		int currentType= gunCache.getRealChargeInfo().getCurrentType();
+
 		//1.获取优惠券
 		TblCoupon tblCoupon = null;
-		
+
 		try
 		{
 			int AcStatus = chargeUser.getNewcouponAcStatus();
@@ -2946,42 +3252,42 @@ public class EpChargeService {
 			//OrderStatInfo statInfo =  new OrderStatInfo();
 			if(tblCoupon ==null)
 				return false;
-			
+
 			//3.设置优惠券已使用
 			pkCouPon = tblCoupon.getPkCoupon();
 			couponAmt = tblCoupon.getCpCouponvalue()*100;
 			if (consumeRecord.getType() == 1) couponAmt = couponAmt * 100;
 			updateCoupon(pkCouPon);
-			
+
 			consumeRecord.setCouponAmt(couponAmt);
-			
+
 			consumeRecord.setDiscountIdentity(pkCouPon);
-			
+
 			int realCouPonAmt = 0;
 	    	realCouPonAmt = calcRealCouPonAmt(totalAmt,couponAmt);
 			consumeRecord.setTotalAmt(totalAmt-realCouPonAmt);
 			consumeRecord.setRealCouponAmt(realCouPonAmt);
 			consumeRecord.setUndiscountTotalAmt(totalAmt);
-			
-		    
+
+
 			logger.info("endcharge useCouPonStat,accountId:{},pkCouPon:{},couPonAmt:{},epCode:{},epGunNo:{},AcStatus:{},DcStatus:{},currentType:{}",
 					new Object[]{chargeUser.getId(),pkCouPon,couponAmt,gunCache.getEpCode(),
 					gunCache.getEpGunNo(),AcStatus,DcStatus,currentType});
 			return true;
-			
-		
+
+
 		}
 		catch(Exception e)
 		{
 			logger.error("endcharge get coupon exception,userId:{}",chargeUser.getId());
 			return false;
-		}	
 	}
-	
-	
-	
-	
-	
+	}
+
+
+
+
+
 	/**
 	 *  使用vin统计
 	 * @param gunCache
@@ -2992,21 +3298,21 @@ public class EpChargeService {
 	 * @param totalChargeMeterNum
 	 * @return
 	 */
-	public static void useCarVinStat(EpGunCache gunCache,ConsumeRecord consumeRecord, 
+	public static void useCarVinStat(EpGunCache gunCache,ConsumeRecord consumeRecord,
 			ChargeCache chargeCacheObj,UserCache chargeUser,int currentType,
 			int totalChargeTime,int totalChargeMeterNum)
 	{
-		
+
 		int totalAmt = consumeRecord.getTotalAmt();
 		int fronzeAmt = chargeCacheObj.getFronzeAmt();
 	    if (consumeRecord.getType() == 1) fronzeAmt = fronzeAmt * 100;
-		
+
 	    if(totalAmt>fronzeAmt)//重新计算后如果总的费用大于预冻
 	    {
 	    	consumeRecord.setServiceAmt(fronzeAmt-consumeRecord.getTotalChargeAmt());
 	    	consumeRecord.setTotalAmt(fronzeAmt);
 	    }
-	    
+
 	    logger.info("endcharge useCarVinStat,accountId:{},realServiceAmt:{},realTotalAmt:{},epCode:{},epGunNo:{}",
 	    		new Object[]{
 	    		chargeUser.getId(),
@@ -3037,11 +3343,11 @@ public class EpChargeService {
 					new Object[]{epCode,epGunNo,vinCode,WmIce104Util.ConvertHex2(vinCode.getBytes())});
 			return null;
 		}
-		
+
 		TblCarVin carVin = carVinList.get(0);
 		return carVin;
 	}
-    
+
 	/**
 	 * 从数据库中获取对应的vin
 	 * @param epCode
@@ -3057,22 +3363,22 @@ public class EpChargeService {
 			logger.error("find carVin in db,vinId:{}",vinId);
 			return null;
 		}
-		
+
 		TblCarVin carVin = carVinList.get(0);
 		return carVin;
 	}
 	/**
-	 * 
+	 *
 	 */
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public static void updateNewcouponStatus(UserCache chargeUser,int epType)
 	{
 		int AcStatus = chargeUser.getNewcouponAcStatus();
 		int DcStatus = chargeUser.getNewcouponDcStatus();
-		
+
 		if(AcStatus ==0 && epType==EpConstants.EP_AC_TYPE)
 		{
 			chargeUser.setNewcouponAcStatus(1);
@@ -3083,9 +3389,9 @@ public class EpChargeService {
 			chargeUser.setNewcouponDcStatus(1);
 			UserService.updateNewcoupon(chargeUser);
 		}
-		
+
 	}
-	
+
 	public static int pauseStatCharge(ChargeCache chargeCache)
 	{
 		logger.info("pauseStatCharge enter");
@@ -3093,19 +3399,19 @@ public class EpChargeService {
 		tblChargeOrder.setChorTransactionnumber(chargeCache.getChargeSerialNo());
 		tblChargeOrder.setChorChargingstatus(""+ChargeOrderConstants.ORDER_PAUSE_STAT);
 		DB.chargeOrderDao.updateStatus(tblChargeOrder);
-		
+
 		chargeCache.setStatus(ChargeRecordConstants.CS_PAUSE_STAT);
-		
+
 		if(chargeCache.getAccount()!=null && chargeCache.getAccount().length()==11)
 		{
 			msgPauseStat(chargeCache.getAccount());
 			jmsgPauseStat(chargeCache.getUserId(),chargeCache.getAccount(),chargeCache.getPkOrderId(), chargeCache.getChOrCode());
 		}
-		
+
 		return 0;
 	}
-	
-	
+
+
 	public static void msgRMAmtWarningToManager(int usrId,String phone,String name,String amt)
 	{
 		logger.info("onRMAmtWarningToManager,usrId:{},phone:{},name:{}",
@@ -3117,9 +3423,9 @@ public class EpChargeService {
 			HashMap<String,Object>  params=new HashMap<String,Object>();
 			params.put("name", name);
 			params.put("cost", amt);
-			
+
 			JSONObject jsonObject = JSONObject.fromObject(params);
-			
+
 			boolean flag = AliSMS.sendAliSMS(phone, "SMS_34475278", jsonObject.toString());
 			if(!flag)
 			{
@@ -3132,15 +3438,15 @@ public class EpChargeService {
 		logger.info("onRemainAmtWarning,usrId:{},phone:{}",usrId,phone);
 		if(phone==null||phone.length()!=11)
 			return;
-		
-		
+
+
 		if(GameConfig.sms != 1)
 		{
 			HashMap<String,Object>  params=new HashMap<String,Object>();
 			params.put("cost", amt);
-			
+
 			JSONObject jsonObject = JSONObject.fromObject(params);
-			
+
 			boolean flag = AliSMS.sendAliSMS(phone, "SMS_34445317", jsonObject.toString());
 			if(!flag)
 			{
@@ -3148,7 +3454,7 @@ public class EpChargeService {
 			}
 		}
 	}
-	
+
 	public static void jmsgPauseOrderStat(int userId,int pkOrderId,String chargeOrderNo,String remainAmt)
 	{
 		TblJpush ju=DB.jpushDao.getByuserInfo(userId);
@@ -3157,23 +3463,23 @@ public class EpChargeService {
 			logger.error("msgOrderPauseNotic do not find userId:{},chargeOrderNo,{},remainAmt:{}", new Object[]{userId,chargeOrderNo,remainAmt});
 			return ;
 		}
-		
+
 		logger.info("[endcharge]msgOrderPauseNotic userId:{},chargeOrderNo:{}",userId,chargeOrderNo);
-		
-		String msg= String.format("您的订单{}已结算，结算余额{}元，已经返回到您的账户。", 
+
+		String msg= String.format("您的订单{}已结算，结算余额{}元，已经返回到您的账户。",
 				chargeOrderNo,remainAmt);
-		
+
 		Map<String, String> extras = new HashMap<String, String>();
         extras.put( "msg", msg );
         extras.put( "orderid", ""+pkOrderId );
         extras.put("type", "12" );
         extras.put( "title", "充电订单正式结算" );
         extras.put( "tm", ""+DateUtil.getCurrentSeconds());
-		
+
 		JPushUtil.point2point("充电订单正式结算",msg,extras,ju.getJpushRegistrationid(),ju.getJpushDevicetype());
 	}
-	
-	
+
+
 	public static void jmsgPauseStat(int userId,String account,int pkOrderId,String chargeOrderNo)
 	{
 		TblJpush ju=DB.jpushDao.getByuserInfo(userId);
@@ -3182,27 +3488,27 @@ public class EpChargeService {
 			logger.error("jmsgNoticePauseStat do not find userId:{},chargeOrderNo,{},remainAmt:{}", new Object[]{userId,account,pkOrderId,chargeOrderNo});
 			return ;
 		}
-		
+
 		logger.info("[endcharge]orderPauseNotic userId:{},chargeOrderNo:{}",userId,chargeOrderNo);
-		
-		String msg= String.format("{手机号}您好，您的订单{订单编号}临时结算。结算完成后，订单余额会返回到您的账户中，临时结算不影响充电。", 
+
+		String msg= String.format("{手机号}您好，您的订单{订单编号}临时结算。结算完成后，订单余额会返回到您的账户中，临时结算不影响充电。",
 				account,chargeOrderNo);
-		
+
 		Map<String, String> extras = new HashMap<String, String>();
         extras.put( "msg", msg );
         extras.put( "orderid", ""+pkOrderId );
         extras.put("type", "11" );
         extras.put( "title", "充电订单临时结算" );
         extras.put( "tm", ""+DateUtil.getCurrentSeconds());
-		
+
 		JPushUtil.point2point("充电订单临时结算",msg,extras,ju.getJpushRegistrationid(),ju.getJpushDevicetype());
-	
-		
+
+
 	}
 	public static void msgPauseStat(String curUserAccount)
 	{
 		logger.debug("onPauseStatNotic send msg,curUserAccount:{}",curUserAccount);
-		
+
 		if(GameConfig.sms == 1)
 		{
 			try
@@ -3216,21 +3522,82 @@ public class EpChargeService {
 			}
 			return ;
 		}
-		
-		
+
+
 		HashMap<String,Object>  params=new HashMap<String,Object>();
 		params.put("mbcode", curUserAccount);
-		
+
 		JSONObject jsonObject = JSONObject.fromObject(params);
-		
+
 		boolean flag = AliSMS.sendAliSMS(curUserAccount, "SMS_25850225", jsonObject.toString());
 		if(!flag)
 		{
 			logger.debug("onPuaseStatNotic fail,userAccount:{}",curUserAccount);
 		}
-		
+
 	}
-	
+
+	/**
+	 *  通用实时数据查询
+	 * @param epCode
+	 * @param epGunNo
+	 * @return
+	 */
+	public static String queryData4Common(String epCode, int epGunNo){
+		String extraData="";
+		int epGunCacheStatus = 0;//电桩枪口状态 状态
+		BigDecimal currentA = new BigDecimal(0);//A相电流
+		BigDecimal voltageA = new BigDecimal(0);//A相电压
+		BigDecimal soc = new BigDecimal(0);//电池百分比(整数 0-100)【直流充电时返回】
+		BigDecimal currentKwh = new BigDecimal(0);//已充电量
+		long beginChargeTime=0;//充电开始时间
+		int connectorStatus=0;//枪口是否插抢
+		int chargeType;//充电类型0：交流1：直流
+		BigDecimal chargePrice=new BigDecimal(0.0);//电桩单价
+		BigDecimal chargedTotalMoney = new BigDecimal(0.0);//已充金额
+		ElectricPileCache epCache = EpService.getEpByCode(epCode);
+		EpGunCache epGunCache = EpGunService.getEpGunCache(epCode, epGunNo);
+		if (epCache != null && epGunCache != null) {
+			chargeType = epCache.getCurrentType();
+			ChargeCache chargeCache = epGunCache.getChargeCache();
+			RealChargeInfo chargeInfo = epGunCache.getRealChargeInfo();
+
+			if (chargeInfo != null && chargeCache!=null) {
+				currentKwh = NumUtil.intToBigDecimal3(chargeInfo.getChargedMeterNum());
+				if (chargeType == EpConstants.EP_DC_TYPE)// 直流
+				{
+					soc = NumUtil.intToBigDecimal2(((RealDCChargeInfo) chargeInfo).getSoc());
+				}
+				beginChargeTime = chargeCache.getSt();
+				chargePrice = new BigDecimal(chargeInfo.getChargePrice()).multiply(Global.Dec2);
+				chargedTotalMoney = NumUtil.intToBigDecimal2(chargeInfo.getChargedCost());
+			}
+			//时实数据
+			Map realData = epGunCache.handleData4Common();//epGunCache
+			epGunCacheStatus = epGunCache.getStatus();//充电机枪状态
+			connectorStatus = epGunCache.get_gun2carLinkStatus();//是否连接电池(车辆)
+
+			voltageA = NumUtil.intToBigDecimal1(Strings.getIntValue(realData, "3_3"));//充电机输出电压
+			currentA = NumUtil.intToBigDecimal1(Strings.getIntValue(realData, "3_4"));//充电机输出电流
+		}
+
+		String sTimeCharge = "" + beginChargeTime;
+		String sPower = currentKwh.setScale(3, java.math.BigDecimal.ROUND_HALF_UP).toString();
+		String sSoc = soc.setScale(2, java.math.BigDecimal.ROUND_HALF_UP).toString();
+		String sStatus = "" + epGunCacheStatus;
+		String sConnectorStatus = "" + connectorStatus;
+		String sCurrentA =currentA.setScale(1, java.math.BigDecimal.ROUND_HALF_UP).toString();
+		String sVoltageA = voltageA.setScale(1, java.math.BigDecimal.ROUND_HALF_UP).toString();
+		String sChargePrice = chargePrice.setScale(2, java.math.BigDecimal.ROUND_HALF_UP).toString();
+		String sChargedTotalMoney = chargedTotalMoney.setScale(2, java.math.BigDecimal.ROUND_HALF_UP).toString();
+
+		String[] array = {epCode, String.valueOf(epGunNo),sStatus,sCurrentA,sVoltageA,sSoc,
+			  sPower, sTimeCharge,sConnectorStatus, sChargePrice, sChargedTotalMoney};
+		extraData = StringUtils.join(array, "|");
+		return extraData;
+
+	}
+
 	public static String getExtraData_CHAT(String epCode,int epGunNo,String usrLog,String extra,int chargeFlag,int successFlag,int ret )
 	{
 		String extraData = getExtraData_CCZC(epCode, epGunNo, usrLog, extra, chargeFlag, successFlag, ret );
@@ -3254,14 +3621,14 @@ public class EpChargeService {
  		BigDecimal soc=new BigDecimal(0);//电池百分比(整数 0-100)【直流充电时返回】
 
  		String endInfo="";//充电结束原因
- 		
- 		
+
+
  		BigDecimal feeService=new BigDecimal(0);//服务费用
  		BigDecimal feeElectric=new BigDecimal(0);//电量费用
  		String cityCode= "";//城市编号
  		int chargeType = 0;//充电类型0：交流1：直流
 		int status=0;//状态【0：开始充电异常1:充电中,2:结束充电正常9：结束充电异常，3：充电等待】
- 		
+
 		String extraData="";
 		ElectricPileCache epCache = EpService.getEpByCode(epCode);
 		EpGunCache epGunCache= EpGunService.getEpGunCache(epCode, epGunNo);
@@ -3274,11 +3641,11 @@ public class EpChargeService {
 		} else {
 			cityCode = epCache.getOwnCityCode();
 			chargeType = epCache.getCurrentType();
-	
+
 			ChargeCache chargeCache =  epGunCache.getChargeCache();
 			if(chargeFlag ==3) //订单查询
 			{
-				if (chargeCache != null) 
+				if (chargeCache != null)
 				{
 					int chargeStatus = chargeCache.getStatus();
 					switch(chargeStatus)
@@ -3311,7 +3678,7 @@ public class EpChargeService {
 						status = 9;
 					else
 						status = 2;
-					
+
 				}
 			}
 			if (transactionNumber != null) {
@@ -3333,7 +3700,7 @@ public class EpChargeService {
 					timeEnd = DateUtil.StringYourDate(DateUtil.toDate(chargeCache.getEt()*1000));
 					if (timeEnd.startsWith("1970-01-01")) timeEnd = "";
 					feeService = chargeCache.getRateInfo().getServiceRate();
-		            
+
 					if(ret == ErrorCodeConstants.EPE_GUN_NOT_LINKED)
 					{
 						endInfo="车与枪未连接";
@@ -3380,7 +3747,7 @@ public class EpChargeService {
 			    status = 2;//2:结束充电正常
 			else
 				status = 9;//9：结束充电异常
-		} 
+		}
 		else  if (chargeFlag == 2) //充电事件
 		{
 			if(successFlag==1)//成功
@@ -3391,7 +3758,7 @@ public class EpChargeService {
 			{
 				 status = 0;  //0：开始充电异常
 			}
-			
+
 		}
 
 		extraData = enCodeExtraData(epCode, usrLog, extra, timeStart, timeEnd,
@@ -3402,7 +3769,7 @@ public class EpChargeService {
 				epCode, epGunNo, extraData });
 		return extraData;
 	}
-	
+
 	public static String enCodeExtraData(String epCode,String usrLog,String extra,
 			      String timeStart,String timeEnd, String OrderId,long timeCharge,
 			      BigDecimal feeTotal,
@@ -3424,20 +3791,20 @@ public class EpChargeService {
  		String sStatus=""+status;
  		String sFeeService=feeService.setScale(2,java.math.BigDecimal.ROUND_HALF_UP).toString();
  		String sfeeElectric=feeElectric.setScale(2,java.math.BigDecimal.ROUND_HALF_UP).toString();
- 		
+
  		String extraData="";
- 		
+
  		String[] array = {OrderId,epCode,extra,usrLog,timeStart,timeEnd,
  				sTimeCharge,sFeeTotal,sChargeType,sPower,sSoc,
  				sStatus,endInfo,sFeeService,sfeeElectric,cityCode};
  		extraData=StringUtils.join(array, "|");
  		return extraData;
 	}
-	
-	
+
+
 	public static String getExtraData_EC(String epCode,int epGunNo,String extra,String usrLog,int chargeFlag,int successFlag,int retCode )
 	{
-		
+
  		int soc=0;//电池百分比(整数 0-100)【直流充电时返回】
 
 		String extraData="";
@@ -3447,7 +3814,7 @@ public class EpChargeService {
 			return "";//
 		}
 
-		
+
 		RealChargeInfo chargeInfo = epGunCache.getRealChargeInfo();
 		if (chargeInfo != null) {
 			if(epCache.getCurrentType() == EpConstants.EP_DC_TYPE)
@@ -3465,13 +3832,13 @@ public class EpChargeService {
 		else if(retCode==0 )
 			endInfo="0";
 		else if(retCode==ErrorCodeConstants.CANNOT_OTHER_OPER ||
-				retCode==ErrorCodeConstants.USED_GUN||	
+				retCode==ErrorCodeConstants.USED_GUN||
 				retCode==ErrorCodeConstants.EPE_REPEAT_CHARGE||
 				retCode==ErrorCodeConstants.EPE_OTHER_CHARGING)
 			endInfo="1";
-		else 
+		else
 			endInfo="4";
-		
+
 		int status=2;//状态【1：开始,2:停止】
 		if (chargeFlag == 0)// 开始充电返回
 		{
@@ -3484,11 +3851,11 @@ public class EpChargeService {
 			{
 			    endInfo="0";
 			}
-		} 
+		}
 		String sStatus=""+status;
 		if(successFlag!=1)//操作失败
 			successFlag =2;
-		
+
 		String time=""+DateUtil.getCurrentSeconds(); //时间
 		String sSuccessFlag = ""+successFlag;
 		String[] array = {extra,epCode+sGunNo,"1",usrLog,sStatus,sSuccessFlag,endInfo,sSoc,time};
@@ -3552,6 +3919,8 @@ public class EpChargeService {
 		return extraData;
 	}
 
+	// 开始充电命令：this.getOrgNoExtra(orgNo, retFlag=1, chargeFlag=0,success=1,errorCode=0);
+	// 充电事件上报：this.getOrgNoExtra(orgNo, retFlag=0, chargeFlag=2,success=1,errorCode=0);
 	public static String getExtraData_resp_TCEC(String epCode,int epGunNo,String extra,int chargeFlag)
 	{
 		String extraData="";
@@ -3586,10 +3955,11 @@ public class EpChargeService {
 	{
 		try {
 			if (consumeRecord.getTotalDl()>GameConfig.maxChargeMeterNum || consumeRecord.getTotalDl()<0) return 0;
-			if (consumeRecord.getType() == 0) return 0;
+			if (rateInfo.getModelId() != 3) return 0;
+			if (consumeRecord.getType() == 0) consumeRecord.setType(1);
 			if (consumeRecord.getjMoney()
 					+ consumeRecord.getfMoney() + consumeRecord.getpMoney() + consumeRecord.getgMoney() > 0) return 0;
-			logger.debug(LogUtil.addExtLog("rateInfo"), rateInfo.toString());
+			logger.info(LogUtil.addExtLog("rateInfo"), rateInfo.toString());
 
 			BigDecimal value = NumUtil.intToBigDecimal3(consumeRecord.getjDl()).multiply(rateInfo.getJ_Rate());
 			consumeRecord.setjAmt(NumUtil.BigDecimal4ToInt(value));
@@ -3620,8 +3990,14 @@ public class EpChargeService {
 				value = NumUtil.intToBigDecimal3(consumeRecord.getgDl()).multiply(rateInfo.getG_RateMoney());
 				consumeRecord.setgMoney(NumUtil.BigDecimal4ToInt(value));
 			}
-			if (consumeRecord.getjMoney() + consumeRecord.getfMoney() + consumeRecord.getpMoney() + consumeRecord.getgMoney() > 0)
+			if (consumeRecord.getjMoney() + consumeRecord.getfMoney() + consumeRecord.getpMoney() + consumeRecord.getgMoney() >= 0)
 				consumeRecord.setServiceAmt(consumeRecord.getjMoney() + consumeRecord.getfMoney() + consumeRecord.getpMoney() + consumeRecord.getgMoney());
+			//个性化优惠金额计算
+			int amt = consumeRecord.getTotalChargeAmt()+consumeRecord.getServiceAmt();
+			int personalAmt = consumeRecord.getTotalAmt() - amt;
+			if (personalAmt < 0) personalAmt = 0;
+			logger.debug(LogUtil.addExtLog("amt|personalAmt"), amt,personalAmt);
+			consumeRecord.setPersonalAmt(personalAmt/100);
 			consumeRecord.setTotalAmt(consumeRecord.getTotalChargeAmt()+consumeRecord.getServiceAmt());
 		} catch (Exception e) {
 			logger.error(LogUtil.addExtLog("exception"), e.getStackTrace());
@@ -3634,9 +4010,8 @@ public class EpChargeService {
 	private static void sendChargeOrder(TblConsumeRecord consumeRecord)
 	{
 		if (consumeRecord == null) return;
+		ConsumeRecord conRecord = new ConsumeRecord();
 		int orgNo = consumeRecord.getUserOrigin();
-		Push rd =  (Push) CooperateFactory.getPush(orgNo);
-		if (rd==null) return;
 
 		List<TblChargingrecord> list = DB.chargingrecordDao.getByTranNumber(consumeRecord.getTransactionNumber());
 		if (list.size() == 0) return;
@@ -3648,117 +4023,124 @@ public class EpChargeService {
 
 		String userIdentity=record.getThirdUsrIdentity();
 		String token=record.getThirdExtraData();
-		int inter_type;
-		int soc=consumeRecord.getEndSoc();
-		if(soc > 0)
-		{
-			inter_type=2;
-		}
-		else
-			inter_type=1;
-		
+
 		double dec2=0.01;
 		if (consumeRecord.getCalcBitType() == 1) dec2 = 0.0001;
 		double dec3=0.001;
 		float money = (float)((consumeRecord.getChargeMoney() + consumeRecord.getServiceMoney())*dec2);
 		float elect_money = (float)(consumeRecord.getChargeMoney()*dec2);
+		conRecord.setTotalChargeAmt(consumeRecord.getChargeMoney());
 		float service_money = (float)(consumeRecord.getServiceMoney()*dec2);
+		conRecord.setServiceAmt(consumeRecord.getServiceMoney());
 		float elect = (float)(consumeRecord.getTotalPower()*dec3);
+		conRecord.setTotalDl(consumeRecord.getTotalPower());
 		float start_elect = (float)(consumeRecord.getStartMeterNum()*dec3);
+		conRecord.setStartMeterNum(consumeRecord.getStartMeterNum());
 		float end_elect = (float)(consumeRecord.getEndMeterNum()*dec3);
-		
-		
+		conRecord.setEndMeterNum(consumeRecord.getEndMeterNum());
+
 		float cusp_elect = (float)(consumeRecord.getTipPower()*dec3);
+		conRecord.setjDl(consumeRecord.getTipPower());
 		float cusp_elect_price = record.getJPrice().floatValue();
-		float cusp_service_price = record.getServicePrice().floatValue();		
+		conRecord.setjPrice(NumUtil.BigDecimal2ToInt(new BigDecimal(cusp_elect_price).multiply(Global.DecTime2)));
+		float cusp_service_price = record.getServicePrice().floatValue();
+		conRecord.setjMoney(NumUtil.BigDecimal2ToInt(new BigDecimal(cusp_service_price).multiply(Global.DecTime2)));
 		float cusp_elect_money = (float)(consumeRecord.getTipMoney()*dec2);
-		
+		conRecord.setJqValue(NumUtil.BigDecimal2ToInt(new BigDecimal(cusp_elect_money).multiply(Global.DecTime2)));
+
 		BigDecimal value = new BigDecimal(consumeRecord.getTipPower()).multiply(record.getServicePrice());
 		value.setScale(2,BigDecimal.ROUND_HALF_UP);
 		float cusp_service_money = (float)(value.floatValue()*dec3);
+		conRecord.setJzValue(NumUtil.BigDecimal2ToInt(new BigDecimal(cusp_service_money).multiply(Global.DecTime2)));
 		float cusp_money = cusp_elect_money+cusp_service_money;
+		conRecord.setjAmt(NumUtil.BigDecimal2ToInt(new BigDecimal(cusp_money).multiply(Global.DecTime2)));
 		float custom_CuspElectPrice = record.getTipPrice().floatValue();
+		conRecord.setCustomCuspElect(NumUtil.BigDecimal2ToInt(new BigDecimal(custom_CuspElectPrice).multiply(Global.DecTime2)));
 		float custom_CuspServicePrice = record.getTipMoney().floatValue();
+		conRecord.setCustomCuspServicePrice(NumUtil.BigDecimal2ToInt(new BigDecimal(custom_CuspServicePrice).multiply(Global.DecTime2)));
 
 		float peak_elect = (float)(consumeRecord.getPeakPower()*dec3);
+		conRecord.setfDl(consumeRecord.getPeakPower());
 		float peak_elect_price = record.getFPrice().floatValue();
-		float peak_service_price = record.getServicePrice().floatValue();		
+		conRecord.setfPrice(NumUtil.BigDecimal2ToInt(new BigDecimal(peak_elect_price).multiply(Global.DecTime2)));
+		float peak_service_price = record.getServicePrice().floatValue();
+		conRecord.setfMoney(NumUtil.BigDecimal2ToInt(new BigDecimal(peak_service_price).multiply(Global.DecTime2)));
 		float peak_elect_money = (float)(consumeRecord.getPeakMoney()*dec2);
-		
+		conRecord.setFqValue(NumUtil.BigDecimal2ToInt(new BigDecimal(peak_elect_money).multiply(Global.DecTime2)));
+
 		 value = new BigDecimal(consumeRecord.getPeakPower()).multiply(record.getServicePrice());
 		value.setScale(2,BigDecimal.ROUND_HALF_UP);
 		float peak_service_money = (float)(value.floatValue()*dec3);
+		conRecord.setFzValue(NumUtil.BigDecimal2ToInt(new BigDecimal(peak_service_money).multiply(Global.DecTime2)));
 		float peak_money = peak_elect_money+peak_service_money;
+		conRecord.setfAmt(NumUtil.BigDecimal2ToInt(new BigDecimal(peak_money).multiply(Global.DecTime2)));
 		float custom_PeakElectPrice = record.getPeakPrice().floatValue();
+		conRecord.setCustomPeakElectPrice(NumUtil.BigDecimal2ToInt(new BigDecimal(custom_PeakElectPrice).multiply(Global.DecTime2)));
 		float custom_PeakServicePrice = record.getPeakMoney().floatValue();
+		conRecord.setCustomPeakServicePrice(NumUtil.BigDecimal2ToInt(new BigDecimal(custom_PeakServicePrice).multiply(Global.DecTime2)));
 
 		float flat_elect = (float)(consumeRecord.getUsualPower()*dec3);
+		conRecord.setpDl(consumeRecord.getUsualPower());
 		float flat_elect_price =  record.getPPrice().floatValue();
-		float flat_service_price = record.getServicePrice().floatValue();		
+		conRecord.setpPrice(NumUtil.BigDecimal2ToInt(new BigDecimal(flat_elect_price).multiply(Global.DecTime2)));
+		float flat_service_price = record.getServicePrice().floatValue();
+		conRecord.setpMoney(NumUtil.BigDecimal2ToInt(new BigDecimal(flat_service_price).multiply(Global.DecTime2)));
 		float flat_elect_money = (float)(consumeRecord.getUsualMoney()*dec2);
-		
+		conRecord.setPqValue(NumUtil.BigDecimal2ToInt(new BigDecimal(flat_elect_money).multiply(Global.DecTime2)));
+
 		 value = new BigDecimal(consumeRecord.getUsualPower()).multiply(record.getServicePrice());
 		value.setScale(2,BigDecimal.ROUND_HALF_UP);
 		float flat_service_money = (float)(value.floatValue()*dec3);
+		conRecord.setPzValue(NumUtil.BigDecimal2ToInt(new BigDecimal(flat_service_money).multiply(Global.DecTime2)));
 		float flat_money = flat_elect_money+flat_service_money;
+		conRecord.setpAmt(NumUtil.BigDecimal2ToInt(new BigDecimal(flat_money).multiply(Global.DecTime2)));
 		float custom_FlatElectPrice = record.getFlatPrice().floatValue();
+		conRecord.setCustomFlatElectPrice(NumUtil.BigDecimal2ToInt(new BigDecimal(custom_FlatElectPrice).multiply(Global.DecTime2)));
 		float custom_FlatServicePrice = record.getFlatMoney().floatValue();
+		conRecord.setCustomFlatServicePrice(NumUtil.BigDecimal2ToInt(new BigDecimal(custom_FlatServicePrice).multiply(Global.DecTime2)));
 
 		float valley_elect = (float)(consumeRecord.getValleyPower()*dec3);
+		conRecord.setgDl(consumeRecord.getValleyPower());
 		float valley_elect_price = record.getGPrice().floatValue();
-		float valley_service_price = record.getServicePrice().floatValue();		
+		conRecord.setgPrice(NumUtil.BigDecimal2ToInt(new BigDecimal(valley_elect_price).multiply(Global.DecTime2)));
+		float valley_service_price = record.getServicePrice().floatValue();
+		conRecord.setgMoney(NumUtil.BigDecimal2ToInt(new BigDecimal(valley_service_price).multiply(Global.DecTime2)));
 		float valley_elect_money = (float)(consumeRecord.getValleyMoney()*dec2);
-		
+		conRecord.setGqValue(NumUtil.BigDecimal2ToInt(new BigDecimal(valley_elect_money).multiply(Global.DecTime2)));
+
 		 value = new BigDecimal(consumeRecord.getValleyPower()).multiply(record.getServicePrice());
 		value.setScale(2,BigDecimal.ROUND_HALF_UP);
 		float valley_service_money = (float)(value.floatValue()*dec3);
+		conRecord.setGzValue(NumUtil.BigDecimal2ToInt(new BigDecimal(valley_service_money).multiply(Global.DecTime2)));
 		float valley_money = valley_elect_money+valley_service_money;
+		conRecord.setgAmt(NumUtil.BigDecimal2ToInt(new BigDecimal(valley_money).multiply(Global.DecTime2)));
 		float custom_ValleyElectPrice = record.getValleyPrice().floatValue();
+		conRecord.setCustomValleyElectPrice(NumUtil.BigDecimal2ToInt(new BigDecimal(custom_ValleyElectPrice).multiply(Global.DecTime2)));
 		float custom_ValleyServicePrice = record.getValleyMoney().floatValue();
-		long start_time = consumeRecord.getBeginChargeTime();
-		long end_time = consumeRecord.getEndChargeTime();
-		int stop_msodel=1;
-		
-		int stop_reason=4;//app请求结束
-		String stopCause = consumeRecord.getStopCause();
-		int cause = 0;
-		if (stopCause.indexOf("|") > 0) {
-			cause = Integer.valueOf(stopCause.split("|")[0]);
-		} else {
-			cause = Integer.valueOf(stopCause);
-		}
-		if(cause==12)
-		{
-			stop_reason=2;//自动充满
-		}
-		else if((cause>=3 && cause<=11)
-				||(cause>=13 && cause<=19))
-		{
-			stop_reason=1;//故障
-		}
-		else if(cause==2)
-		{
-			stop_reason=3;//刷卡正常结束
-		}
-		long time = DateUtil.getCurrentSeconds();
-		
-		String extra = "";
-		if (orgNo == UserConstants.ORG_CCZC) {
-			extra = getExtraData_CCZC(epCode,epGunNo,userIdentity,
-					token,4,1,0,consumeRecord.getTransactionNumber());
-		}
+		conRecord.setCustomValleyServicePrice(NumUtil.BigDecimal2ToInt(new BigDecimal(custom_ValleyServicePrice).multiply(Global.DecTime2)));
 
-		rd.onChargeOrder( token, orgNo, userIdentity, epCode, epGunNo,
-						 inter_type, money, elect_money, service_money, elect, start_elect, end_elect
-						, cusp_elect, cusp_elect_price, cusp_service_price, cusp_money, cusp_elect_money, cusp_service_money
-						, peak_elect, peak_elect_price, peak_service_price, peak_money, peak_elect_money, peak_service_money
-						, flat_elect, flat_elect_price, flat_service_price, flat_money, flat_elect_money, flat_service_money
-						, valley_elect, valley_elect_price, valley_service_price, valley_money, valley_elect_money,
-						valley_service_money,(int)start_time, (int)end_time, stop_msodel, stop_reason, soc, (int)time,extra
-						, custom_CuspElectPrice, custom_CuspServicePrice, custom_PeakElectPrice, custom_PeakServicePrice
-						, custom_FlatElectPrice, custom_FlatServicePrice, custom_ValleyElectPrice, custom_ValleyServicePrice);
+		Map<String ,Object> respMap = new ConcurrentHashMap<String, Object>();
 
-		logger.debug(LogUtil.getExtLog("rd.onChargeOrder"));
+		respMap.put("epcode", epCode);
+		respMap.put("epgunno", epGunNo);
+
+		respMap.put("orgn", orgNo);
+		respMap.put("token", token);
+		respMap.put("usrLog", userIdentity);
+		respMap.put("usrId", record.getUserId());
+		respMap.put("pkEpId", record.getChreElectricpileid());
+
+		respMap.put("orderid",record.getChreCode());
+		//用户新手状态
+		respMap.put("userFirst",0);
+		//优惠券面值金额
+		respMap.put("couPonAmt",0);
+		//实际优惠金额
+		respMap.put("realCouPonAmt",0);
+		EpGunCache epGunCache = EpGunService.getEpGunCache(epCode, epGunNo);
+		if(epGunCache !=null) {
+			epGunCache.handleEvent(EventConstant.EVENT_CONSUME_RECORD,0,0,respMap,(Object)conRecord);
+		}
 	}
-	
+
 }

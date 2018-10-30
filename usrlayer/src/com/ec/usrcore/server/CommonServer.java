@@ -1,24 +1,28 @@
 package com.ec.usrcore.server;
 
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.xml.DOMConfigurator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.ec.constants.ErrorCodeConstants;
 import com.ec.logs.LogConstants;
 import com.ec.netcore.conf.CoreConfig;
 import com.ec.netcore.model.conf.ServerConfig;
 import com.ec.netcore.model.conf.ServerConfigs;
 import com.ec.netcore.netty.httpserver.AbstractHttpServer;
 import com.ec.netcore.util.TimeUtil;
+import com.ec.usrcore.cache.UserRealInfo;
 import com.ec.usrcore.config.GameBaseConfig;
 import com.ec.usrcore.service.CacheService;
 import com.ec.usrcore.service.EpChargeService;
 import com.ec.usrcore.service.EpGateService;
+import com.ec.usrcore.service.UserService;
 import com.ec.utils.LogUtil;
 import com.ormcore.cache.GameContext;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.xml.DOMConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
+import static com.ec.usrcore.service.EpGateService.startCheckThreadPool4Html;
 
 public class CommonServer {
 	private static final Logger logger = LoggerFactory.getLogger(LogUtil.getLogName(CommonServer.class.getName()));
@@ -65,6 +69,8 @@ public class CommonServer {
 		new GameBaseConfig(path);//初始化服务器基础配置
 		new GameContext(path);//初始化spring,加载数据库全局数据
 		EpGateService.startScanEpGate(10);
+
+		startCheckThreadPool4Html(10);
 
 		// 检查电桩通讯状态
         CacheService.startEpGateCommTimer(10);
@@ -131,14 +137,34 @@ public class CommonServer {
 			short startChargeStyle,int chargingAmt,int payMode,
 			String carCode, String vinCode, int watchPrice, String extra)
 	{
-		logger.info(LogUtil.addBaseExtLog("startChargeStyle|chargingAmt|payMode"),
-				new Object[]{LogConstants.FUNC_START_CHARGE,epCode,epGunNo,orgNo,userIdentity,startChargeStyle,chargingAmt,payMode});
+		logger.info(LogUtil.addBaseExtLog("startChargeStyle|chargingAmt|payMode|extra"),
+				new Object[]{LogConstants.FUNC_START_CHARGE,epCode,epGunNo,orgNo,userIdentity,startChargeStyle,chargingAmt,payMode,extra});
 
 		int ret = EpChargeService.apiStartElectric(extra, orgNo, userIdentity,epCode, epGunNo,
 				startChargeStyle, chargingAmt, payMode, watchPrice, carCode, vinCode, severType);
 		if (ret != 0)
 			logger.info(LogUtil.addBaseExtLog("errorCode"),
 					new Object[]{LogConstants.FUNC_START_CHARGE,epCode,epGunNo,orgNo,userIdentity,ret});
+
+		return ret;
+	}
+
+	public int startCharge4ICharge(int orgNo, String userIdentity, String epCode, int epGunNo,
+	                       short startChargeStyle, int chargingAmt, int payMode,
+	                       String carCode, String vinCode, int watchPrice, String extra, int serverType) {
+		logger.info(LogUtil.addBaseExtLog("startChargeStyle|chargingAmt|payMode|extra"),
+				new Object[]{LogConstants.FUNC_START_CHARGE, epCode, epGunNo, orgNo, userIdentity, startChargeStyle, chargingAmt, payMode, extra});
+		UserRealInfo userInfo = UserService.findUserRealInfo(Integer.parseInt(userIdentity), serverType);
+		if (null == userInfo) {
+			logger.info(LogUtil.addBaseExtLog("errorCode"),
+					new Object[]{LogConstants.FUNC_PHONE_INIT, epCode, epGunNo, userIdentity, ErrorCodeConstants.INVALID_ACCOUNT});
+			return ErrorCodeConstants.INVALID_ACCOUNT;
+		}
+		int ret = EpChargeService.apiStartElectric(extra, orgNo, userIdentity, epCode, epGunNo,
+				startChargeStyle, chargingAmt, payMode, watchPrice, carCode, vinCode, serverType);
+		if (ret != 0)
+			logger.info(LogUtil.addBaseExtLog("errorCode"),
+					new Object[]{LogConstants.FUNC_START_CHARGE, epCode, epGunNo, orgNo, userIdentity, ret});
 
 		return ret;
 	}
@@ -179,6 +205,24 @@ public class CommonServer {
 		if (ret != 0)
 			logger.info(LogUtil.addBaseExtLog("errorCode"),
 					new Object[]{LogConstants.FUNC_QUERY_ORDER,epCode,epGunNo,orgNo,userIdentity,ret});
+
+		return ret;
+	}
+
+	/**
+	 *  通用实时数据查询接口（html_controller->netty_usrGate-->ep_gate）
+	 *
+	 * @param orgNo
+	 * @param extra
+	 */
+	public int queryCommonRealData(String epCode, int epGunNo,String extra) {
+		logger.info(LogUtil.addBaseExtLog("extra"),
+				new Object[]{LogConstants.FUNC_4COMMONREALDATA, epCode, epGunNo,  extra});
+
+		int ret = EpChargeService.queryData4Common(epCode, epGunNo, extra);
+		if (ret != 0)
+			logger.info(LogUtil.addBaseExtLog("errorCode"),
+					new Object[]{LogConstants.FUNC_4COMMONREALDATA, epCode, epGunNo, ret});
 
 		return ret;
 	}
@@ -231,6 +275,32 @@ public class CommonServer {
 		evt.onRealData(orgNo,userIdentity,epCode,epGunNo,extra,extraData);
 	}
 
+	/**
+	 * 为Html提供其他渠道的充电实时数据
+	 *
+	 * @param epCode
+	 * @param epGunNo
+	 * @param accountId
+	 * @param extraData
+	 */
+	public void onChargeReal4Html(int orgNo, String userIdentity, String epCode, int epGunNo, String extra, Map<String, Object> extraData) {
+		if (evt == null)
+			return;
+		evt.onChargeReal4Html(orgNo, userIdentity, epCode, epGunNo, extra, extraData);
+	}
+
+	/**
+	 * 4Common实时数据查询（EPGate->usrGate）
+	 * @param epCode
+	 * @param epGunNo
+	 * @param accountId
+	 * @param extraData
+	 */
+	public void onQueryCommonRealData(String epCode, int epGunNo, String extra, String ranRuiQueryData) {
+		if (evt == null)
+			return;
+		evt.onQueryCommonRealData(epCode,  epGunNo,  extra, ranRuiQueryData);
+	}
 	/**
 	 * 消费记录
 	 * @param epCode
@@ -301,6 +371,14 @@ public class CommonServer {
 		if(evt==null)
 			return;
 		evt.onGunWorkStatusChange(orgNo,userIdentity,epCode,epGunNo,extra,status);
+	}
+
+	//给html推送全国idle 变化状态的数据
+	public void onGunWorkStatusChange4Html(String epCode,int epGunNo,int currentType,String realData){
+		if (evt==null){
+			return;
+		}
+		evt.onGunWorkStatusChange4Html(epCode,epGunNo,currentType,realData);
 	}
 	
 	public CommonServer getCommonServer() {

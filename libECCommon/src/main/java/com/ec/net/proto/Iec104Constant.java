@@ -140,6 +140,9 @@ public class Iec104Constant {
 	public static final int M_CARD_AUTH = 13;
 	public static final int C_VIN_AUTH_RESP = 14;
 	public static final int M_VIN_AUTH = 14;
+	//车辆VIN码鉴权
+	public static final int C_CARVIN_AUTH_RESP = 15;
+	public static final int M_CARVIN_AUTH = 15;
 
 	//预约
 	public static final int C_BESPOKE = 31;
@@ -172,11 +175,15 @@ public class Iec104Constant {
 	public static final int C_STOP_ELECTRICIZE = 43;
 
 	public static final int M_STOP_ELECTRICIZE_RET = 43;
-
+	//不圈存卡充电冻结金额上行数据
 	public static final int C_CARD_FRONZE_AMT = 44;
 
 	public static final int M_CARD_FRONZE_AMT_RET = 44;
-	
+
+	public static final int C_VIN_FRONZE_AMT = 60;
+
+	public static final int M_VIN_FRONZE_AMT_RET = 60;
+
 
 	//结束充电事件上行数据
 	public static final int M_STOP_ELECTRICIZE_EVENT = 45;
@@ -201,6 +208,10 @@ public class Iec104Constant {
 	public static final int M_CONSUME_RECORD_WITH_REASEON = 54;
 
 	public static final int C_CONSUME_RECORD_REASEON_CONFIRM = 54;
+
+	public static final int M_CONSUME_RECORD_WITH_BAT = 55;
+
+	public static final int C_CONSUME_RECORD_BAT_CONFIRM = 55;
 
 	public static final int M_DC_SELF_CHECK_FINISHED = 48;
 		
@@ -288,7 +299,11 @@ public class Iec104Constant {
     public static final int M_SET_EP_INFO_RET = 156;
     //电桩离线报文上报
     public static final int M_GET_EP_OFFLINE_INFO_RET = 157;
-	
+
+    //错误码 上传
+	public static final int FAULT_CODE_FROM_PILE=158;
+
+
 	//电桩业务查询
 	public static final int C_QUERY_CONSUME_RECORD = 162;
 	//电桩业务应答

@@ -1,6 +1,8 @@
 package com.ec.epcore.service;
 
+import com.alibaba.fastjson.JSON;
 import com.ec.common.net.U2ECmdConstants;
+import com.ec.config.Global;
 import com.ec.constants.*;
 import com.ec.epcore.cache.*;
 import com.ec.epcore.config.GameConfig;
@@ -16,6 +18,7 @@ import com.ec.netcore.core.pool.TaskPoolFactory;
 import com.ec.utils.DateUtil;
 import com.ec.utils.LogUtil;
 import com.ec.utils.NetUtils;
+import com.ec.utils.NumUtil;
 import com.ormcore.dao.DB;
 import com.ormcore.model.TblChargingrecord;
 import io.netty.channel.Channel;
@@ -50,7 +53,8 @@ public class UsrGateService {
 				cmd == U2ECmdConstants.EP_STOP_CHARGE||
 				cmd == U2ECmdConstants.EP_CONSUME_RECODE||
 				cmd == U2ECmdConstants.EP_GUN_CAR_STATUS||
-				cmd == U2ECmdConstants.CCZC_QUERY_ORDER))
+				cmd == U2ECmdConstants.CCZC_QUERY_ORDER ||
+				cmd == U2ECmdConstants.EP_4COMMON_REALDATA))
 			return true;
 		
 		return false;
@@ -133,6 +137,7 @@ public class UsrGateService {
 		usrGate.setIdentity(ip);
 		usrGate.setStatus(CommStatusConstant.INIT_SUCCESS);
 		usrGate.setVersion(version);
+		//这里保存了来自哪个服务的标识 , 之后的很多事件推送跟这个有关
 		usrGate.getUserOrigin().setCmdFromSource(OrgType);
 		usrGate.getUserOrigin().setCmdChIdentity(ip);
 		usrGate.setIp(ip);
@@ -153,7 +158,7 @@ public class UsrGateService {
 	 */
 	public static void handleUsrGateLogin(Channel channel,int h,int m,int s,int OrgType,int version)
 	{
-		logger.debug("usrGate login,OrgType:{},version:{}",OrgType,version);
+		logger.info("usrGate login,OrgType:{},version:{}",OrgType,version);
 		
 		 //判断通道是否正常
 		int errorCode = usrGateLogin(channel,OrgType,version);
@@ -185,7 +190,8 @@ public class UsrGateService {
 		setLastUseTime(channel);
 		String messagekey= ""+usrId+cmd;//+h+m+s;
 		
-		UsrGateMessageSender.removeRepeatMsg(messagekey);
+//		UsrGateMessageSender.removeRepeatMsg(messagekey);
+		EpCommClientService.removeRepeatMsg(messagekey);
 	}
 	/**
 	 * 处理心跳
@@ -331,7 +337,7 @@ public class UsrGateService {
 		if (pos == 6) {
 			// 卡充电在手机上显示
 			if (epGunCache.getChargeCache() != null
-					&& epGunCache.getChargeCache().getStartChargeStyle() == 3
+					&& epGunCache.getChargeCache().getStartChargeStyle() == EpConstants.CHARGE_TYPE_CARD
 					&& epGunCache.getChargeCache().getUserOrigin() != null) {
 				epGunCache.getChargeCache().getUserOrigin().setCmdFromSource(2);
 			}
@@ -463,6 +469,7 @@ public class UsrGateService {
 			return ErrorCodeConstants.INVALID_ACCOUNT;
 		}
 
+		// 查询并设置用户是否新手, 并放入map 缓存
 		if(orgNo == UserConstants.ORG_I_CHARGE) u = UserService.getUserCache(usrId);
 		if(u==null)
 		{
@@ -523,13 +530,13 @@ public class UsrGateService {
 		int errorCode = startCharge(channel,usrGate.getIp(),epCode,epGunNo, OrgNo,usrGate.getUserOrigin().getCmdFromSource(), usrLog,token, fronzeAmt, payMode, chargeStyle,
 				 bDispPrice, carNo, carVin);
 		String extraData="";
-		byte successflag =  1;
+		byte successflag = 0;
 		byte[] data = null;
 		if(OrgNo == UserConstants.ORG_CCZC || OrgNo == UserConstants.ORG_CHAT)
 		 {
 			if(errorCode>0)
 			{
-				successflag=0;
+				successflag=1;
 			}
 			extraData =EpChargeService.getExtraData_CCZC(epCode,
 					epGunNo, usrLog,
@@ -542,7 +549,7 @@ public class UsrGateService {
 	        if(errorCode>0)
 	        {
 	        	logger.error("usrGate startcharge fail errorCode:{},OrgNo:{},channel:{}",new Object[]{errorCode,OrgNo,channel});
-	        	successflag =  0;
+	        	successflag = 1;
 	        }
 			extraData =EpChargeService.getExtraData_TCEC(epCode,
 					epGunNo, token, 0, successflag, errorCode);
@@ -552,6 +559,7 @@ public class UsrGateService {
 		if(data!=null)
 		{
 			UsrGateMessageSender.sendMessage(channel, data);
+			logger.info("startchargeRep,epCode:{},epGunNo:{},OrgNo:{},usrGate:{},extraData:{}", new Object[]{epCode, epGunNo,OrgNo, usrGate.getIp(), extraData});
 		}
 	} 
 	
@@ -604,9 +612,10 @@ public class UsrGateService {
 			
 			Map.Entry entry = (Map.Entry) iter.next();
 			UsrGateClient  usrGate=(UsrGateClient) entry.getValue();
+			//推全国
 			if(null == usrGate || usrGate.getChannel()==null|| !usrGate.isComm()
-					|| usrGate.getUserOrigin()==null 
-					||usrGate.getUserOrigin().getCmdFromSource() != UserConstants.CMD_FROM_PHONE)
+					|| usrGate.getUserOrigin()==null
+					|| usrGate.getUserOrigin().getCmdFromSource() != UserConstants.CMD_FROM_PHONE)
 			{
 				continue;
 			}	
@@ -651,11 +660,21 @@ public class UsrGateService {
 		{
 			String messagekey = usrLog+U2ECmdConstants.EP_GUN_WORK_STATUS;//
 			UsrGateMessageSender.sendRepeatMessage(channel,pushData,messagekey);
-			logger.debug("usrGate gunWorkStatus success accountId:{},gun workstatus:{},epCode:{},epGunNo:{}",
-					new Object[]{usrLog,status,epCode,epGunNo});
+			logger.debug("handleGunWorkStatus to usrGate success epCode:{},epGunNo:{},orgNo:{},accountId:{},gunWorkStatus:{},ip:{}",
+					new Object[]{epCode, epGunNo, OrgNo,usrLog,status,channel.remoteAddress()});
 		}
+
 		
-		
+	}
+	//发送状态变化数据给html 全国的
+	public static void sendAllGunWorkStatus4Html(Channel channel, String epCode, int epGunNo, int currenType, Map realData) {
+		byte time[] = WmIce104Util.timeToByte();
+		String realDataStr = JSON.toJSONString(realData);
+		byte[] pushData = UsrGateEncoder.sendAllGunWorkStatus4Html(time[0], time[1], time[2], epCode, epGunNo, currenType, realDataStr);
+		UsrGateMessageSender.sendMessage(channel, pushData);
+		logger.info("sendAllGunWorkStatus4Html usrGateIp:{},epCode:{},epGunNo:{},realData=3_1:{}", new Object[]{channel.remoteAddress(), epCode, epGunNo, realData.get("3_1")});
+
+
 	}
 	
 	/**
@@ -677,8 +696,8 @@ public class UsrGateService {
 			Map.Entry entry = (Map.Entry) iter.next();
 			UsrGateClient  usrGate=(UsrGateClient) entry.getValue();
 			if(null == usrGate || usrGate.getChannel()==null|| !usrGate.isComm()
-					|| usrGate.getUserOrigin()==null 
-					||usrGate.getUserOrigin().getCmdFromSource() != UserConstants.CMD_FROM_PHONE)
+					|| usrGate.getUserOrigin()==null
+					|| usrGate.getUserOrigin().getCmdFromSource() != UserConstants.CMD_FROM_PHONE)
 			{
 				continue;
 			}	
@@ -689,10 +708,25 @@ public class UsrGateService {
 		
 		    String usrLog = ""+usrId;
 		    String token = ""+oldstatus;
-		
 		    sendGunWorkStatus(status,usrGate.getChannel(),epCode,epGunNo,orgNo,usrLog,token);
 		}
 		
+	}
+	//给html推送全国idle 变化状态的数据
+	public static void handleAllGunWorkStatus4Html(String epCode,int epGunNo, int currentType,Map realData ){
+		//把全国的空闲时的数据只发给html不发给其他usrgate 由于小程序的原因给的来源是2但是走的是html ,所以小程序的数据会漏掉,
+		cm.getMapClients().forEach((k,v)->{
+			UsrGateClient usrGate = (UsrGateClient) v;
+			try {
+				if (usrGate.getUserOrigin().getCmdFromSource() != UserConstants.CMD_FROM_PHONE && usrGate.getUserOrigin().getCmdFromSource() != UserConstants.CMD_FROM_API && usrGate.getStatus() == CommStatusConstant.INIT_SUCCESS) {
+					sendAllGunWorkStatus4Html(usrGate.getChannel(), epCode, epGunNo, currentType, realData);
+				}
+			}catch (Exception e){
+				logger.error("handleAllGunWorkStatus4Html error epCode:{},exception:{}", epCode,e.getMessage());
+			}
+
+		});
+
 	}
 	/**
 	 * 处理停止充电命令
@@ -737,6 +771,7 @@ public class UsrGateService {
 		if(data!=null)
 		{
 			UsrGateMessageSender.sendMessage(channel, data);
+			logger.info("onStopCharge,epCode:{},epGunNo:{},OrgNo:{},extraData:{}",new Object[]{epCode, epGunNo,OrgNo,extraData});
 		}
 	
 	}
@@ -852,7 +887,59 @@ public class UsrGateService {
 		return usrGate.isComm();
 		
 	}
+	// 非html渠道充电实时数据 推送到html 有30s的限制 @hm
+	public static void realChargeData4Html(int type, UserOrigin userOrigin, int ret, int cause, Object srcParams, Object extraData){
 
+		try {
+		switch (type){
+			case EventConstant.EVENT_REAL_CHARGING: {
+
+				Iterator iter = cm.getMapClients().entrySet().iterator();
+				while (iter.hasNext()) {
+					Map.Entry entry = (Map.Entry) iter.next();
+					UsrGateClient usrGate = (UsrGateClient) entry.getValue();
+					//CMD_FROM_third 把其他地方发起充电的实时数据推给html,并排除html自己发起的
+					if (null == usrGate || usrGate.getChannel() == null || !usrGate.isComm()
+							|| usrGate.getUserOrigin() == null || userOrigin.getCmdFromSource() == UserConstants.CMD_FROM_third
+							|| usrGate.getUserOrigin().getCmdFromSource() != UserConstants.CMD_FROM_third) {
+						continue;
+					}
+					if (usrGate.getStatus() < CommStatusConstant.INIT_SUCCESS) {
+						continue;
+					}
+					//实时充电数据信息  105
+					Map<String, Object> paramsMap = (Map<String, Object>) srcParams;
+
+					String epCode = (String) paramsMap.get("epcode");
+					int usrId = (int) paramsMap.get("usrId");
+					int OrgNo = (int) paramsMap.get("orgn");
+					int epGunNo = (int) paramsMap.get("epgunno");
+					String usrLog = (String) paramsMap.get("usrLog");
+					String token = (String) paramsMap.get("token");
+					if (extraData == null) {
+						logger.error("usrGate service onEvent realChargeData4Html error,extraData==null");
+						return;
+					}
+					byte[] time = WmIce104Util.timeToByte();
+
+					ChargingInfo chargingInfo = (ChargingInfo) extraData;
+
+					byte[] data = UsrGateEncoder.chargeRealInfo(time[0], time[1], time[2], epCode, epGunNo, OrgNo, usrLog,
+							token, chargingInfo, U2ECmdConstants.EP_REALINFO_4HTML);
+					UsrGateMessageSender.sendMessage(usrGate.getChannel(), data);
+
+					logger.debug("realChargeData4Html --->realDataPush,epCode:{},epGunNo:{},userOrigin:{},chargingInfo:{}",
+							new Object[]{epCode, epGunNo, userOrigin, JSON.toJSONString(chargingInfo)});
+				}
+			}
+			break;
+			default:
+				break;
+		   }
+		} catch (Exception e) {
+			logger.error("realChargeData4All error,{}",e.getMessage());
+		}
+	}
 	public static void onEvent(int type,UserOrigin userOrigin,int ret,int cause,Object srcParams, Object extraData)
 	{
 		try{
@@ -877,9 +964,6 @@ public class UsrGateService {
 		{
 		case EventConstant.EVENT_BESPOKE:
 			break;
-			
-
-			
 		case EventConstant.EVENT_CHARGE_EP_RESP:
 		{
 			Map<String, Object> paramsMap = (Map<String, Object>)extraData;
@@ -905,8 +989,8 @@ public class UsrGateService {
 			{
 			   UsrGateMessageSender.sendMessage(usrGate.getChannel(), data);
 			}
-	        logger.debug("usrGate service onEvent EVENT_CHARGE,OrgNo:{}:usrLog:{},token:{}\n",
-	        		new Object[]{OrgNo,usrLog,extra});
+	        logger.info("onEvent---> EVENT_CHARGE_EP_RESP,epCode:{},epGunNo:{},OrgNo:{}:usrLog:{},extra:{}\n",
+	        		new Object[]{epCode,epGunNo,OrgNo,usrLog,extra});
 		}
 			break;
 		
@@ -936,22 +1020,23 @@ public class UsrGateService {
 			{
 			    UsrGateMessageSender.sendMessage(usrGate.getChannel(), data);
 			}
-			logger.debug("usrGate service onEvent EVENT_STOP_CHARGE\n");
+			logger.info("onEvent---> EVENT_STOP_CHARGE_EP_RESP,epCode:{},epGunNo:{},OrgNo:{}:usrLog:{},extra:{}\n",
+					new Object[]{epCode, epGunNo, OrgNo, usrLog, extra});
 		}
 			break;
 		case EventConstant.EVENT_CONSUME_RECORD:
 		{
 			Map<String, Object> paramsMap = (Map<String, Object>)srcParams;
-			
+
 			String epCode = (String)paramsMap.get("epcode");
 			int epGunNo = (int)paramsMap.get("epgunno");
-			
+
 			int OrgNo = (int)paramsMap.get("orgn");
 			String usrLog = (String)paramsMap.get("usrLog");
 			String token = (String)paramsMap.get("token");
-			
+
 			int pkEpId = (int)paramsMap.get("pkEpId");
-			
+
 			String chargeOrder = (String)paramsMap.get("orderid");
 			int usrId = (int)paramsMap.get("usrId");
 			int userFirst = (int)paramsMap.get("userFirst");
@@ -960,10 +1045,13 @@ public class UsrGateService {
 			int couPonAmt = (int)paramsMap.get("couPonAmt");
 			int realCouPonAmt = (int)paramsMap.get("realCouPonAmt");
 			if (consumeRecord.getType() == 1) {
-				couPonAmt = couPonAmt/100;
-				realCouPonAmt = realCouPonAmt/100;
+				couPonAmt = NumUtil.BigDecimal2ToInt(NumUtil.intToBigDecimal42(couPonAmt).multiply(Global.DecTime2));
+				realCouPonAmt = NumUtil.BigDecimal2ToInt(NumUtil.intToBigDecimal42(realCouPonAmt).multiply(Global.DecTime2));
 			}
-			
+			int chargeStyle = -1;
+			int personalAmt = (int)paramsMap.get("personalAmt");
+			if (paramsMap.get("chargeStyle") != null) chargeStyle = Integer.valueOf((String)paramsMap.get("chargeStyle"));
+
 			byte[] time = WmIce104Util.timeToByte();
 			byte[] data = null;
 			if(OrgNo == 0)
@@ -972,32 +1060,35 @@ public class UsrGateService {
 			{
 				if (consumeRecord.getType() == 1) {
 					data = UsrGateEncoder.IchargeRecord(time[0],time[1],time[2],epCode,epGunNo,OrgNo,usrLog,token,pkEpId,
-							  chargeOrder,consumeRecord.getStartTime(),consumeRecord.getEndTime(),
-							  consumeRecord.getTotalDl(),consumeRecord.getTotalChargeAmt()/100,
-							  consumeRecord.getServiceAmt()/100,userFirst,couPonAmt,realCouPonAmt);
+							chargeOrder,consumeRecord.getStartTime(),consumeRecord.getEndTime(),
+							consumeRecord.getTotalDl(),NumUtil.BigDecimal2ToInt(NumUtil.intToBigDecimal42(consumeRecord.getTotalChargeAmt()).multiply(Global.DecTime2)),
+							NumUtil.BigDecimal2ToInt(NumUtil.intToBigDecimal42(consumeRecord.getServiceAmt()).multiply(Global.DecTime2)),
+							userFirst,couPonAmt,realCouPonAmt,personalAmt,chargeStyle);
 				} else {
 					data = UsrGateEncoder.IchargeRecord(time[0],time[1],time[2],epCode,epGunNo,OrgNo,usrLog,token,pkEpId,
 							  chargeOrder,consumeRecord.getStartTime(),consumeRecord.getEndTime(),
 							  consumeRecord.getTotalDl(),consumeRecord.getTotalChargeAmt(),
-							  consumeRecord.getServiceAmt(),userFirst,couPonAmt,realCouPonAmt);
+							  consumeRecord.getServiceAmt(),userFirst,couPonAmt,realCouPonAmt,personalAmt,chargeStyle);
 				}
 			}
 			else
 			{
 			     data = UsrGateEncoder.chargeRecord(time[0],time[1],time[2],epCode,epGunNo,OrgNo,usrLog,token,
-					  chargeOrder,consumeRecord,userFirst,couPonAmt,realCouPonAmt);
-			    
+					  chargeOrder,consumeRecord,userFirst,couPonAmt,realCouPonAmt,personalAmt);
+
 			}
 			if(data !=null)
 			{
 			     String messagekey = usrGate.getChannel().toString()+usrId+U2ECmdConstants.EP_CONSUME_RECODE;//+time[0]+time[1]+time[2];
-		         UsrGateMessageSender.sendRepeatMessage(usrGate.getChannel(),data,messagekey);
+				System.out.println("messagekey:"+messagekey);
+				UsrGateMessageSender.sendRepeatMessage(usrGate.getChannel(),data,messagekey);
 			}
-			logger.debug("usrGate service onEvent EVENT_CONSUME_RECORD\n");
+			logger.info("onEvent---> EVENT_CONSUME_RECORD,epCode:{},epGunNo:{},usrId:{},chargeOrder:{},OrgNo:{},consumeRecord:{} ",new Object[]{epCode,epGunNo, usrId, chargeOrder,OrgNo,JSON.toJSONString(consumeRecord)});
 		}
 			break;
 		case EventConstant.EVENT_REAL_CHARGING:
 		{
+			//实时充电数据信息  105
             Map<String, Object> paramsMap = (Map<String, Object>)srcParams;
 			
 			String epCode = (String)paramsMap.get("epcode");
@@ -1006,8 +1097,6 @@ public class UsrGateService {
 			int OrgNo = (int)paramsMap.get("orgn");
 			String usrLog = (String)paramsMap.get("usrLog");
 			String token = (String)paramsMap.get("token");
-
-			
 			logger.debug("usrGate service onEvent EVENT_REAL_CHARGING,orgn:{},usrId:{}\n",OrgNo,usrId);
 			if(extraData==null)
 			{
@@ -1030,11 +1119,12 @@ public class UsrGateService {
 			byte[] time = WmIce104Util.timeToByte();
 			
 			ChargingInfo chargingInfo = (ChargingInfo)extraData;
-			
+
 			byte[] data = UsrGateEncoder.chargeRealInfo(time[0],time[1],time[2],epCode,epGunNo,OrgNo,usrLog,
-					    token,chargingInfo);
+					    token,chargingInfo, U2ECmdConstants.EP_REALINFO);
 			UsrGateMessageSender.sendMessage(usrGate.getChannel(), data);
-			logger.debug("usrGate service onEvent EVENT_REAL_CHARGING\n");
+			logger.debug("onEvent EVENT_REAL_CHARGING,epCode:{},epGunNo:{},userOriginIp:{},chargingInfo:{}",
+					new Object[]{epCode, epGunNo, userOrigin.getCmdChIdentity(), JSON.toJSONString(chargingInfo)});
 		}
 			break;
         case EventConstant.EVENT_CHARGE:
@@ -1046,19 +1136,14 @@ public class UsrGateService {
 			int epGunNo = (int)paramsMap.get("epgunno");
 			int OrgNo = (int)paramsMap.get("orgn");
 			String usrLog = (String)paramsMap.get("usrLog");
-			String token = (String)paramsMap.get("token");
-			String extra = (String)paramsMap.get("extraData");
+			String token = (String)paramsMap.get("extraData");
 			byte[] time = WmIce104Util.timeToByte();
 			
-			if(OrgNo == UserConstants.ORG_EC || OrgNo == UserConstants.ORG_CHAT)
-			{
-				token = extra;
-			}
 			byte[] data = UsrGateEncoder.chargeEvent(time[0],time[1],time[2],epCode, epGunNo,
 					OrgNo,usrLog,token, ret);
 			
 			UsrGateMessageSender.sendMessage(usrGate.getChannel(), data);
-			logger.debug("usrGate service onEvent EVENT_START_CHARGE_EVENT\n");
+			logger.info("onEvent--->EVENT_START_CHARGE_EVENT,epCode:{},epGunNo:{},OrgNo:{},usrGateIp:{},extraData:{}", new Object[]{epCode, epGunNo, OrgNo, usrGate.getIp(), token});
 		}
 			break;
 		default:
@@ -1170,7 +1255,7 @@ public class UsrGateService {
 		if(data !=null)
 		{
 			UsrGateMessageSender.sendMessage(channel, data);
-			logger.debug("usrGate handleQueryOrder send success");
+			logger.debug("usrGate handleQueryOrder send success,epCode:{},extraData:{}", epCode, extraData);
 		}
 		
 		
@@ -1223,6 +1308,28 @@ public class UsrGateService {
 		}
 		return 0;
 	}
+
+	/**
+	 * 4commondataquery 查询数据参数检查
+	 *
+	 * @param epCode
+	 * @param epGunNo
+	 * @param OrgNo
+	 * @param usrLog
+	 * @param token
+	 * @return
+	 */
+	public static int checkQuery4CommonDataParam(String epCode, int epGunNo) {
+		ElectricPileCache epCache = EpService.getEpByCode(epCode);
+		if (epCache == null) {
+			return ErrorCodeConstants.EP_UNCONNECTED;
+		}
+		EpGunCache epGunCache = EpGunService.getEpGunCache(epCode, epGunNo);
+		if (epGunCache == null) {
+			return ErrorCodeConstants.EP_UNCONNECTED;
+		}
+		return 0;
+	}
     /**
      * 检查车与枪连接状态，曹操专车
      * @param epCode
@@ -1251,6 +1358,41 @@ public class UsrGateService {
 	    logger.debug("checkCarLinkStatus 0,carLinkStatus:{},epCode:{},epGun:{}",new Object[]{carLinkStatus,
 	    		epCode,epGunNo});
 	    return 0;
+    }
+
+    //通用实时数据
+    public static void handleQueryData4Common(Channel channel, int h, int m, int s, String epCode,
+                                             int epGunNo, String extra){
+	    UsrGateClient usrGate = getClient(channel);
+	    if (usrGate == null) {
+		    logger.error("usrGate handleQueryData4Common fail not find usrGate,channel:{}", channel);
+		    return;
+	    }
+	    setLastUseTime(channel);
+
+	    byte data[] = null;
+	    String extraData = "";
+	    int errorCode = checkQuery4CommonDataParam(epCode, epGunNo);
+	    if (errorCode > 0)//查询失败
+	    {
+		    data = UsrGateEncoder.queryData4Common(h, m, s, epCode, epGunNo,
+				    extra,extraData, 0, errorCode);
+
+		    logger.error("usrGate handleQueryData4Common fail,epCode:{},epGunNo:{},extra:{},errorCode:{}",
+				    new Object[]{epCode, epGunNo, extra, errorCode});
+	    } else //查询成功
+	    {
+		    extraData = EpChargeService.queryData4Common(epCode, epGunNo);
+		    logger.info("usrGate handleQueryData4Common success,epCode:{},epGunNo:{},extra:{}",
+				    new Object[]{epCode, epGunNo, extra});
+		    data = UsrGateEncoder.queryData4Common(h, m, s, epCode, epGunNo,  extra,
+				    extraData, 1, 0);
+	    }
+	    if (data != null) {
+		    UsrGateMessageSender.sendMessage(channel, data);
+		    logger.debug("usrGate handleQueryData4Common send success");
+	    }
+
     }
     
     	

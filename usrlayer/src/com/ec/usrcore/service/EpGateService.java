@@ -1,17 +1,5 @@
 package com.ec.usrcore.service;
 
-import io.netty.channel.Channel;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ec.common.net.U2ECmdConstants;
 import com.ec.constants.CommStatusConstant;
 import com.ec.constants.EpConstants;
@@ -27,12 +15,23 @@ import com.ec.usrcore.net.client.EpGateNetConnect;
 import com.ec.usrcore.net.codec.EpGateEncoder;
 import com.ec.usrcore.net.sender.EpGateMessageSender;
 import com.ec.usrcore.server.CommonServer;
+import com.ec.usrcore.task.CheckThreadPool4HtmlTask;
 import com.ec.usrcore.task.ScanEpGateTask;
 import com.ec.utils.DateUtil;
 import com.ec.utils.LogUtil;
 import com.ec.utils.NetUtils;
 import com.ormcore.dao.DB;
 import com.ormcore.model.TblEpGateConfig;
+import io.netty.channel.Channel;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class EpGateService {
 	
@@ -56,8 +55,11 @@ public class EpGateService {
 		cmd == U2ECmdConstants.EP_CONSUME_RECODE||
 		cmd == U2ECmdConstants.EP_GUN_CAR_STATUS||
 		cmd == U2ECmdConstants.CCZC_QUERY_ORDER||
-		cmd == U2ECmdConstants.EP_GUN_WORK_STATUS)
-			return true;
+		cmd == U2ECmdConstants.EP_GUN_WORK_STATUS||
+		cmd == U2ECmdConstants.EP_4COMMON_REALDATA||
+		cmd == U2ECmdConstants.EP_REALINFO_4HTML||
+		cmd == U2ECmdConstants.EP_GUN_STATUS_CHANGE_DATA)
+		return true;
 		return false;
 	}
 	
@@ -68,11 +70,18 @@ public class EpGateService {
 		TaskPoolFactory.scheduleAtFixedRate("CHECK_EPGATE_SERVICE_TASK",
 				checkTask, initDelay, 30, TimeUnit.SECONDS);
 	}
+
+	public static void startCheckThreadPool4Html(long initDelay) {
+
+		CheckThreadPool4HtmlTask checkTask = new CheckThreadPool4HtmlTask();
+
+		TaskPoolFactory.scheduleAtFixedRate("CHECK_THREADPOOL4USLAYER_TASK", checkTask, initDelay, 15, TimeUnit.MINUTES);
+	}
 	public static void scanEpGate()
 	{
 		TblEpGateConfig cfg= new TblEpGateConfig();
 		List<TblEpGateConfig> epGateCfgList = DB.epGateCfgDao.find1(cfg);
-		
+
 		logger.debug(LogUtil.addExtLog("epGateCfgList size"),epGateCfgList.size());
 		
 		connectAllGate(epGateCfgList);
@@ -107,8 +116,8 @@ public class EpGateService {
 		int gateState = tblEpGateCfg.getGateState();
 		
 		logger.debug(LogUtil.addExtLog("gateId|gateState"),gateId,gateState);
-		
-		if( gateState==1 ){//创建一个Channel
+		//gateState =GATE服务器状态 1-正常 2-移除',
+		if( gateState==1 ){  //创建一个Channel
 			
 			EpGateConfig  epGateCfg= getEpGateCfg(gateId);
 			//内存中没有的话，加上
@@ -129,7 +138,6 @@ public class EpGateService {
 			EpGateNetConnect epGateCommClient= CacheService.getEpGate(gateId);
 			if(epGateCommClient == null  )
 			{
-	
 				ClientConfig clrCfg = new ClientConfig();
 				clrCfg.setIp(epGateCfg.getIp());
 				clrCfg.setPort(epGateCfg.getPort());
@@ -151,6 +159,7 @@ public class EpGateService {
 				
 				//epGateCommClient.close();//关闭连接
 				CacheService.removeEpGate(gateId);//移除MAP数据
+				logger.info("EpGateConnect removeEpGate ");
 			}
 			else
 			{
@@ -168,7 +177,7 @@ public class EpGateService {
 	}
 	public static void connectAllGate(List<TblEpGateConfig> gateList)
 	{
-		//遍历内存在中有，但数据库中没有的
+		//遍历内存在中有，但数据库中没有的  最后结果是移除内存中的缓存
     	syncDb(gateList);
     	
     	int count = gateList.size();
@@ -191,6 +200,7 @@ public class EpGateService {
 		logger.debug(LogUtil.addExtLog("syncDb 1 gateDbList size"),gateDbList.size());
 		@SuppressWarnings("rawtypes")
 		Iterator iter = epGateConfs.entrySet().iterator();
+		//遍历内存中有的
 		while (iter.hasNext()) {
 			@SuppressWarnings("rawtypes")
 			Map.Entry entry = (Map.Entry) iter.next();
@@ -200,10 +210,13 @@ public class EpGateService {
 			{
 				continue;
 			}
+			//内存中的ip ，
 			int  gateId1 = (int)entry.getKey();
 			boolean find=false;
+			//数据库中ip 如果没有找到一样的 就移除内存中的连接
 			for(TblEpGateConfig gate:gateDbList){
 				int gateId2 = gate.getPkGateid();
+				//找到一样的
 				if(gateId1== gateId2)
 				{
 					find=true;
@@ -220,7 +233,8 @@ public class EpGateService {
 				}
 				CacheService.removeEpGate(gateId1);//移除MAP数据
 				iter.remove();
-				epGateConfs.remove(gateId1);      
+				epGateConfs.remove(gateId1);
+				logger.info("syncDb removeEpGate");
 			}
 		}
 		
@@ -252,7 +266,7 @@ public class EpGateService {
 		EpGateNetConnect epGateCommClient = CacheService.getEpGate(epGateId);
 		if(epGateCommClient==null)
 		{
-			logger.info(LogUtil.addExtLog("not connected.epGateId"),epGateId);
+			logger.info(LogUtil.addExtLog("handleEpGateLogin not connected.epGateId"),epGateId);
 			return;
 		}
 		epGateCommClient.setStatus(CommStatusConstant.INIT_SUCCESS);
@@ -500,6 +514,35 @@ public class EpGateService {
 	}
 
 	/**
+	 * 4Common实时数据查询（EPGate->usrGate）
+	 */
+	public static void handle4CommonRealDataEvent(Channel channel, int h, int m, int s, String epCode, int epGunNo, String extra, String ranRuiQueryData,int ret,int errorCode) {
+		logger.info(LogUtil.addBaseExtLog("extra|ranRuiRealData"),
+				new Object[]{LogConstants.FUNC_4COMMONREALDATA, epCode, epGunNo, extra,ret,errorCode});
+
+		setLastUseTime(channel);
+
+		CommonServer commonserver = CommonServer.getInstance();
+		if (commonserver != null) commonserver.onQueryCommonRealData(epCode, epGunNo, extra, ranRuiQueryData);
+	}
+
+	/**
+	 * 4Common data查询请求（usrGate->EPGate）
+	 */
+	public static void queryData4Common(Channel channel, String epCode, int epGunNo,  String extra) {
+		logger.info(LogUtil.addBaseExtLog("token"),
+				new Object[]{LogConstants.FUNC_4COMMONREALDATA, epCode, epGunNo, extra});
+
+		byte[] hmsTime = NetUtils.timeToByte();
+		byte[] reqData = EpGateEncoder.query4CommonData(hmsTime, epCode, epGunNo, extra);
+
+//		String messageKey = extra + NetUtils.timeToString(hmsTime);
+//		EpGateMessageSender.sendRepeatMessage(channel, reqData, messageKey);
+		EpGateMessageSender.sendMessage(channel,reqData);
+	}
+
+
+	/**
 	 * 充电实时数据（EPGate->usrGate）
 	 */
 	public static void handleChargeReal(Channel channel,int h,int m,int s,String epCode,int epGunNo,int orgNo,String userIdentity,String extra,Map<String, Object> chargingInfo){
@@ -510,6 +553,20 @@ public class EpGateService {
 
 		CommonServer commonserver = CommonServer.getInstance();
 		if (commonserver != null) commonserver.onChargeReal(orgNo, userIdentity,epCode, epGunNo, extra, chargingInfo);
+	}
+
+	/**
+	 *  把非html发起的充电实时数据(EPGate->usrGate(html))推到html
+	 */
+	public static void handleChargeReal4Html(Channel channel, int h, int m, int s, String epCode, int epGunNo, int orgNo, String userIdentity, String extra, Map<String, Object> chargingInfo) {
+		logger.info(LogUtil.addBaseExtLog("extra|chargingInfo"),
+				new Object[]{LogConstants.FUNC_ONREALDATA_4HTML, epCode, epGunNo, orgNo, userIdentity, extra, chargingInfo});
+
+		setLastUseTime(channel);
+
+		CommonServer commonserver = CommonServer.getInstance();
+		if (commonserver != null)
+			commonserver.onChargeReal4Html(orgNo, userIdentity, epCode, epGunNo, extra, chargingInfo);
 	}
 
 	/**
@@ -554,35 +611,53 @@ public class EpGateService {
 		
 	}
 
+
 	/**
 	 * 枪工作状态变化通知事件（EPGate->usrGate）
 	 */
-	public static void handleWorkStatusEvent(Channel channel,int h,int m,int s,String epCode,int epGunNo,int orgNo,String userIdentity,String extra,int status)
-	{
+	public static void handleWorkStatusEvent(Channel channel, int h, int m, int s, String epCode, int epGunNo, int orgNo, String userIdentity, String extra, int status) {
 		setLastUseTime(channel);
-		
+
 		//改变枪工作状态
 		EpGunCache gunCache = CacheService.getEpGunCache(epCode, epGunNo);
 		logger.debug(LogUtil.addBaseExtLog("gunCache"),
-				new Object[]{LogConstants.FUNC_GUNWORK_STATUS,epCode,epGunNo,orgNo,userIdentity,gunCache});
-		if(gunCache==null) return ;
+				new Object[]{LogConstants.FUNC_GUNWORK_STATUS, epCode, epGunNo, orgNo, userIdentity, gunCache});
+		if (gunCache == null) return;
 
 		logger.info(LogUtil.addBaseExtLog("extra|status"),
-				new Object[]{LogConstants.FUNC_GUNWORK_STATUS,epCode,epGunNo,orgNo,userIdentity,extra,status});
+				new Object[]{LogConstants.FUNC_GUNWORK_STATUS, epCode, epGunNo, orgNo, userIdentity, extra, status});
 
 		String accountId = userIdentity;
 		if (Integer.valueOf(userIdentity) == 0) {
 			if (gunCache.getChargeCache() == null) {
-				logger.error(LogUtil.addExtLog("chargeCache is null epCode|epGunNo"), epCode,epGunNo);
-				return ;
+				logger.error(LogUtil.addExtLog("chargeCache is null epCode|epGunNo"), epCode, epGunNo);
+				return;
 			} else {
 				accountId = String.valueOf(gunCache.getChargeCache().getUserId());
 			}
 		}
 
 		CommonServer commonserver = CommonServer.getInstance();
-		if (commonserver != null) commonserver.onGunWorkStatusChange(orgNo, accountId, epCode, epGunNo, extra, status);
-		
+		if (commonserver != null)
+			commonserver.onGunWorkStatusChange(orgNo, accountId, epCode, epGunNo, extra, status);
+
+	}
+
+
+	/**
+	 * 所有状态变化数据推送至html（EPGate->usrGate）
+	 */
+	public static void handleGunStatusChangeData4Html(Channel channel, int h, int m, int s, String epCode, int epGunNo, int currentType, String realDataStr) {
+		setLastUseTime(channel);
+
+		//改变枪工作状态
+		logger.info(LogUtil.addBaseExtLog("epCode|epGunNo|currentType"),
+				new Object[]{LogConstants.FUNC_GUNWORK_STATUS_CHANGE_REALDATA, epCode, epGunNo, currentType});
+
+		CommonServer commonserver = CommonServer.getInstance();
+		if (commonserver != null)
+			commonserver.onGunWorkStatusChange4Html(epCode, epGunNo, currentType, realDataStr);
+
 	}
 
 	/**

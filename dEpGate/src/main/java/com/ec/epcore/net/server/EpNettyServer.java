@@ -54,10 +54,10 @@ public class EpNettyServer extends AbstractNettyServer{
 		
 		
 		Channel channel = ctx.channel();
-		
-		logger.debug(LogUtil.addExtLog("server exception"),channel.toString());
+		logger.error("epNettyServer exceptionCaught:{},{}",cause.getMessage(),cause.getCause());
+		logger.info(LogUtil.addExtLog("server exception:{},cause:{}"),channel.toString(), cause.getStackTrace());
 		//TODO
-		EpCommClientService.offLine(channel);
+//		EpCommClientService.offLine(channel);
 		
 	}
 

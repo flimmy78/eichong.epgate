@@ -73,6 +73,117 @@
 	   </if>
 	   
 	</select>
+
+	<insert id="insertEpVersion" parameterType="TblEquipmentVersion"  keyProperty="pkEquipmentVersion">
+	   insert into tbl_electricpile_version (
+	     ev_ElectricPileID,
+	     ev_FirmwareNumber,
+	     ev_FirmwareVersion,
+	     ev_HardwareNumber,
+	     ev_HardwareVersion,
+	     ev_Createdate,
+	     ev_Updatedate
+	   )values (
+	     #{productID},
+	     #{firmwareNumber},
+	     #{firmwareVersion},
+	     #{hardwareNumber},
+	     #{hardwareVersion},
+	     #{createdate},
+	     #{updatedate}
+	   )
+	  </insert>
+
+	<update id="updateEpVersion" parameterType="TblEquipmentVersion">
+	   update tbl_electricpile_version set
+	     ev_FirmwareNumber = #{firmwareNumber},
+	     ev_FirmwareVersion =#{firmwareVersion},
+	     ev_HardwareNumber = #{hardwareNumber},
+	     ev_HardwareVersion =#{hardwareVersion},
+	     ev_Updatedate =  #{updatedate}
+	   where
+	       pk_ElectricPileVersion = #{pkEquipmentVersion}
+	  </update>
+
+	<delete id="deleteEpVersion" parameterType="int">
+	   delete from tbl_electricpile_version
+	      where
+	       ev_ElectricPileID = #{id}
+
+	  </delete>
+
+	<select id="findEpVersion"  parameterType="int" resultMap="equipmentVersionResultMap">
+		select
+		pk_ElectricPileVersion pk_EquipmentVersion,
+		ev_ElectricPileID ev_ProductID,
+	    ev_FirmwareNumber,
+	    ev_FirmwareVersion,
+	    ev_HardwareNumber,
+	    ev_HardwareVersion,
+		ev_Createdate,
+		ev_Updatedate
+		from tbl_electricpile_version   where
+			ev_ElectricPileID = #{id}
+
+	</select>
+	<resultMap id="equipmentVersionResultMap4EpInit" type="com.ormcore.model.TblEquipmentVersionPo">
+		<id property="productID" column="ev_ElectricPileID"/>
+		<collection property="equipmentVersionList" ofType="com.ormcore.model.TblEquipmentVersion">
+			<result property="pkEquipmentVersion" column="pk_ElectricPileVersion"/>
+			<result property="firmwareNumber" column="ev_FirmwareNumber"/>
+			<result property="firmwareVersion" column="ev_FirmwareVersion"/>
+			<result property="hardwareNumber" column="ev_HardwareNumber"/>
+			<result property="hardwareVersion" column="ev_HardwareVersion"/>
+			<result property="createdate" column="ev_Createdate"/>
+			<result property="updatedate" column="ev_Updatedate"/>
+		</collection>
+	</resultMap>
+
+	<select id="findEqVersion4EpInit" resultMap="equipmentVersionResultMap4EpInit">
+		select
+		pk_ElectricPileVersion,
+		ev_ElectricPileID,
+	    ev_FirmwareNumber,
+	    ev_FirmwareVersion,
+	    ev_HardwareNumber,
+	    ev_HardwareVersion,
+		ev_Createdate,
+		ev_Updatedate
+		from tbl_electricpile_version
+
+	</select>
+
+
+	<resultMap id="equipmentVersionResultMap4Init" type="com.ormcore.model.TblEquipmentVersionPo">
+		<id property="productID" column="ev_ProductID"/>
+		<collection property="equipmentVersionList" ofType="com.ormcore.model.TblEquipmentVersion">
+			<result property="pkEquipmentVersion" column="pk_EquipmentVersion"/>
+			<result property="productType" column="ev_ProductType"/>
+			<result property="firmwareNumber" column="ev_FirmwareNumber"/>
+			<result property="firmwareVersion" column="ev_FirmwareVersion"/>
+			<result property="hardwareNumber" column="ev_HardwareNumber"/>
+			<result property="hardwareVersion" column="ev_HardwareVersion"/>
+			<result property="createdate" column="ev_Createdate"/>
+			<result property="updatedate" column="ev_Updatedate"/>
+			<result property="fileMd5" column="ev_FileMd5"/>
+		</collection>
+	</resultMap>
+
+	<select id="findEqVersion4Init"  resultMap="equipmentVersionResultMap4Init">
+		select
+		ev_ProductID,
+		pk_EquipmentVersion,
+		ev_ProductType,
+		ev_FirmwareNumber,
+		ev_FirmwareVersion,
+		ev_HardwareNumber,
+		ev_HardwareVersion,
+		ev_Createdate,
+		ev_Updatedate,
+		ev_FileMd5
+		from tbl_equipmentversion where ev_ProductType = 1
+
+	</select>
 	
 	 <delete id="deleteEqVersion" parameterType="int">
 	   delete from tbl_equipmentversion 

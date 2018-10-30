@@ -40,6 +40,12 @@ public class LogConstants {
 	public static final String FUNC_ONCHARGEORDER = "onchargeorder";
 	/**实时数据推送*/
 	public static final String FUNC_ONREALDATA = "onrealdata";
+	/**
+	 * 实时数据推送
+	 */
+	public static final String FUNC_ONREALDATA_4HTML = "onrealdata4html";
+	/** 通用实时数据查询*/
+	public static final String FUNC_4COMMONREALDATA = "4commonrealdata";
 	/**电桩状态推送*/
 	public static final String FUNC_ONEPSTATUSCHANGE = "onepstatuschange";
 	/**电桩联网状态推送*/
@@ -57,4 +63,10 @@ public class LogConstants {
 	public static final String FUNC_UPGRADE = "[upgrade]";
 	/**结束充电*/
 	public static final String FUNC_END_CHARGE = "[endcharge]";
+	// 状态变化推送至html
+	public static final String FUNC_GUNWORK_STATUS_CHANGE_REALDATA = "gunworkstatuschangerealdata";
+
+	public static final String FUNC_PREVENT_REPEAT_CONSUME_RECORD ="preventrepeatconsumerecord";
+	public static final String FUNC_PREVENT_REPEAT_CARDFROZEAMT = "preventrepeatcardfrozeamt";
+	public static final String FUNC_PREVENT_REPEAT_CHARGEEVENT = "preventrepeatchargeevent";
 }

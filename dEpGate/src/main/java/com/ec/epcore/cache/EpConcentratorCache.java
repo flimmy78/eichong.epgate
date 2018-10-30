@@ -1,15 +1,15 @@
 package com.ec.epcore.cache;
 
+import com.ec.constants.YXCConstants;
+import com.ec.epcore.net.client.EpCommClient;
+import com.ec.epcore.service.EpService;
+import com.ec.epcore.service.EqVersionService;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.ec.constants.YXCConstants;
-import com.ec.epcore.net.client.EpCommClient;
-import com.ec.epcore.service.EpService;
-import com.ec.epcore.service.EqVersionService;
 
 
 public class EpConcentratorCache {
@@ -86,7 +86,7 @@ public class EpConcentratorCache {
 			}
 			
 		}
-		EpService.sendEpStatusToUsrGate(epCodes,0);
+		//EpService.sendEpStatusToUsrGate(epCodes,0);
 	}
 	
 	public void onEpSendVersion()
@@ -145,7 +145,7 @@ public class EpConcentratorCache {
 		}
 		EpService.updateEpsCommStatusToDb(this.pkId, 0, 0);
 		
-		EpService.sendEpStatusToUsrGate(epCodes,0);
+	//	EpService.sendEpStatusToUsrGate(epCodes,0);
 		mapEpCode.clear();
 	}
 	
